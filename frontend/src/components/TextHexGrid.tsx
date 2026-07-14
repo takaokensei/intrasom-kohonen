@@ -60,7 +60,7 @@ export function TextHexGrid() {
       className={
         isFullscreen 
           ? "fixed inset-0 bg-[#16161e] bg-opacity-98 z-50 p-8 flex flex-col" 
-          : "glass-panel rounded-2xl p-5 flex flex-col h-full overflow-hidden"
+          : "glass-panel rounded-2xl p-5 flex flex-col h-full overflow-visible"
       }
     >
       <style>{`

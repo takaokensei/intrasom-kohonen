@@ -26,7 +26,8 @@ export function ClassifierPanel() {
     resetClassification,
     newsSamples,
     textMetrics,
-    loadingText
+    loadingText,
+    backendOnline
   } = useDashboardStore();
   
   if (loadingText) {
@@ -57,6 +58,22 @@ export function ClassifierPanel() {
         </select>
       </div>
       
+      {/* Backend Status Indicator */}
+      <div className="flex items-center justify-between mb-3 text-[9px] font-mono">
+        <span className="text-tokyo-muted uppercase font-bold">Status da Inferência:</span>
+        {backendOnline ? (
+          <span className="flex items-center gap-1 text-tokyo-green font-bold bg-tokyo-green bg-opacity-10 px-1.5 py-0.5 rounded border border-tokyo-green border-opacity-35">
+            <span className="w-1.5 h-1.5 rounded-full bg-tokyo-green animate-pulse" />
+            Servidor Local: ATIVO (Real)
+          </span>
+        ) : (
+          <span className="flex items-center gap-1 text-tokyo-orange font-bold bg-tokyo-orange bg-opacity-10 px-1.5 py-0.5 rounded border border-[#ff9e64] border-opacity-35" title="Rode 'python src/api.py' no terminal para ativar inferência real com SBERT e TF-IDF">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#ff9e64]" />
+            Servidor Local: INATIVO (Fallback)
+          </span>
+        )}
+      </div>
+
       {/* Metrics Header */}
       <div className="grid grid-cols-2 gap-3 mb-4 p-2 bg-tokyo-dark bg-opacity-40 rounded-lg border border-tokyo-border border-opacity-20 text-[10px] font-mono text-[#9aa5ce]">
         <div>
@@ -126,7 +143,14 @@ export function ClassifierPanel() {
                 <BrainCircuit size={18} />
               </div>
               <div>
-                <div className="text-[10px] text-[#9aa5ce] uppercase font-mono tracking-wider font-semibold">SOM Categoria Predita</div>
+                <div className="text-[10px] text-[#9aa5ce] uppercase font-mono tracking-wider font-semibold flex items-center gap-1.5">
+                  SOM Categoria Predita
+                  {classificationResult.isBackend ? (
+                    <span className="text-[8px] bg-tokyo-green bg-opacity-25 text-tokyo-green px-1 rounded-sm border border-tokyo-green border-opacity-30 font-bold uppercase tracking-normal">Real</span>
+                  ) : (
+                    <span className="text-[8px] bg-tokyo-panel text-tokyo-muted px-1 rounded-sm border border-tokyo-border font-bold uppercase tracking-normal">Heurística</span>
+                  )}
+                </div>
                 <div className={`text-sm font-bold flex items-center gap-1.5 ${
                   classificationResult.dominantClass === "Desconhecido"
                     ? "text-[#9aa5ce]"

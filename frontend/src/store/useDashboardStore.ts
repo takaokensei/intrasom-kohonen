@@ -94,7 +94,9 @@ interface DashboardState {
     dominantClass: string;
     purity: number;
     score: number;
+    isBackend?: boolean;
   } | null;
+  backendOnline: boolean | null;
   
   // Actions
   setActiveTab: (tab: TabType) => void;
@@ -108,6 +110,7 @@ interface DashboardState {
   setCustomTextQuery: (query: string) => void;
   classifyText: (text: string) => void;
   resetClassification: () => void;
+  checkBackend: () => Promise<void>;
 }
 
 export const useDashboardStore = create<DashboardState>((set, get) => ({
@@ -135,6 +138,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   selectedDocId: null,
   customTextQuery: '',
   classificationResult: null,
+  backendOnline: null,
   
   // Actions
   setActiveTab: (activeTab) => {
@@ -166,10 +170,11 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       console.error("Error loading synthetic control data:", err);
       set({ loadingSynthetic: false });
     }
-  },
-  
-  loadTextData: async () => {
-    if (get().newsSamples.length > 0) return; // Already loaded
+  },  loadTextData: async () => {
+    if (get().newsSamples.length > 0) {
+      get().checkBackend();
+      return; // Already loaded
+    }
     
     set({ loadingText: true });
     try {
@@ -184,6 +189,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       const newsSamples = await samplesRes.json();
       
       set({ textModels, textMetrics, newsSamples, loadingText: false });
+      get().checkBackend();
     } catch (err) {
       console.error("Error loading text news data:", err);
       set({ loadingText: false });
@@ -197,17 +203,46 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   setSelectedDocId: (selectedDocId) => set({ selectedDocId }),
   setCustomTextQuery: (customTextQuery) => set({ customTextQuery }),
   
-  classifyText: (text) => {
+  classifyText: async (text) => {
     if (!text.trim()) {
       set({ classificationResult: null });
       return;
     }
     
+    const rep = get().selectedTextRep;
+    
+    // 1. Try to fetch from FastAPI local backend
+    try {
+      const response = await fetch('http://127.0.0.1:8000/classify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, representation: rep })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        set({
+          classificationResult: {
+            bmu: result.bmu,
+            dominantClass: result.dominantClass,
+            purity: result.purity,
+            score: result.score,
+            isBackend: true
+          },
+          backendOnline: true
+        });
+        return;
+      }
+    } catch (err) {
+      // Backend is offline, fall back to local client matching
+    }
+    
+    // 2. Client-side fallback matching
     const queryLower = text.toLowerCase();
     const samples = get().newsSamples;
     
     let bestDocIdx = 0;
-    let maxOverlap = 0; // Only count if there is actual overlap
+    let maxOverlap = 0;
     
     samples.forEach(doc => {
       const docTokens = new Set(doc.text.toLowerCase().split(/\W+/));
@@ -224,7 +259,6 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       }
     });
     
-    const rep = get().selectedTextRep;
     const model = get().textModels[rep];
     if (!model) return;
     
@@ -257,7 +291,6 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     const totalHits = spaceHits + baseballHits + mideastHits + graphicsHits;
 
     if (maxOverlap > 0) {
-      // Document overlap found
       targetNeuron = model.neurons.find(n => n.doc_indices.includes(bestDocIdx));
       if (targetNeuron) {
         bmu = targetNeuron.id;
@@ -266,7 +299,6 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         score = Math.min(85 + maxOverlap * 2.5, 99);
       }
     } else if (totalHits > 0) {
-      // Keyword matching
       const maxHits = Math.max(spaceHits, baseballHits, mideastHits, graphicsHits);
       let predictedCat = "Space";
       if (maxHits === spaceHits) predictedCat = "Space";
@@ -282,7 +314,6 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       purity = targetNeuron.purity;
       score = Math.min(60 + totalHits * 10, 85);
     } else {
-      // Unrecognized text
       bmu = 0;
       dominantClass = "Desconhecido";
       purity = 0;
@@ -294,10 +325,25 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         bmu,
         dominantClass,
         purity,
-        score
-      }
+        score,
+        isBackend: false
+      },
+      backendOnline: false
     });
   },
   
-  resetClassification: () => set({ classificationResult: null, customTextQuery: '' })
+  resetClassification: () => set({ classificationResult: null, customTextQuery: '' }),
+  
+  checkBackend: async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/health');
+      if (response.ok) {
+        set({ backendOnline: true });
+        return;
+      }
+    } catch (e) {
+      // Offline
+    }
+    set({ backendOnline: false });
+  }
 }));

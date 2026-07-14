@@ -180,6 +180,11 @@ def train_and_plot_text_som(X_embeddings, labels, representation_name, mapsize=(
 def run_text_experiments():
     docs, labels = load_news_data()
     
+    workspace_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    models_dir = os.path.join(workspace_dir, "outputs", "maps")
+    os.makedirs(models_dir, exist_ok=True)
+    import pickle
+
     # 1. TF-IDF + LSA Representation
     print("\n--- Extracting TF-IDF + LSA ---")
     vectorizer = TfidfVectorizer(max_features=1000, stop_words='english')
@@ -188,6 +193,13 @@ def run_text_experiments():
     svd = TruncatedSVD(n_components=20, random_state=42)
     X_lsa = svd.fit_transform(X_tfidf)
     print("TF-IDF LSA shape:", X_lsa.shape)
+    
+    # Save TF-IDF Vectorizer and SVD/LSA models
+    with open(os.path.join(models_dir, "tfidf_vectorizer.pkl"), "wb") as f:
+        pickle.dump(vectorizer, f)
+    with open(os.path.join(models_dir, "lsa_svd.pkl"), "wb") as f:
+        pickle.dump(svd, f)
+    print("Saved TF-IDF vectorizer and LSA SVD models.")
     
     res_tfidf, som_tfidf = train_and_plot_text_som(X_lsa, labels, "TF-IDF")
     
@@ -201,6 +213,11 @@ def run_text_experiments():
     pca = PCA(n_components=20, random_state=42)
     X_sbert_reduced = pca.fit_transform(X_sbert)
     print("Sentence-BERT embedding shape:", X_sbert_reduced.shape)
+    
+    # Save SBERT PCA model
+    with open(os.path.join(models_dir, "sbert_pca.pkl"), "wb") as f:
+        pickle.dump(pca, f)
+    print("Saved SBERT PCA model.")
     
     res_sbert, som_sbert = train_and_plot_text_som(X_sbert_reduced, labels, "SBERT")
     

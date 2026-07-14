@@ -116,24 +116,36 @@ export function ClassifierPanel() {
         
         {/* Classification Result display */}
         {classificationResult ? (
-          <div className={`p-3 rounded-xl border flex items-center justify-between transition-all ${NEWS_BG_COLORS[classificationResult.dominantClass]}`}>
+          <div className={`p-3 rounded-xl border flex items-center justify-between transition-all ${
+            classificationResult.dominantClass === "Desconhecido"
+              ? "bg-tokyo-panel bg-opacity-35 border-tokyo-border border-opacity-30"
+              : (NEWS_BG_COLORS[classificationResult.dominantClass] || "")
+          }`}>
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-tokyo-dark bg-opacity-40 rounded-lg text-tokyo-blue">
                 <BrainCircuit size={18} />
               </div>
               <div>
                 <div className="text-[10px] text-[#9aa5ce] uppercase font-mono tracking-wider font-semibold">SOM Categoria Predita</div>
-                <div className={`text-sm font-bold flex items-center gap-1.5 ${NEWS_COLORS[classificationResult.dominantClass]}`}>
-                  {classificationResult.dominantClass}
+                <div className={`text-sm font-bold flex items-center gap-1.5 ${
+                  classificationResult.dominantClass === "Desconhecido"
+                    ? "text-[#9aa5ce]"
+                    : (NEWS_COLORS[classificationResult.dominantClass] || "")
+                }`}>
+                  {classificationResult.dominantClass === "Desconhecido" ? "Não Identificado" : classificationResult.dominantClass}
                   <span className="text-xs text-tokyo-text font-normal opacity-90 font-mono">
-                    (Neurônio N{classificationResult.bmu})
+                    {classificationResult.bmu > 0 
+                      ? `(Neurônio N${classificationResult.bmu})` 
+                      : '(Sem Correspondência)'}
                   </span>
                 </div>
               </div>
             </div>
             
             <div className="text-right text-[10px] font-mono text-[#9aa5ce]">
-              <div>Purity: <span className="text-tokyo-text font-bold">{(classificationResult.purity * 100).toFixed(0)}%</span></div>
+              {classificationResult.dominantClass !== "Desconhecido" && (
+                <div>Purity: <span className="text-tokyo-text font-bold">{(classificationResult.purity * 100).toFixed(0)}%</span></div>
+              )}
               <div>Confiança: <span className="text-tokyo-text font-bold">{classificationResult.score}%</span></div>
             </div>
           </div>

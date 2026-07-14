@@ -207,7 +207,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     const samples = get().newsSamples;
     
     let bestDocIdx = 0;
-    let maxOverlap = -1;
+    let maxOverlap = 0; // Only count if there is actual overlap
     
     samples.forEach(doc => {
       const docTokens = new Set(doc.text.toLowerCase().split(/\W+/));
@@ -228,27 +228,73 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     const model = get().textModels[rep];
     if (!model) return;
     
-    let targetNeuron = model.neurons.find(n => n.doc_indices.includes(bestDocIdx));
-    
-    if (!targetNeuron) {
+    let targetNeuron = null;
+    let score = 0;
+    let dominantClass = "Desconhecido";
+    let purity = 0;
+    let bmu = 0;
+
+    const spaceKeywords = ["space", "nasa", "moon", "orbit", "rocket", "launch", "sky", "star", "planet", "astronomy", "shuttle", "satellite", "mission", "mars", "earth", "solar", "telescope", "astronaut"];
+    const baseballKeywords = ["baseball", "pitcher", "game", "run", "hit", "team", "player", "stadium", "bat", "glove", "inning", "league", "sox", "cubs", "red", "yankee", "series", "ball", "season", "batter"];
+    const mideastKeywords = ["israel", "turkish", "arab", "mideast", "peace", "war", "jew", "muslim", "christian", "palestinian", "syria", "turkey", "government", "military", "soldier", "weapons", "kill", "attack", "armenia"];
+    const graphicsKeywords = ["graphic", "render", "image", "polygon", "3d", "draw", "animation", "pixel", "texture", "vector", "format", "tiff", "jpeg", "raytracing", "computer", "screen", "color", "paint", "code", "library", "packages"];
+
+    let spaceHits = 0;
+    let baseballHits = 0;
+    let mideastHits = 0;
+    let graphicsHits = 0;
+
+    const words = queryLower.split(/\W+/);
+    words.forEach(word => {
+      if (word.length > 2) {
+        if (spaceKeywords.some(kw => word === kw || word.includes(kw))) spaceHits++;
+        if (baseballKeywords.some(kw => word === kw || word.includes(kw))) baseballHits++;
+        if (mideastKeywords.some(kw => word === kw || word.includes(kw))) mideastHits++;
+        if (graphicsKeywords.some(kw => word === kw || word.includes(kw))) graphicsHits++;
+      }
+    });
+
+    const totalHits = spaceHits + baseballHits + mideastHits + graphicsHits;
+
+    if (maxOverlap > 0) {
+      // Document overlap found
+      targetNeuron = model.neurons.find(n => n.doc_indices.includes(bestDocIdx));
+      if (targetNeuron) {
+        bmu = targetNeuron.id;
+        dominantClass = targetNeuron.dominant_class;
+        purity = targetNeuron.purity;
+        score = Math.min(85 + maxOverlap * 2.5, 99);
+      }
+    } else if (totalHits > 0) {
+      // Keyword matching
+      const maxHits = Math.max(spaceHits, baseballHits, mideastHits, graphicsHits);
       let predictedCat = "Space";
-      if (queryLower.includes("baseball") || queryLower.includes("pitcher") || queryLower.includes("game")) predictedCat = "Baseball";
-      else if (queryLower.includes("graphic") || queryLower.includes("render") || queryLower.includes("image")) predictedCat = "Graphics";
-      else if (queryLower.includes("israel") || queryLower.includes("turkish") || queryLower.includes("arab")) predictedCat = "Mideast";
-      else if (queryLower.includes("orbit") || queryLower.includes("space") || queryLower.includes("nasa")) predictedCat = "Space";
-      
+      if (maxHits === spaceHits) predictedCat = "Space";
+      else if (maxHits === baseballHits) predictedCat = "Baseball";
+      else if (maxHits === mideastHits) predictedCat = "Mideast";
+      else predictedCat = "Graphics";
+
       const categoryNeurons = model.neurons.filter(n => n.dominant_class === predictedCat);
       targetNeuron = categoryNeurons[Math.floor(Math.random() * categoryNeurons.length)] || model.neurons[0];
+      
+      bmu = targetNeuron.id;
+      dominantClass = targetNeuron.dominant_class;
+      purity = targetNeuron.purity;
+      score = Math.min(60 + totalHits * 10, 85);
+    } else {
+      // Unrecognized text
+      bmu = 0;
+      dominantClass = "Desconhecido";
+      purity = 0;
+      score = 0;
     }
-    
-    const score = maxOverlap > 0 ? Math.min(85 + maxOverlap * 2, 98) : 60 + Math.floor(Math.random() * 20);
-    
+
     set({
       classificationResult: {
-        bmu: targetNeuron.id,
-        dominantClass: targetNeuron.dominant_class,
-        purity: targetNeuron.purity,
-        score: score
+        bmu,
+        dominantClass,
+        purity,
+        score
       }
     });
   },

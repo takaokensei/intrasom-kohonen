@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.ipynb_checkpoints/
+.pytest_cache/
+
+# Node / React Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vercel/
+frontend/.env*
+frontend/vercel-variables.json
+
+# Data and large output binary models (keep parity/results but ignore parquet caches if needed, 
+# though we want to keep outputs/ figures and metrics for visualization)
+# If data files are large, we can ignore raw datasets
+data/synthetic_control.data
+
+# OS
+.DS_Store
+Thumbs.db

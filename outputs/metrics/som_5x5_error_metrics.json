@@ -1,0 +1,9 @@
+{
+    "size_name": "5x5",
+    "mapsize": [
+        5,
+        5
+    ],
+    "quantization_error": 4.734787500820725,
+    "topographic_error": 0.24
+}

@@ -82,9 +82,9 @@ function App() {
 
       {/* Main content grid */}
       {activeTab === 'synthetic' ? (
-        <main className="flex-1 p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-0 relative z-10">
+        <main className="flex-1 p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
           {/* Left Area - HexGrid Map & Metrics */}
-          <section className="lg:col-span-8 flex flex-col space-y-6 min-h-0 min-w-0">
+          <section className="lg:col-span-8 flex flex-col space-y-6 min-w-0">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 min-h-[350px]">
               <HexGrid />
               <TimeSeriesPlot />
@@ -220,9 +220,9 @@ function App() {
           </aside>
         </main>
       ) : (
-        <main className="flex-1 p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-0 relative z-10">
+        <main className="flex-1 p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
           {/* Left Side: Hex grid comparison */}
-          <section className="lg:col-span-7 flex flex-col min-h-0 min-w-0">
+          <section className="lg:col-span-7 flex flex-col min-w-0">
             <TextHexGrid />
           </section>
 

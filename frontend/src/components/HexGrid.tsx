@@ -235,7 +235,7 @@ export function HexGrid() {
                     x={cx}
                     y={cy + 3}
                     textAnchor="middle"
-                    fill={neuron.total_samples > 0 && colorMode === 'class' ? '#16161e' : '#565f89'}
+                    fill={colorMode === 'class' ? (neuron.total_samples > 0 ? '#16161e' : '#565f89') : '#ffffff'}
                     fontSize={selectedMapSize === '20x20' ? '6px' : '8px'}
                     fontWeight="bold"
                     className="select-none pointer-events-none group-hover:fill-white transition-colors"

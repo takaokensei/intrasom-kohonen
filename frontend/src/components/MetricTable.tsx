@@ -42,7 +42,7 @@ export function MetricTable() {
       <div className="flex-1 overflow-auto rounded-lg border border-tokyo-border border-opacity-40">
         <table className="w-full text-left border-collapse min-w-[700px]">
           <thead>
-            <tr className="bg-tokyo-dark bg-opacity-70 text-[10px] text-tokyo-muted uppercase font-mono border-b border-tokyo-border">
+            <tr className="bg-tokyo-dark bg-opacity-70 text-[10px] text-[#9aa5ce] font-semibold uppercase font-mono border-b border-tokyo-border">
               <th className="px-4 py-3 font-semibold sticky top-0 bg-[#16161e]">Modelo</th>
               <th className="px-4 py-3 font-semibold text-right sticky top-0 bg-[#16161e]">ARI</th>
               <th className="px-4 py-3 font-semibold text-right sticky top-0 bg-[#16161e]">NMI</th>
@@ -60,7 +60,7 @@ export function MetricTable() {
                 <tr 
                   key={idx} 
                   className={`hover:bg-tokyo-panel hover:bg-opacity-40 transition-colors ${
-                    isSOM ? 'text-tokyo-text' : 'text-tokyo-muted bg-tokyo-dark bg-opacity-20'
+                    isSOM ? 'text-tokyo-text' : 'text-[#9aa5ce] text-opacity-80 bg-tokyo-dark bg-opacity-20'
                   }`}
                 >
                   <td className="px-4 py-3 font-semibold">{row.Modelo}</td>
@@ -82,7 +82,7 @@ export function MetricTable() {
         </table>
       </div>
       
-      <div className="mt-4 p-3 bg-tokyo-dark bg-opacity-40 rounded-lg border border-tokyo-border border-opacity-35 text-[10px] text-tokyo-muted leading-relaxed flex justify-between items-center">
+      <div className="mt-4 p-3 bg-tokyo-dark bg-opacity-40 rounded-lg border border-tokyo-border border-opacity-35 text-[10px] text-[#9aa5ce] leading-relaxed flex justify-between items-center">
         <span>
           <strong>Análise dos Baselines:</strong> Agglomerative e DBSCAN foram calculados no espaço de Z-Score. O SOM 5x5 e 10x10 superam todos os algoritmos tradicionais em ARI/NMI.
         </span>

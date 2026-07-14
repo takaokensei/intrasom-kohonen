@@ -58,7 +58,7 @@ export function ClassifierPanel() {
       </div>
       
       {/* Metrics Header */}
-      <div className="grid grid-cols-2 gap-3 mb-4 p-2 bg-tokyo-dark bg-opacity-40 rounded-lg border border-tokyo-border border-opacity-20 text-[10px] font-mono text-tokyo-muted">
+      <div className="grid grid-cols-2 gap-3 mb-4 p-2 bg-tokyo-dark bg-opacity-40 rounded-lg border border-tokyo-border border-opacity-20 text-[10px] font-mono text-[#9aa5ce]">
         <div>
           Desempenho Geral (ARI): <span className="text-tokyo-text font-bold">{currentMetrics.ARI ? (currentMetrics.ARI as number).toFixed(4) : '-'}</span>
         </div>
@@ -77,12 +77,12 @@ export function ClassifierPanel() {
               classifyText(e.target.value);
             }}
             placeholder="Digite ou clique em uma das notícias de exemplo abaixo para ver em qual neurônio do Mapa de Kohonen ela se projeta..."
-            className="w-full h-full bg-tokyo-dark bg-opacity-60 border border-tokyo-border rounded-xl p-3 text-xs text-tokyo-text placeholder-tokyo-muted focus:outline-none focus:border-tokyo-blue resize-none overflow-y-auto"
+            className="w-full h-full bg-tokyo-dark bg-opacity-60 border border-tokyo-border rounded-xl p-3 text-xs text-tokyo-text placeholder-tokyo-text placeholder-opacity-50 focus:outline-none focus:border-tokyo-blue resize-none overflow-y-auto"
           />
           {customTextQuery && (
             <button
               onClick={resetClassification}
-              className="absolute right-3.5 bottom-3 text-tokyo-muted hover:text-tokyo-red transition-colors"
+              className="absolute right-3.5 bottom-3 text-[#9aa5ce] hover:text-tokyo-red transition-colors"
               title="Limpar"
             >
               <RefreshCw size={14} />
@@ -92,7 +92,7 @@ export function ClassifierPanel() {
         
         {/* News Samples Selectors */}
         <div className="h-[90px] overflow-y-auto border-t border-tokyo-border border-opacity-20 pt-2 flex flex-col space-y-1.5">
-          <span className="text-[9px] text-tokyo-muted uppercase font-mono tracking-wider">Amostras do Dataset:</span>
+          <span className="text-[9px] text-[#9aa5ce] uppercase font-mono tracking-wider font-semibold">Amostras do Dataset:</span>
           <div className="grid grid-cols-2 gap-2">
             {newsSamples.slice(0, 4).map((sample) => (
               <button
@@ -122,7 +122,7 @@ export function ClassifierPanel() {
                 <BrainCircuit size={18} />
               </div>
               <div>
-                <div className="text-[10px] text-tokyo-muted uppercase font-mono tracking-wider">SOM Categoria Predita</div>
+                <div className="text-[10px] text-[#9aa5ce] uppercase font-mono tracking-wider font-semibold">SOM Categoria Predita</div>
                 <div className={`text-sm font-bold flex items-center gap-1.5 ${NEWS_COLORS[classificationResult.dominantClass]}`}>
                   {classificationResult.dominantClass}
                   <span className="text-xs text-tokyo-text font-normal opacity-90 font-mono">
@@ -132,13 +132,13 @@ export function ClassifierPanel() {
               </div>
             </div>
             
-            <div className="text-right text-[10px] font-mono text-tokyo-muted">
+            <div className="text-right text-[10px] font-mono text-[#9aa5ce]">
               <div>Purity: <span className="text-tokyo-text font-bold">{(classificationResult.purity * 100).toFixed(0)}%</span></div>
               <div>Confiança: <span className="text-tokyo-text font-bold">{classificationResult.score}%</span></div>
             </div>
           </div>
         ) : (
-          <div className="p-3 bg-tokyo-panel bg-opacity-20 border border-tokyo-border border-opacity-20 rounded-xl flex items-center justify-center text-[10px] text-tokyo-muted font-mono gap-1.5">
+          <div className="p-3 bg-tokyo-panel bg-opacity-20 border border-tokyo-border border-opacity-20 rounded-xl flex items-center justify-center text-[10px] text-[#9aa5ce] font-mono gap-1.5">
             <Sparkles size={14} className="text-tokyo-blue" />
             <span>Projete um texto para ver o neurônio vencedor (BMU) acender no mapa</span>
           </div>

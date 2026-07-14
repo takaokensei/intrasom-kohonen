@@ -270,16 +270,16 @@ export function HexGrid() {
               <span className="truncate">{name}</span>
             </div>
           ))}
-          <div className="flex items-center space-x-1.5 text-tokyo-muted">
-            <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-tokyo-panel border border-dashed border-tokyo-muted" />
+          <div className="flex items-center space-x-1.5 text-[#9aa5ce]">
+            <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-tokyo-panel border border-dashed border-tokyo-text border-opacity-45" />
             <span>Vazio</span>
           </div>
         </div>
       ) : (
-        <div className="flex justify-between items-center mt-4 text-[9px] bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
-          <span className="text-tokyo-muted uppercase font-mono">Mais Similar (Valores baixos)</span>
+        <div className="flex justify-between items-center mt-4 text-[10px] bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
+          <span className="text-[#9aa5ce] font-semibold uppercase font-mono">Mais Similar (Valores baixos)</span>
           <div className="w-24 h-2 rounded bg-gradient-to-r from-[#1a1b26] via-[#bb9af7] to-[#7dcfff] border border-tokyo-border" />
-          <span className="text-tokyo-muted uppercase font-mono">Menos Similar (Fronteiras)</span>
+          <span className="text-[#9aa5ce] font-semibold uppercase font-mono">Menos Similar (Fronteiras)</span>
         </div>
       )}
 
@@ -295,31 +295,31 @@ export function HexGrid() {
         >
           <div className="flex justify-between items-center text-[10px] font-mono border-b border-tokyo-border border-opacity-30 pb-1.5">
             <span className="text-tokyo-text font-bold">Neurônio N{hoveredNeuron.id}</span>
-            <span className="text-tokyo-muted">({hoveredNeuron.col}, {hoveredNeuron.row})</span>
+            <span className="text-[#9aa5ce]">({hoveredNeuron.col}, {hoveredNeuron.row})</span>
           </div>
           
           <div className="text-[10px] space-y-0.5">
             <div className="flex justify-between space-x-4">
-              <span className="text-tokyo-muted">Dominante:</span>
+              <span className="text-[#9aa5ce]">Dominante:</span>
               <span className="font-bold text-tokyo-blue">{hoveredNeuron.dominant_class}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-tokyo-muted">Amostras:</span>
+              <span className="text-[#9aa5ce]">Amostras:</span>
               <span className="font-mono text-tokyo-text">{hoveredNeuron.total_samples}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-tokyo-muted">Pureza:</span>
+              <span className="text-[#9aa5ce]">Pureza:</span>
               <span className="font-mono text-tokyo-green">{(hoveredNeuron.purity * 100).toFixed(0)}%</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-tokyo-muted">U-Dist:</span>
+              <span className="text-[#9aa5ce]">U-Dist:</span>
               <span className="font-mono text-tokyo-magenta">{hoveredNeuron.umatrix_value.toFixed(4)}</span>
             </div>
           </div>
 
           {hoveredNeuron.total_samples > 0 && (
             <div className="flex flex-col border-t border-tokyo-border border-opacity-30 pt-1.5">
-              <span className="text-[8px] text-tokyo-muted uppercase font-mono mb-1">Perfil Sináptico (Codebook):</span>
+              <span className="text-[8px] text-[#9aa5ce] uppercase font-mono mb-1">Perfil Sináptico (Codebook):</span>
               <svg width="120" height="40" className="bg-[#1f2335] bg-opacity-40 rounded">
                 <path
                   d={getSparklinePath(hoveredNeuron.codebook)}

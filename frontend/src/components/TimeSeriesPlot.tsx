@@ -118,7 +118,7 @@ export function TimeSeriesPlot() {
           {/* Export SVG */}
           <button 
             onClick={downloadSVG}
-            className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-tokyo-muted hover:text-tokyo-text"
+            className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-[#9aa5ce] hover:text-tokyo-text"
             title="Exportar SVG"
           >
             <Download size={16} />
@@ -127,7 +127,7 @@ export function TimeSeriesPlot() {
           {/* Fullscreen */}
           <button 
             onClick={toggleFullscreen}
-            className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-tokyo-muted hover:text-tokyo-text"
+            className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-[#9aa5ce] hover:text-tokyo-text"
             title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"}
           >
             {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
@@ -201,7 +201,7 @@ export function TimeSeriesPlot() {
       {/* Footer controls */}
       {selectedNeuronId === null ? (
         <div className="flex flex-wrap gap-1.5 mt-3">
-          <span className="text-[9px] text-tokyo-muted uppercase font-mono self-center mr-1">Filtrar por Classe:</span>
+          <span className="text-[10px] text-[#9aa5ce] uppercase font-mono self-center mr-1 font-semibold">Filtrar por Classe:</span>
           {Object.keys(CLASS_COLORS).map(cname => {
             const isActive = highlightedClass === cname;
             return (
@@ -220,7 +220,7 @@ export function TimeSeriesPlot() {
           })}
         </div>
       ) : (
-        <div className="flex justify-between items-center mt-3 text-[9px] text-tokyo-muted font-mono">
+        <div className="flex justify-between items-center mt-3 text-[10px] text-[#9aa5ce] font-mono">
           <span>Linhas coloridas: séries temporais reais associadas a este neurônio</span>
           <span className="flex items-center gap-1">
             <span className="w-4 h-0.5 bg-white shadow-lg inline-block" />

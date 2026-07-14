@@ -192,8 +192,8 @@ export function TextHexGrid() {
             <span className="truncate">{name}</span>
           </div>
         ))}
-        <div className="flex items-center space-x-1 text-tokyo-muted">
-          <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-tokyo-panel border border-dashed border-tokyo-muted" />
+        <div className="flex items-center space-x-1 text-[#9aa5ce]">
+          <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-tokyo-panel border border-dashed border-tokyo-text border-opacity-40" />
           <span>Vazio</span>
         </div>
       </div>

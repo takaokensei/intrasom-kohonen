@@ -99,8 +99,8 @@ export function RadarChart() {
                     x={cx + (r + 15) * Math.cos(angle)}
                     y={cy + (r + 12) * Math.sin(angle) + 4}
                     textAnchor="middle"
-                    fill="#565f89"
-                    fontSize="9px"
+                    fill="#9aa5ce"
+                    fontSize="10px"
                     fontWeight="bold"
                     className="font-mono uppercase"
                   >
@@ -139,7 +139,7 @@ export function RadarChart() {
 
         {/* Legend Panel & Description */}
         <div className="flex-1 flex flex-col justify-center space-y-2.5 ml-4 self-stretch text-[10px]">
-          <span className="text-tokyo-muted uppercase font-mono tracking-wider">Selecione o Modelo:</span>
+          <span className="text-[#9aa5ce] font-semibold uppercase font-mono tracking-wider">Selecione o Modelo:</span>
           
           <div className="grid grid-cols-2 gap-1.5">
             {somMetrics.map(row => (
@@ -162,8 +162,8 @@ export function RadarChart() {
             ))}
           </div>
 
-          <p className="text-[9px] text-tokyo-muted leading-relaxed pt-2 border-t border-tokyo-border border-opacity-20">
-            Passe o mouse por cima do modelo para comparar o tradeoff: mapas maiores aumentam **Pureza** e **Erro Topográfico**, enquanto os intermediários (7x7, 10x10) otimizam o **ARI** e **NMI**.
+          <p className="text-[10px] text-[#9aa5ce] leading-relaxed pt-2 border-t border-tokyo-border border-opacity-20">
+            Passe o mouse por cima do modelo para comparar o tradeoff: mapas maiores aumentam <strong>Pureza</strong> e <strong>Erro Topográfico</strong>, enquanto os intermediários (7x7, 10x10) otimizam o <strong>ARI</strong> e <strong>NMI</strong>.
           </p>
         </div>
       </div>

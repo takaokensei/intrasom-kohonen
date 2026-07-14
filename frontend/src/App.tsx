@@ -47,7 +47,7 @@ function App() {
             <h1 className="text-lg font-bold text-tokyo-text flex items-center gap-2">
               IntraSOM Kohonen Maps Analyzer
             </h1>
-            <p className="text-[10px] text-tokyo-muted font-mono tracking-wide uppercase">
+            <p className="text-[10px] text-[#9aa5ce] font-semibold font-mono tracking-wide uppercase">
               Projeto de NLP & Séries Temporais — Cauã Vitor (UFRN) — Prof. José Alfredo F. Costa
             </p>
           </div>
@@ -60,7 +60,7 @@ function App() {
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
               activeTab === 'synthetic'
                 ? 'bg-tokyo-blue text-tokyo-bg shadow-lg'
-                : 'text-tokyo-muted hover:text-tokyo-text'
+                : 'text-[#9aa5ce] hover:text-tokyo-text'
             }`}
           >
             <LineChart size={14} />
@@ -71,7 +71,7 @@ function App() {
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
               activeTab === 'text'
                 ? 'bg-tokyo-blue text-tokyo-bg shadow-lg'
-                : 'text-tokyo-muted hover:text-tokyo-text'
+                : 'text-[#9aa5ce] hover:text-tokyo-text'
             }`}
           >
             <FileText size={14} />
@@ -112,7 +112,7 @@ function App() {
               <div className="space-y-4">
                 {/* Size Selector */}
                 <div className="flex flex-col space-y-1.5">
-                  <label className="text-[10px] text-tokyo-muted uppercase font-mono tracking-wider">Dimensões da Grade (cols x rows)</label>
+                  <label className="text-[10px] text-[#9aa5ce] font-semibold uppercase font-mono tracking-wider">Dimensões da Grade (cols x rows)</label>
                   <div className="grid grid-cols-3 gap-2">
                     {(['10x10', '15x15', '20x20'] as const).map(size => (
                       <button
@@ -131,7 +131,7 @@ function App() {
                 </div>
 
                 {/* Constant params display */}
-                <div className="grid grid-cols-2 gap-2 text-[10px] bg-tokyo-dark bg-opacity-40 p-3 rounded-lg border border-tokyo-border border-opacity-20 font-mono text-tokyo-muted leading-relaxed">
+                <div className="grid grid-cols-2 gap-2 text-[10px] bg-tokyo-dark bg-opacity-40 p-3 rounded-lg border border-tokyo-border border-opacity-20 font-mono text-[#9aa5ce] leading-relaxed">
                   <div>Topologia: <span className="text-tokyo-text">Toroide (Hexa)</span></div>
                   <div>Vizinhaça: <span className="text-tokyo-text">Gaussiana</span></div>
                   <div>Inicialização: <span className="text-tokyo-text">Aleatória</span></div>
@@ -148,7 +148,7 @@ function App() {
               </h3>
               
               {loadingSynthetic ? (
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-tokyo-muted">
+                <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-[#9aa5ce]">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-tokyo-blue mb-2"></div>
                   <span className="text-xs font-mono">Carregando dados...</span>
                 </div>
@@ -156,33 +156,33 @@ function App() {
                 <div className="flex-1 flex flex-col space-y-3.5 text-xs">
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-tokyo-panel bg-opacity-40 p-2.5 rounded-lg border border-tokyo-border border-opacity-25">
-                      <span className="text-[9px] text-tokyo-muted uppercase font-mono block">ID do Neurônio</span>
+                      <span className="text-[9px] text-[#9aa5ce] font-semibold uppercase font-mono block">ID do Neurônio</span>
                       <span className="text-sm font-bold text-tokyo-text">N{selectedNeuron.id}</span>
-                      <span className="text-[10px] text-tokyo-muted font-mono block">Col: {selectedNeuron.col}, Row: {selectedNeuron.row}</span>
+                      <span className="text-[10px] text-[#9aa5ce] font-mono block">Col: {selectedNeuron.col}, Row: {selectedNeuron.row}</span>
                     </div>
                     
                     <div className="bg-tokyo-panel bg-opacity-40 p-2.5 rounded-lg border border-tokyo-border border-opacity-25">
-                      <span className="text-[9px] text-tokyo-muted uppercase font-mono block">Distância U-Matrix</span>
+                      <span className="text-[9px] text-[#9aa5ce] font-semibold uppercase font-mono block">Distância U-Matrix</span>
                       <span className="text-sm font-bold text-tokyo-magenta font-mono">{selectedNeuron.umatrix_value.toFixed(4)}</span>
                     </div>
                   </div>
 
                   <div className="bg-tokyo-panel bg-opacity-40 p-3 rounded-lg border border-tokyo-border border-opacity-25">
-                    <span className="text-[9px] text-tokyo-muted uppercase font-mono block">Análise Pós-Treinamento</span>
+                    <span className="text-[9px] text-[#9aa5ce] font-semibold uppercase font-mono block">Análise Pós-Treinamento</span>
                     <div className="flex justify-between items-center mt-1">
                       <div>
-                        <span className="text-[10px] text-tokyo-muted block">Classe Dominante</span>
+                        <span className="text-[10px] text-[#9aa5ce] block">Classe Dominante</span>
                         <span className="font-bold text-tokyo-blue">{selectedNeuron.dominant_class}</span>
                       </div>
                       <div className="text-right">
-                        <span className="text-[10px] text-tokyo-muted block">Pureza Local</span>
+                        <span className="text-[10px] text-[#9aa5ce] block">Pureza Local</span>
                         <span className="font-bold text-tokyo-green">{(selectedNeuron.purity * 100).toFixed(0)}%</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="flex-1 flex flex-col min-h-0 bg-tokyo-panel bg-opacity-20 border border-tokyo-border border-opacity-20 rounded-lg p-3">
-                    <span className="text-[9px] text-tokyo-muted uppercase font-mono block mb-1.5">
+                    <span className="text-[9px] text-[#9aa5ce] font-semibold uppercase font-mono block mb-1.5">
                       Amostras Mapeadas ({selectedNeuron.total_samples})
                     </span>
                     <div className="flex-1 overflow-y-auto pr-1 flex flex-wrap gap-1 content-start">
@@ -196,7 +196,7 @@ function App() {
                           </span>
                         ))
                       ) : (
-                        <span className="text-[10px] text-tokyo-muted italic font-mono">Nenhuma amostra mapeada neste neurônio</span>
+                        <span className="text-[10px] text-[#9aa5ce] italic font-mono">Nenhuma amostra mapeada neste neurônio</span>
                       )}
                     </div>
                   </div>
@@ -209,7 +209,7 @@ function App() {
                   </button>
                 </div>
               ) : (
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-tokyo-muted">
+                <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-[#9aa5ce]">
                   <Info size={32} className="mb-2 text-tokyo-border" />
                   <p className="text-xs leading-relaxed max-w-[200px]">
                     Clique em qualquer hexágono do mapa para visualizar o perfil detalhado, os sinais temporais correspondentes e os pesos sinápticos do neurônio.
@@ -254,7 +254,7 @@ function App() {
       )}
 
       {/* Footer bar */}
-      <footer className="px-6 py-3 bg-tokyo-dark bg-opacity-90 border-t border-tokyo-border text-[9.5px] text-tokyo-muted flex justify-between items-center z-10">
+      <footer className="px-6 py-3 bg-tokyo-dark bg-opacity-90 border-t border-tokyo-border text-[9.5px] text-[#9aa5ce] font-semibold flex justify-between items-center z-10">
         <span>Base de Dados: 600 séries temporais (Synthetic Control) | 400 notícias (20 Newsgroups)</span>
         <div className="flex space-x-4">
           <span>USP IntraSOM Library Integration</span>

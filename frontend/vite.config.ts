@@ -21,20 +21,23 @@ export default defineConfig({
           let body = '';
           req.on('data', chunk => { body += chunk.toString(); });
           req.on('end', () => {
-            const token =
-              process.env.VITE_HF_TOKEN ||
-              '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';
+            const token = process.env.VITE_HF_TOKEN;
 
             const postData = body;
+            const headers: Record<string, string> = {
+              'Content-Type': 'application/json',
+              'Content-Length': Buffer.byteLength(postData).toString(),
+            };
+
+            if (token) {
+              headers['Authorization'] = `Bearer ${token}`;
+            }
+
             const options = {
               hostname: 'api-inference.huggingface.co',
               path: '/models/sentence-transformers/all-MiniLM-L6-v2',
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(postData),
-                'Authorization': `Bearer ${token}`,
-              },
+              headers,
             };
 
             const hfReq = https.request(options, (hfRes) => {

@@ -25,8 +25,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Hugging Face authorization token
-  const token = process.env.HF_TOKEN || process.env.VITE_HF_TOKEN || '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';
+  // Hugging Face authorization token (only use if set in env, otherwise falls back to anonymous)
+  const token = process.env.HF_TOKEN || process.env.VITE_HF_TOKEN;
 
   const headers = {
     'Content-Type': 'application/json'

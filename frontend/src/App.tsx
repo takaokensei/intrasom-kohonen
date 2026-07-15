@@ -32,7 +32,7 @@ function App() {
     : null;
 
   return (
-    <div className="min-h-screen bg-[#1a1b26] text-[#a9b1d6] flex flex-col relative overflow-x-hidden overflow-y-auto font-sans">
+    <div className="min-h-screen bg-[#1a1b26] text-[#a9b1d6] flex flex-col relative overflow-x-hidden font-sans">
       {/* Decorative neon ambient glows */}
       <div className="glow-spot-blue -top-20 -left-20" />
       <div className="glow-spot-purple bottom-10 right-10" />

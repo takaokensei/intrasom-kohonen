@@ -154,7 +154,7 @@ export function ClassifierPanel() {
         <div className="h-[90px] overflow-y-auto border-t border-tokyo-border border-opacity-20 pt-2 flex flex-col space-y-1.5">
           <span className="text-[9px] text-[#9aa5ce] uppercase font-mono tracking-wider font-semibold">Amostras do Dataset:</span>
           <div className="grid grid-cols-2 gap-2">
-            {newsSamples.slice(0, 4).map((sample) => (
+            {newsSamples.map((sample) => (
               <button
                 key={sample.id}
                 onClick={() => handleSampleClick(sample.text)}

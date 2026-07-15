@@ -1,0 +1,294 @@
+\documentclass[10pt,aspectratio=169]{beamer}
+\usetheme{Madrid}
+\usecolortheme{default}
+
+% Tokyo Night Inspired Palette for Beamer
+\definecolor{tokyoDark}{HTML}{1a1b26}
+\definecolor{tokyoBlue}{HTML}{7aa2f7}
+\definecolor{tokyoPurple}{HTML}{bb9af7}
+\definecolor{tokyoTeal}{HTML}{7dcfff}
+\definecolor{tokyoText}{HTML}{3b4261}
+
+\setbeamercolor{structure}{fg=tokyoBlue}
+\setbeamercolor{palette primary}{bg=tokyoDark,fg=white}
+\setbeamercolor{palette secondary}{bg=tokyoBlue,fg=tokyoDark}
+\setbeamercolor{palette tertiary}{bg=tokyoPurple,fg=white}
+\setbeamercolor{title}{bg=tokyoDark,fg=tokyoBlue}
+
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+
+\title[Seminário IntraSOM]{Mapas de Kohonen com IntraSOM}
+\subtitle{Synthetic Control, Visualização, Clusters e Extensão Textual}
+\author[Cauã Vitor]{Cauã Vitor}
+\institute[UFRN]{Universidade Federal do Rio Grande do Norte (UFRN)}
+\date{Julho de 2026}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{1. Introdução e Objetivo}
+  \begin{itemize}
+    \item \textbf{Objetivo:} Explorar de forma não-supervisionada a capacidade dos Mapas de Kohonen (SOM) de projetar dados de alta dimensionalidade em grades bidimensionais hexagonais.
+    \item \textbf{Análise Visual:} Avaliar a preservação da topologia e das relações de vizinhança na malha 2D.
+    \item \textbf{Frentes de Teste:}
+      \begin{enumerate}
+        \item \textbf{Synthetic Control Chart (UCI):} 600 séries temporais, 60 atributos, 6 classes de tendência.
+        \item \textbf{Notícias (20 Newsgroups):} 400 documentos, 4 categorias (Graphics, Baseball, Mideast, Space).
+      \end{enumerate}
+    \item \textbf{Ferramenta Principal:} Biblioteca \texttt{IntraSOM/USP} integrada a um Dashboard Web Interativo.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{2. Motivação Científica}
+  \begin{itemize}
+    \item \textbf{Desafio:} Como visualizar, clusterizar e analisar dados complexos sem depender de rótulos de treinamento?
+    \item \textbf{Limitação de Métodos Tradicionais:}
+      \begin{itemize}
+        \item PCA: Projeção linear, perde relacionamentos não-lineares complexos.
+        \item t-SNE / UMAP: Excelente separação, mas não cria protótipos de dados (neurônios) representativos nem mantém distâncias de forma paramétrica contínua.
+      \end{itemize}
+    \item \textbf{Vantagem do SOM:} Combina redução de dimensionalidade e clusterização, gerando uma grade ordenada de representações (codebooks) que facilita a interpretabilidade humana.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{3. O Conceito do SOM (Self-Organizing Maps)}
+  \begin{itemize}
+    \item \textbf{Arquitetura:} Grade bidimensional de neurônios, cada um associado a um vetor de pesos (codebook) de dimensão igual à dos dados de entrada.
+    \item \textbf{Treinamento Não-Supervisionado:}
+      \begin{enumerate}
+        \item Apresentação de uma amostra de entrada $\vec{x}$.
+        \item Seleção do neurônio vencedor (BMU - Best Matching Unit) via distância Euclidiana mínima:
+          \[ d(\vec{x}, \vec{w}_i) = \min_j d(\vec{x}, \vec{w}_j) \]
+        \item Atualização dos pesos do BMU e de seus vizinhos na grade hexagonal:
+          \[ \vec{w}_j(t+1) = \vec{w}_j(t) + \eta(t) h_{ij}(t) [\vec{x} - \vec{w}_j(t)] \]
+      \end{enumerate}
+    \item \textbf{Topologia Hexagonal:} Oferece distância equidistante para todos os 6 vizinhos imediatos na grade, melhor que a grade retangular.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{4. A Biblioteca IntraSOM (USP)}
+  \begin{itemize}
+    \item \textbf{Origem:} Biblioteca Python desenvolvida pelo grupo InTRA da USP para treinamento, visualização e avaliação quantitativa de Mapas SOM.
+    \item \textbf{Recursos Chave:}
+      \begin{itemize}
+        \item Geração nativa da U-Matrix (Matriz de Distâncias Unificada).
+        \item Integração com algoritmos de agrupamento de múltiplos níveis.
+        \item Tratamento robusto para valores nulos (missing data) e imputação baseada no SOM.
+        \item Cálculo automatizado de erros topológicos e de quantização.
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{5. Dataset Principal: Synthetic Control Chart (UCI)}
+  \begin{itemize}
+    \item \textbf{Especificações:} 600 séries temporais sintéticas de 60 atributos cada (comportamento temporal).
+    \item \textbf{Estrutura de Classes:}
+      \begin{table}
+        \centering
+        \begin{tabular}{lcl}
+          \toprule
+          Classe & Intervalo & Comportamento Típico \\
+          \midrule
+          Normal & 1 -- 100 & Estável, flutuações pequenas ao redor da média \\
+          Cyclic & 101 -- 200 & Oscilações senoidais regulares \\
+          Increasing Trend & 201 -- 300 & Tendência contínua de subida \\
+          Decreasing Trend & 301 -- 400 & Tendência contínua de descida \\
+          Upward Shift & 401 -- 500 & Salto abrupto para cima \\
+          Downward Shift & 501 -- 600 & Salto abrupto para baixo \\
+          \bottomrule
+        \end{tabular}
+      \end{table}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{6. Análise Exploratória (EDA)}
+  \begin{itemize}
+    \item As séries exibem alta sobreposição de classes, tornando a clusterização desafiadora:
+      \begin{itemize}
+        \item \emph{Increasing Trend} e \emph{Upward Shift} compartilham dinâmicas de alta no fim da série.
+        \item \emph{Decreasing Trend} e \emph{Downward Shift} mostram dinâmicas de queda semelhantes.
+        \item \emph{Normal} e \emph{Cyclic} podem se confundir em baixas amplitudes de oscilação.
+      \end{itemize}
+    \item \textbf{Redução Linear (PCA) vs Não-Linear (t-SNE):}
+      \begin{itemize}
+        \item O PCA falha em separar as classes Normal e Cyclic de forma isolada.
+        \item O t-SNE/UMAP revela 6 nuvens principais, mas sem a ordenação lógica e topológica que o SOM fornece.
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{7. Pipeline de Trabalho Experimental}
+  \begin{itemize}
+    \item \textbf{Fluxo de Processamento:}
+      \begin{enumerate}
+        \item \textbf{Dados:} Leitura e normalização Z-score das séries.
+        \item \textbf{Treinamento SOM (Sem Rótulos):} Alimentação do SOM de Kohonen variando o tamanho da grade.
+        \item \textbf{Visualização (IntraSOM):} Extração de U-Matrix, Dominância de Classe, Pureza e Component Planes.
+        \item \textbf{Avaliação Externa:} Projeção dos rótulos reais sobre os neurônios para medir a acurácia.
+        \item \textbf{Métricas:} Cálculo de ARI, NMI, Silhueta, Erro de Quantização, Erro Topográfico.
+      \end{enumerate}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{8. Tamanhos de Mapa Testados}
+  \begin{itemize}
+    \item Variamos o tamanho do mapa para analisar o trade-off entre representação geral e granularidade:
+      \begin{itemize}
+        \item \textbf{5x5 e 7x7:} Grades compactas. Alta densidade de amostras por neurônio, porém causam maior mistura de classes (menor pureza).
+        \item \textbf{10x10:} Tamanho padrão equilibrado. Boa separação e baixos erros topológicos.
+        \item \textbf{12x12 e 15x15:} Organização intermediária de alta fidelidade.
+        \item \textbf{20x20:} Elevada resolução espacial. Risco de neurônios vazios (sem dados projetados), mas com erro de quantização mínimo.
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{9. Visualização das Fronteiras (U-Matrix)}
+  \begin{itemize}
+    \item A \textbf{U-Matrix} codifica a distância euclidiana entre o codebook de cada neurônio e seus vizinhos imediatos.
+    \item \textbf{Interpretação:}
+      \begin{itemize}
+        \item Cores escuras/valores baixos indicam alta similaridade (regiões internas dos clusters).
+        \item Cores claras/valores altos representam fronteiras de transição (barreiras entre clusters).
+      \end{itemize}
+    \item Observa-se barreiras claras isolando o grupo \emph{Normal}/\emph{Cyclic} das tendências de queda (\emph{Decreasing}/\emph{Downward}) e de subida (\emph{Increasing}/\emph{Upward}).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{10. Mapa de Classes Dominantes}
+  \begin{itemize}
+    \item Após o treino, mapeamos a classe real majoritária de cada neurônio:
+      \begin{itemize}
+        \item O SOM organiza os neurônios de forma contínua: classes parecidas ficam geograficamente vizinhas.
+        \item A transição de \emph{Increasing Trend} para \emph{Upward Shift} ocorre de forma suave na grade.
+        \item As tendências de descida (\emph{Decreasing} e \emph{Downward}) ocupam regiões opostas às tendências de subida.
+      \end{itemize}
+    \item O mapa exibe uma separação coerente em 6 grandes territórios contíguos na grade.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{11. Hits e Pureza dos Neurônios}
+  \begin{itemize}
+    \item \textbf{Hits (Densidade):} Revela quantas amostras reais caíram em cada neurônio (BMU).
+      \begin{itemize}
+        \item Neurônios centrais tendem a concentrar mais dados, enquanto neurônios de fronteira têm poucos hits.
+      \end{itemize}
+    \item \textbf{Pureza:} Proporção de amostras da classe dominante sobre o total de hits do neurônio.
+      \begin{itemize}
+        \item A maioria dos neurônios ativos possui pureza de 100\% (homogêneos).
+        \item Neurônios localizados na divisa física das classes exibem purezas mistas (70\%--85\%), representando as áreas cinzentas do dataset.
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{12. Component Planes (Instantes de Tempo)}
+  \begin{itemize}
+    \item O SOM permite projetar pesos sinápticos específicos para atributos individuais (Component Planes).
+    \item Analisamos instantes temporais chaves (t=1, t=15, t=30, t=45, t=60):
+      \begin{itemize}
+        \item Revela a evolução das trajetórias nas regiões da grade.
+        \item Permite entender o porquê dos neurônios ativarem: neurônios do canto superior ativam para valores altos de $t$ (tendência crescente), enquanto os inferiores ativam para valores baixos.
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{13. Métricas Quantitativas do SOM}
+  \begin{table}
+    \centering
+    \begin{tabular}{lcccccc}
+      \toprule
+      Modelo & ARI & NMI & Silhueta & DB & Erro Quant. & Erro Topo. \\
+      \midrule
+      SOM 5x5   & 0.6584 & 0.8065 & 0.1548 & 1.7131 & 4.7348 & 0.2400 \\
+      SOM 7x7   & 0.6895 & 0.7951 & 0.1876 & 1.5814 & 4.2448 & 0.1289 \\
+      SOM 10x10 & 0.6557 & 0.7715 & 0.2042 & 1.5975 & 3.9835 & 0.1500 \\
+      SOM 12x12 & 0.6513 & 0.7692 & 0.2089 & 1.6027 & 3.7612 & 0.1483 \\
+      SOM 15x15 & 0.6217 & 0.7625 & 0.2040 & 1.6463 & 3.5555 & 0.0659 \\
+      SOM 20x20 & 0.5879 & 0.7591 & 0.2629 & 1.2876 & 3.3347 & 0.0459 \\
+      \bottomrule
+    \end{tabular}
+    \caption{Métricas obtidas variando as malhas com IntraSOM.}
+  \end{table}
+\end{frame}
+
+\begin{frame}{14. Análise de Erros e Pares Difíceis}
+  \begin{itemize}
+    \item \textbf{Quantização vs Topologia:}
+      \begin{itemize}
+        \item Conforme o mapa cresce (5x5 para 20x20), o erro de quantização cai de 4.73 para 3.33 (melhor ajuste).
+        \item O erro topográfico também cai de 0.24 para 0.04 (melhor preservação da vizinhança).
+      \end{itemize}
+    \item \textbf{Pares de Confusão Comuns:}
+      \begin{itemize}
+        \item \emph{Increasing Trend} com \emph{Upward Shift}: Ambas sobem. A diferença é a taxa de crescimento.
+        \item \emph{Decreasing Trend} com \emph{Downward Shift}: Ambas descem.
+        \item O SOM posiciona esses neurônios na mesma área de transição, validando a coerência científica.
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{15. Comparação com Baselines de ML}
+  \begin{table}
+    \centering
+    \begin{tabular}{lccccc}
+      \toprule
+      Método & ARI & NMI & Silhueta & DB & Calinski-Harabasz \\
+      \midrule
+      \textbf{SOM 10x10} & \textbf{0.6557} & \textbf{0.7715} & 0.2042 & 1.5975 & 208.11 \\
+      K-Means Direto     & 0.6120 & 0.7107 & 0.1610 & 1.9582 & 183.15 \\
+      PCA + K-Means      & 0.6096 & 0.7109 & 0.1481 & 1.9595 & 181.78 \\
+      Clustering Aglom.  & 0.6318 & 0.8008 & 0.2510 & 1.2821 & 209.52 \\
+      DBSCAN             & 0.1418 & 0.4019 & 0.1319 & 2.3495 & 55.96 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+  \begin{itemize}
+    \item O SOM supera o K-Means e PCA+K-Means em ARI/NMI e apresenta uma interpretação visual infinitamente superior por ordenar a vizinhança geograficamente.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{16. Experimento Textual: Notícias (20 Newsgroups)}
+  \begin{itemize}
+    \item \textbf{Objetivo:} Mapear notícias textuais na malha hexagonal 10x10 do SOM.
+    \item \textbf{Comparação de Vetorização:}
+      \begin{enumerate}
+        \item \textbf{TF-IDF (Frequencial):} Abordagem Bag-of-Words clássica. ARI = 0.2738.
+        \item \textbf{Sentence-BERT (Semântico):} Embeddings contextuais densos. ARI = 0.5873.
+      \end{enumerate}
+    \item \textbf{Análise:}
+      \begin{itemize}
+        \item O TF-IDF falha quando há sinônimos ou palavras diferentes para o mesmo tema.
+        \item O Sentence-BERT mapeia significado e conceitos abstratos. O SOM treinado sobre SBERT agrupa com clareza as quatro temáticas e permite inferência em tempo real confiável.
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{17. Aplicações em Gestão Pública, IA e Direito}
+  \begin{itemize}
+    \item \textbf{Triagem e Agrupamento de Processos Judiciais:} Agrupar petições iniciais semelhantes para análise em lote (Visual Law e Jurimetria).
+    \item \textbf{Jurisprudência Inteligente:} Criar mapas visuais interativos de ementas e decisões para identificar tendências de julgamento de tribunais.
+    \item \textbf{Monitoramento Temático de Notícias:} Acompanhamento em tempo real de tópicos sensíveis ou tendências de imprensa na segurança e inteligência.
+    \item \textbf{Gestão Documental (Memória Técnica):} Organização não-supervisionada de relatórios, memorandos e memórias técnicas institucionais da administração pública.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{18. Conclusão}
+  \begin{itemize}
+    \item \textbf{Conclusão:} O SOM de Kohonen se provou uma ferramenta robusta e cientificamente rica tanto para análise temporal quanto textual.
+    \item \textbf{Resultados Alcançados:}
+      \begin{itemize}
+        \item Preservação topográfica excelente em séries temporais (erros topográficos mínimos).
+        \item Superioridade gritante das representações semânticas (SBERT) para clusterização de textos.
+        \item Desenvolvimento de um demonstrador funcional interativo (Dashboard Tokyo Night) que atende a todos os critérios e métricas exigidos.
+      \end{itemize}
+    \item \textbf{Trabalhos Futuros:} Incorporação de mapas toroidais e visualização de trajetórias temporais animadas.
+  \end{itemize}
+\end{frame}
+
+\end{document}

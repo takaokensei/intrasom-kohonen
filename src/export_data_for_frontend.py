@@ -238,7 +238,7 @@ def export_all():
     docs, text_labels = load_news_data()
     news_samples = []
     for cat in ["Graphics", "Space", "Baseball", "Mideast"]:
-        indices = np.where(text_labels == cat)[0][:3]
+        indices = np.where(text_labels == cat)[0][:15]
         for idx in indices:
             news_samples.append({
                 "id": int(idx),

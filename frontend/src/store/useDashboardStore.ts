@@ -272,7 +272,11 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
           headers['Authorization'] = `Bearer ${token}`;
         }
         
-        const hfResponse = await fetch('https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2', {
+        const url = import.meta.env.DEV
+          ? 'https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2'
+          : '/api/hf-sbert';
+          
+        const hfResponse = await fetch(url, {
           method: 'POST',
           headers,
           body: JSON.stringify({ inputs: text })

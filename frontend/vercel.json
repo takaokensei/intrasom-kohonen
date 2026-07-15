@@ -4,5 +4,11 @@
   "framework": "vite",
   "alias": [
     "intrasom-kohonen.vercel.app"
+  ],
+  "rewrites": [
+    {
+      "source": "/api/hf-sbert",
+      "destination": "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
+    }
   ]
 }

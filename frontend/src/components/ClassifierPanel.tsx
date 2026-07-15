@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { Sparkles, BrainCircuit, RefreshCw } from 'lucide-react';
 
@@ -30,6 +31,44 @@ export function ClassifierPanel() {
     backendOnline
   } = useDashboardStore();
   
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clear timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, []);
+
+  const handleTextChange = (text: string) => {
+    setCustomTextQuery(text);
+    
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    
+    debounceRef.current = setTimeout(() => {
+      classifyText(text);
+    }, 450); // 450ms debounce
+  };
+
+  const handleSampleClick = (text: string) => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    setCustomTextQuery(text);
+    classifyText(text);
+  };
+
+  const handleReset = () => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    resetClassification();
+  };
+
   if (loadingText) {
     return (
       <div className="glass-panel rounded-2xl p-5 h-full flex flex-col justify-center items-center">
@@ -43,15 +82,17 @@ export function ClassifierPanel() {
 
   return (
     <div className="glass-panel rounded-2xl p-5 flex flex-col h-full overflow-hidden">
-      <div className="flex justify-between items-center mb-3">
-        <h3 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider flex items-center gap-1.5">
+          <Sparkles size={15} className="text-tokyo-magenta" />
           Classificador de Textos em Tempo Real
         </h3>
         
         <select
           value={selectedTextRep}
           onChange={(e) => setSelectedTextRep(e.target.value as 'SBERT' | 'TF-IDF')}
-          className="bg-tokyo-panel border border-tokyo-border rounded px-2 py-0.5 text-[10px] text-tokyo-text focus:outline-none focus:border-tokyo-blue font-mono"
+          className="bg-tokyo-dark border border-tokyo-border text-[10px] font-mono font-bold rounded p-1 text-tokyo-text focus:outline-none focus:border-tokyo-blue cursor-pointer"
         >
           <option value="SBERT">Sentence-BERT (Semântico)</option>
           <option value="TF-IDF">TF-IDF (Frequencial)</option>
@@ -94,16 +135,13 @@ export function ClassifierPanel() {
         <div className="relative flex-1 min-h-[90px]">
           <textarea
             value={customTextQuery}
-            onChange={(e) => {
-              setCustomTextQuery(e.target.value);
-              classifyText(e.target.value);
-            }}
+            onChange={(e) => handleTextChange(e.target.value)}
             placeholder="Digite ou clique em uma das notícias de exemplo abaixo para ver em qual neurônio do Mapa de Kohonen ela se projeta..."
             className="w-full h-full bg-tokyo-dark bg-opacity-60 border border-tokyo-border rounded-xl p-3 text-xs text-tokyo-text placeholder-tokyo-text placeholder-opacity-50 focus:outline-none focus:border-tokyo-blue resize-none overflow-y-auto"
           />
           {customTextQuery && (
             <button
-              onClick={resetClassification}
+              onClick={handleReset}
               className="absolute right-3.5 bottom-3 text-[#9aa5ce] hover:text-tokyo-red transition-colors"
               title="Limpar"
             >
@@ -119,10 +157,7 @@ export function ClassifierPanel() {
             {newsSamples.slice(0, 4).map((sample) => (
               <button
                 key={sample.id}
-                onClick={() => {
-                  setCustomTextQuery(sample.text);
-                  classifyText(sample.text);
-                }}
+                onClick={() => handleSampleClick(sample.text)}
                 className="p-2 text-left bg-tokyo-panel bg-opacity-35 hover:bg-opacity-70 rounded-lg border border-tokyo-border border-opacity-30 transition flex flex-col text-[10px]"
               >
                 <span className="font-bold text-tokyo-blue uppercase font-mono text-[8px]">

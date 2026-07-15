@@ -99,6 +99,8 @@ interface DashboardState {
   } | null;
   backendOnline: boolean | null;
   pcaParams: { mean: number[]; components: number[][] } | null;
+  errorSynthetic: string | null;
+  errorText: string | null;
   
   // Actions
   setActiveTab: (tab: TabType) => void;
@@ -142,6 +144,8 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   classificationResult: null,
   backendOnline: null,
   pcaParams: null,
+  errorSynthetic: null,
+  errorText: null,
   
   // Actions
   setActiveTab: (activeTab) => {
@@ -156,13 +160,17 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   loadSyntheticData: async () => {
     if (get().series.length > 0) return; // Already loaded
     
-    set({ loadingSynthetic: true });
+    set({ loadingSynthetic: true, errorSynthetic: null });
     try {
       const [seriesRes, modelsRes, metricsRes] = await Promise.all([
         fetch('/data/series.json'),
         fetch('/data/som_models.json'),
         fetch('/data/metrics.json')
       ]);
+      
+      if (!seriesRes.ok || !modelsRes.ok || !metricsRes.ok) {
+        throw new Error("HTTP status error loading synthetic control files");
+      }
       
       const series = await seriesRes.json();
       const somModels = await modelsRes.json();
@@ -171,7 +179,10 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       set({ series, somModels, metrics, loadingSynthetic: false });
     } catch (err) {
       console.error("Error loading synthetic control data:", err);
-      set({ loadingSynthetic: false });
+      set({ 
+        loadingSynthetic: false, 
+        errorSynthetic: "Falha ao carregar dados sintéticos do SOM. Verifique a existência dos arquivos JSON na pasta public/data/." 
+      });
     }
   },  loadTextData: async () => {
     if (get().newsSamples.length > 0) {
@@ -179,7 +190,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       return; // Already loaded
     }
     
-    set({ loadingText: true });
+    set({ loadingText: true, errorText: null });
     try {
       const [modelsRes, metricsRes, samplesRes, pcaRes] = await Promise.all([
         fetch('/data/text_models.json'),
@@ -187,6 +198,10 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         fetch('/data/news_samples.json'),
         fetch('/data/pca_params.json')
       ]);
+      
+      if (!modelsRes.ok || !metricsRes.ok || !samplesRes.ok || !pcaRes.ok) {
+        throw new Error("HTTP status error loading text SOM files");
+      }
       
       const textModels = await modelsRes.json();
       const textMetrics = await metricsRes.json();
@@ -197,7 +212,10 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       get().checkBackend();
     } catch (err) {
       console.error("Error loading text news data:", err);
-      set({ loadingText: false });
+      set({ 
+        loadingText: false, 
+        errorText: "Falha ao carregar os dados textuais do SOM. Verifique a existência dos arquivos JSON na pasta public/data/." 
+      });
     }
   },
   
@@ -245,12 +263,18 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     // 2. Try Hugging Face Inference API for SBERT (Cloud-based real embedding projection)
     if (rep === 'SBERT') {
       try {
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json'
+        };
+        
+        const token = import.meta.env.VITE_HF_TOKEN;
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
         const hfResponse = await fetch('https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer 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' // User HF token
-          },
+          headers,
           body: JSON.stringify({ inputs: text })
         });
         

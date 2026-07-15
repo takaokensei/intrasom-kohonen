@@ -88,7 +88,7 @@ export function TimeSeriesPlot() {
       className={
         isFullscreen 
           ? "fixed inset-0 bg-[#16161e] bg-opacity-98 z-50 p-8 flex flex-col" 
-          : "glass-panel rounded-2xl p-5 flex flex-col h-full overflow-hidden"
+          : "glass-panel rounded-2xl p-5 flex flex-col"
       }
     >
       <div className="flex justify-between items-start mb-4">
@@ -136,7 +136,7 @@ export function TimeSeriesPlot() {
       </div>
       
       {/* Plot Area */}
-      <div className="flex-1 bg-tokyo-dark bg-opacity-40 rounded-xl border border-tokyo-border border-opacity-30 relative overflow-hidden flex items-center justify-center min-h-[160px]">
+      <div className={`${isFullscreen ? 'flex-1' : ''} bg-tokyo-dark bg-opacity-40 rounded-xl border border-tokyo-border border-opacity-30 relative overflow-hidden flex items-center justify-center min-h-[200px]`}>
         <svg id="som-time-series-svg" viewBox={`0 0 ${width} ${height}`} className="w-full h-full">
           {/* Grid lines */}
           {[0, 1, 2, 3, 4].map(idx => {

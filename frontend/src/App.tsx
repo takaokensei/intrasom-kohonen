@@ -6,7 +6,7 @@ import { MetricTable } from './components/MetricTable';
 import { RadarChart } from './components/RadarChart';
 import { TextHexGrid } from './components/TextHexGrid';
 import { ClassifierPanel } from './components/ClassifierPanel';
-import { Brain, Settings, FileText, LineChart, Cpu, Info, CheckCircle } from 'lucide-react';
+import { Brain, Settings, FileText, LineChart, Cpu, Info, CheckCircle, AlertTriangle, RefreshCw } from 'lucide-react';
 
 function App() {
   const {
@@ -18,7 +18,10 @@ function App() {
     setSelectedNeuronId,
     somModels,
     loadSyntheticData,
-    loadingSynthetic
+    loadTextData,
+    loadingSynthetic,
+    errorSynthetic,
+    errorText
   } = useDashboardStore();
 
   // Load initial data on mount
@@ -82,26 +85,44 @@ function App() {
 
       {/* Main content grid */}
       {activeTab === 'synthetic' ? (
-        <main className="grow flex-shrink-0 p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
+        errorSynthetic ? (
+          <div className="grow flex-shrink-0 p-6 flex flex-col items-center justify-center relative z-10 my-12">
+            <div className="glass-panel rounded-2xl p-8 max-w-md w-full text-center space-y-4 border border-tokyo-red border-opacity-35">
+              <div className="w-12 h-12 bg-tokyo-red bg-opacity-10 text-tokyo-red rounded-full flex items-center justify-center mx-auto">
+                <AlertTriangle size={24} />
+              </div>
+              <h3 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">Erro ao Carregar Dados</h3>
+              <p className="text-xs text-[#9aa5ce] leading-relaxed">{errorSynthetic}</p>
+              <button 
+                onClick={() => loadSyntheticData()} 
+                className="w-full py-2.5 bg-tokyo-blue bg-opacity-20 hover:bg-opacity-30 text-tokyo-blue border border-tokyo-blue border-opacity-40 hover:border-opacity-65 rounded-lg text-xs font-bold font-mono uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all"
+              >
+                <RefreshCw size={12} />
+                Tentar Novamente
+              </button>
+            </div>
+          </div>
+        ) : (
+          <main className="grow flex-shrink-0 p-6 pb-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start relative z-10">
           {/* Left Area - HexGrid Map & Metrics */}
           <section className="lg:col-span-8 flex flex-col space-y-6 min-w-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[380px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
               <HexGrid />
               <TimeSeriesPlot />
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 h-80">
-              <div className="md:col-span-7 h-full">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+              <div className="md:col-span-7">
                 <MetricTable />
               </div>
-              <div className="md:col-span-5 h-full">
+              <div className="md:col-span-5">
                 <RadarChart />
               </div>
             </div>
           </section>
 
           {/* Right Area - Config & Selection Details */}
-          <aside className="lg:col-span-4 flex flex-col space-y-6 min-w-0">
+          <aside className="lg:col-span-4 flex flex-col space-y-6 min-w-0 self-start">
             {/* SOM Model Configurations */}
             <div className="glass-panel rounded-2xl p-5 flex flex-col">
               <h3 className="text-sm font-bold text-tokyo-text mb-4 uppercase font-mono tracking-wider flex items-center gap-1.5">
@@ -141,7 +162,7 @@ function App() {
             </div>
 
             {/* Selection Details Panel */}
-            <div className="glass-panel rounded-2xl p-5 flex-1 flex flex-col min-h-[220px]">
+            <div className="glass-panel rounded-2xl p-5 flex flex-col">
               <h3 className="text-sm font-bold text-tokyo-text mb-4 uppercase font-mono tracking-wider flex items-center gap-1.5">
                 <Cpu size={15} className="text-tokyo-magenta" />
                 Detalhes do Neurônio
@@ -181,11 +202,11 @@ function App() {
                     </div>
                   </div>
 
-                  <div className="flex-1 flex flex-col min-h-0 bg-tokyo-panel bg-opacity-20 border border-tokyo-border border-opacity-20 rounded-lg p-3">
+                  <div className="bg-tokyo-panel bg-opacity-20 border border-tokyo-border border-opacity-20 rounded-lg p-3">
                     <span className="text-[9px] text-[#9aa5ce] font-semibold uppercase font-mono block mb-1.5">
                       Amostras Mapeadas ({selectedNeuron.total_samples})
                     </span>
-                    <div className="flex-1 overflow-y-auto pr-1 flex flex-wrap gap-1 content-start">
+                    <div className="flex flex-wrap gap-1">
                       {selectedNeuron.sample_ids.length > 0 ? (
                         selectedNeuron.sample_ids.map(id => (
                           <span 
@@ -219,8 +240,26 @@ function App() {
             </div>
           </aside>
         </main>
+        )
+      ) : errorText ? (
+        <div className="grow flex-shrink-0 p-6 flex flex-col items-center justify-center relative z-10 my-12">
+          <div className="glass-panel rounded-2xl p-8 max-w-md w-full text-center space-y-4 border border-tokyo-red border-opacity-35">
+            <div className="w-12 h-12 bg-tokyo-red bg-opacity-10 text-tokyo-red rounded-full flex items-center justify-center mx-auto">
+              <AlertTriangle size={24} />
+            </div>
+            <h3 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">Erro ao Carregar Dados</h3>
+            <p className="text-xs text-[#9aa5ce] leading-relaxed">{errorText}</p>
+            <button 
+              onClick={() => loadTextData()} 
+              className="w-full py-2.5 bg-tokyo-blue bg-opacity-20 hover:bg-opacity-30 text-tokyo-blue border border-tokyo-blue border-opacity-40 hover:border-opacity-65 rounded-lg text-xs font-bold font-mono uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all"
+            >
+              <RefreshCw size={12} />
+              Tentar Novamente
+            </button>
+          </div>
+        </div>
       ) : (
-        <main className="grow flex-shrink-0 p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
+        <main className="grow flex-shrink-0 p-6 pb-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start relative z-10">
           {/* Left Side: Hex grid comparison */}
           <section className="lg:col-span-7 flex flex-col min-w-0">
             <TextHexGrid />
@@ -254,9 +293,9 @@ function App() {
       )}
 
       {/* Footer bar */}
-      <footer className="px-6 py-3 bg-tokyo-dark bg-opacity-90 border-t border-tokyo-border text-[9.5px] text-[#9aa5ce] font-semibold flex justify-between items-center z-10">
+      <footer className="px-6 py-3 bg-tokyo-dark bg-opacity-90 border-t border-tokyo-border text-[9.5px] text-[#9aa5ce] font-semibold flex flex-col md:flex-row justify-between items-center gap-2 md:gap-0 text-center md:text-left z-10">
         <span>Base de Dados: 600 séries temporais (Synthetic Control) | 400 notícias (20 Newsgroups)</span>
-        <div className="flex space-x-4">
+        <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
           <span>USP IntraSOM Library Integration</span>
           <span>Tokyo Night Design System</span>
           <span>Vite + React + TS v19.2</span>

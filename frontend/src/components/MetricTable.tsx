@@ -8,7 +8,7 @@ export function MetricTable() {
 
   if (loadingSynthetic) {
     return (
-      <div className="glass-panel rounded-2xl p-6 h-full flex flex-col justify-center items-center">
+      <div className="glass-panel rounded-2xl p-6 flex flex-col justify-center items-center min-h-[200px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tokyo-blue"></div>
         <span className="text-xs text-tokyo-muted mt-2 font-mono">Carregando métricas...</span>
       </div>
@@ -22,7 +22,7 @@ export function MetricTable() {
       className={
         isFullscreen 
           ? "fixed inset-0 bg-[#16161e] bg-opacity-98 z-50 p-8 flex flex-col" 
-          : "glass-panel rounded-2xl p-6 flex flex-col h-full overflow-hidden"
+          : "glass-panel rounded-2xl p-6 flex flex-col"
       }
     >
       <div className="flex justify-between items-center mb-4">
@@ -39,7 +39,7 @@ export function MetricTable() {
         </button>
       </div>
       
-      <div className="flex-1 overflow-auto rounded-lg border border-tokyo-border border-opacity-40">
+      <div className="rounded-lg border border-tokyo-border border-opacity-40">
         <table className="w-full text-left border-collapse min-w-[700px]">
           <thead>
             <tr className="bg-tokyo-dark bg-opacity-70 text-[10px] text-[#9aa5ce] font-semibold uppercase font-mono border-b border-tokyo-border">

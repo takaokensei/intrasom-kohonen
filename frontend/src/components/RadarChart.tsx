@@ -16,7 +16,7 @@ export function RadarChart() {
 
   if (loadingSynthetic || metrics.length === 0) {
     return (
-      <div className="glass-panel rounded-2xl p-5 h-full flex items-center justify-center">
+      <div className="glass-panel rounded-2xl p-5 flex items-center justify-center min-h-[200px]">
         <span className="text-xs text-tokyo-muted font-mono">Carregando Radar...</span>
       </div>
     );
@@ -51,7 +51,7 @@ export function RadarChart() {
   };
 
   return (
-    <div className="glass-panel rounded-2xl p-5 flex flex-col h-full overflow-hidden">
+    <div className="glass-panel rounded-2xl p-5 flex flex-col">
       <h3 className="text-sm font-bold text-tokyo-text mb-2 uppercase font-mono tracking-wider">
         Trade-Off de Tamanhos do SOM
       </h3>

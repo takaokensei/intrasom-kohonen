@@ -1,356 +1,105 @@
+# 🧠 IntraSOM Kohonen Maps Analyzer
+
 <div align="center">
-
-  <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=1a1b26&height=120&section=header"/>
-
-  <h1>
-    <img src="https://readme-typing-svg.herokuapp.com/?lines=📰+CLUSTERIZAÇÃO+DE+NOTÍCIAS+COM+LLM;Clusterização+de+Texto+Não-Supervisionada;Rotulagem+Semântica+via+LLM;Dashboard+Visual+Interativo&font=Fira+Code&center=true&width=700&height=50&color=7aa2f7&vCenter=true&pause=1000&size=26" />
-  </h1>
-
-  <samp>Agrupar · Comparar · Explicar · Visualizar</samp>
+  <samp>Visualização Interativa · Mapas Auto-Organizáveis (SOM) · Séries Temporais · Processamento de Linguagem Natural</samp>
   <br/><br/>
 
-  <img src="https://img.shields.io/badge/Python-3.10+-c0caf5?style=for-the-badge&logo=python&logoColor=1a1b26"/>
-  <img src="https://img.shields.io/badge/React-18-7aa2f7?style=for-the-badge&logo=react&logoColor=1a1b26"/>
-  <img src="https://img.shields.io/badge/Scikit--Learn-ML_Engine-9ece6a?style=for-the-badge&logo=scikitlearn&logoColor=1a1b26"/>
-  <img src="https://img.shields.io/badge/Gemini-LLM_Labels-bb9af7?style=for-the-badge&logo=google&logoColor=1a1b26"/>
-  <img src="https://img.shields.io/badge/Ollama-Local_LLM-f7768e?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/React-19-7aa2f7?style=for-the-badge&logo=react&logoColor=1a1b26"/>
+  <img src="https://img.shields.io/badge/TypeScript-Strict_Mode-3178c6?style=for-the-badge&logo=typescript&logoColor=ffffff"/>
+  <img src="https://img.shields.io/badge/Vite-Built_System-646cff?style=for-the-badge&logo=vite&logoColor=ffffff"/>
+  <img src="https://img.shields.io/badge/Python-3.10+-3776ab?style=for-the-badge&logo=python&logoColor=ffffff"/>
   <img src="https://img.shields.io/badge/Status-Concluído-9ece6a?style=for-the-badge"/>
-
 </div>
 
-<br/>
+---
 
-> Um pipeline de pesquisa acadêmica ponta a ponta que aplica **clusterização não-supervisionada** a um corpus de **315 notícias em português**, comparando múltiplas representações textuais e algoritmos de agrupamento. Os clusters são rotulados automaticamente por **LLMs (Gemini + Ollama)** e explorados através de um **dashboard interativo com tema Tokyo Night**, com projeções em tempo real e busca semântica.
+> Um dashboard acadêmico interativo de alto desempenho projetado para analisar e explorar **Mapas Auto-Organizáveis de Kohonen (SOM)** aplicados a duas frentes distintas: **séries temporais sintéticas** e **agrupamento semântico de textos**. 
+>
+> Desenvolvido com uma estética premium baseada no tema **Tokyo Night**, o sistema possui controles de visualização completos, animações suaves e um pipeline híbrido de inteligência artificial (com execução local ou 100% serverless via nuvem).
 
-<br/>
+---
 
-## `> stack_tecnológica`
+## 🗺️ Visão Geral do Sistema
 
-<div align="center">
-  <img src="https://skillicons.dev/icons?i=python,react,typescript,vite,git&theme=dark&perline=7" />
-</div>
+O dashboard está estruturado em duas áreas de análise principais:
 
-<table align="center">
-<tr>
-<td align="center" width="33%">
+### 1. Séries Temporais (Synthetic Control)
+* **Dataset:** 600 séries temporais do dataset *Synthetic Control* divididas em 6 classes de tendência (Normal, Cíclica, Tendência Crescente, Tendência Decrescente, Desvio para Cima e Desvio para Baixo).
+* **Mapas Suportados:** Grades hexagonais de tamanhos **5x5, 7x7, 10x10, 12x12, 15x15 e 20x20**.
+* **Visualizações:**
+  * **U-Matrix:** Exibição gráfica das distâncias entre neurônios vizinhos na malha.
+  * **Classe Dominante:** Identificação da classe de tendência majoritária associada a cada neurônio.
+  * **Pureza:** Métrica de coesão interna do neurônio.
+  * **Métricas de Baseline:** Comparação em tempo real (ARI, NMI, Silhueta, Davies-Bouldin, Calinski-Harabasz, Erro de Quantização, Erro Topográfico) com algoritmos clássicos como K-Means, PCA + K-Means, Clustering Aglomerativo e DBSCAN.
+  * **Radar Chart:** Exibição de trade-offs das dimensões dos mapas SOM.
 
-**⚙️ Pipeline de ML**<br/><br/>
-<img src="https://img.shields.io/badge/scikit--learn-1.3+-c0caf5?style=flat-square&logo=scikitlearn&logoColor=1a1b26"/>
-<img src="https://img.shields.io/badge/SentenceTransformers-Multilingual-7aa2f7?style=flat-square"/>
-<img src="https://img.shields.io/badge/UMAP-Redução_de_Dimensionalidade-9ece6a?style=flat-square"/>
+### 2. Classificador Semântico de Textos (20 Newsgroups)
+* **Dataset:** 400 notícias do famoso corpus *20 Newsgroups* distribuídas igualmente em 4 classes de interesse (Graphics, Baseball, Mideast e Space).
+* **Mapas Hexagonais (10x10):**
+  * Comparação lado a lado entre representação clássica **TF-IDF (Frequencial)** e representação profunda **Sentence-BERT (Semântico)**.
+  * Análise estatística evidenciando o ganho de ARI/NMI usando embeddings contextuais.
+* **Classificador em Tempo Real:**
+  * Permite digitar qualquer texto curto ou longo e projetá-lo na malha de Kohonen para encontrar o neurônio ativado (BMU) correspondente.
+  * Pipeline híbrido: tenta o servidor FastAPI local (`http://127.0.0.1:8000`); se inativo, consome a **API de inferência pública do Hugging Face** e executa a projeção PCA de 384D para 20D em JavaScript diretamente no navegador.
 
-</td>
-<td align="center" width="33%">
+---
 
-**🧠 Rotulagem via LLM**<br/><br/>
-<img src="https://img.shields.io/badge/Gemini-gemma--4--31b--it-bb9af7?style=flat-square&logo=google&logoColor=1a1b26"/>
-<img src="https://img.shields.io/badge/Ollama-Inferência_Local-f7768e?style=flat-square"/>
-<img src="https://img.shields.io/badge/JSON_Mode-Saída_Estruturada-c0caf5?style=flat-square"/>
+## 📁 Estrutura de Arquivos Principal
 
-</td>
-<td align="center" width="33%">
-
-**📊 Dashboard**<br/><br/>
-<img src="https://img.shields.io/badge/React_18-TypeScript-7aa2f7?style=flat-square&logo=react&logoColor=1a1b26"/>
-<img src="https://img.shields.io/badge/Vite-Canvas_2D-9ece6a?style=flat-square&logo=vite&logoColor=1a1b26"/>
-<img src="https://img.shields.io/badge/Zustand-Gerenciamento_de_Estado-bb9af7?style=flat-square"/>
-
-</td>
-</tr>
-</table>
-
-<br/>
-
-## `> visão_geral_da_arquitetura`
-
-```
-news-clustering-llm/
+```text
+intrasom-kohonen/
 │
-├── 🐍 backend/
-│   ├── pipeline.py              # Orquestração completa ML + LLM (~666 linhas)
-│   ├── requirements.txt         # Dependências Python
-│   ├── .env                     # Chaves de API (Gemini / host Ollama)
-│   └── outputs/
-│       ├── clustering_results.json   # Resultados completos pré-computados para o frontend
-│       └── comparacao_agrupamento_*.png  # Gráficos comparativos estáticos (PCA/UMAP/t-SNE)
+├── 📁 frontend/                     # Aplicação web React + TS
+│   ├── 📁 public/data/              # Dados estáticos pré-computados (CDN)
+│   │   ├── series.json              # 600 séries temporais
+│   │   ├── som_models.json          # Malhas 5x5 a 20x20 para séries
+│   │   ├── text_models.json         # Grades textuais (SBERT + TF-IDF)
+│   │   └── pca_params.json          # Média e componentes do PCA (384D -> 20D)
+│   └── 📁 src/
+│       ├── 📁 components/           # HexGrid, TextHexGrid, ClassifierPanel, etc.
+│       └── 📁 store/
+│           └── useDashboardStore.ts # Estado global do dashboard e lógica de inferência
 │
-├── 🌐 frontend/
-│   └── src/
-│       ├── components/
-│       │   ├── ClusterPlot.tsx       # Scatter plot Canvas 2D (zoom, pan, morphing)
-│       │   ├── ClusterDetails.tsx    # Sidebar: rótulos LLM, estatísticas, leitor de documentos
-│       │   ├── MetricsPanel.tsx      # Tabela comparativa de métricas (ARI, NMI, Purity)
-│       │   └── LLMComparison.tsx     # Comparação lado a lado Gemini vs Ollama
-│       └── store/
-│           └── useClusteringStore.ts # Estado global Zustand
-│
-├── 📓 notebook_experimentos.ipynb   # Análise exploratória em Jupyter
-└── 📄 Base_dados_textos_6_classes.csv  # Dataset bruto (315 artigos, 6 categorias)
+└── 📁 src/                          # Scripts Python e Inteligência Artificial
+    ├── api.py                       # Servidor local FastAPI para vetorização/projeção
+    ├── text_som_clustering.py       # Pipeline de treinamento do SOM textual
+    └── export_data_for_frontend.py  # Exportador dos resultados Python para JSONs estáticos
 ```
 
-<br/>
-
-## `> fluxo_do_pipeline`
-
-<table align="center">
-<tr>
-<td width="50%">
-
-### 📥 Fase 1: Ingestão de Dados
-<p><img src="https://img.shields.io/badge/Status-✅_Completo-9ece6a?style=for-the-badge"/></p>
-
-**Entrada:** `Base_dados_textos_6_classes.csv`
-- **315** artigos em **6 categorias** de notícias
-- Colunas: `Texto Original`, `Texto Expandido`, `Classe`, `Categoria`
-- Filtragem de stopwords em PT · limpeza de valores nulos
-
-</td>
-<td width="50%">
-
-### 🔢 Fase 2: Representações Textuais
-<p><img src="https://img.shields.io/badge/Status-✅_Completo-9ece6a?style=for-the-badge"/></p>
-
-**3 representações comparadas:**
-1. **TF-IDF** — top-1000 features, stopwords em PT
-2. **Sentence Transformers** — `paraphrase-multilingual-MiniLM-L12-v2` (otimizado PT-BR)
-3. **Ollama** — `nomic-embed-text` (vetores locais de 768 dimensões)
-
-</td>
-</tr>
-<tr>
-<td width="50%">
-
-### 🤖 Fase 3: Algoritmos de Clusterização
-<p><img src="https://img.shields.io/badge/Status-✅_Completo-9ece6a?style=for-the-badge"/></p>
-
-**4 algoritmos × 3 representações = 12 configurações:**
-- **K-Means** — k=6, n_init=10
-- **Agglomerative** — linkage Ward
-- **DBSCAN** — ε adaptativo, min_samples=3
-- **HDBSCAN** — min_cluster_size=5
-
-</td>
-<td width="50%">
-
-### 🧠 Fase 4: Rotulagem Semântica via LLM
-<p><img src="https://img.shields.io/badge/Status-✅_Completo-9ece6a?style=for-the-badge"/></p>
-
-**Estratégia dupla de LLM:**
-- **Gemini** (`gemma-4-31b-it`) — Nuvem, saída JSON estruturada
-- **Ollama** — Fallback local, privacidade total
-- Saída: rótulo, resumo, análise de fronteira, coerência
-
-</td>
-</tr>
-<tr>
-<td width="50%">
-
-### 📐 Fase 5: Redução de Dimensionalidade
-<p><img src="https://img.shields.io/badge/Status-✅_Completo-9ece6a?style=for-the-badge"/></p>
-
-**3 projeções por configuração:**
-- **PCA** — baseline linear
-- **t-SNE** — preserva vizinhança (perplexidade auto-ajustada)
-- **UMAP** — preserva topologia (n_neighbors=15)
-
-</td>
-<td width="50%">
-
-### 📊 Fase 6: Dashboard Interativo
-<p><img src="https://img.shields.io/badge/Status-✅_Completo-9ece6a?style=for-the-badge"/></p>
-
-**Visualização React + Canvas 2D:**
-- Animação de transição suave (400ms ease-in-out) entre projeções
-- Busca de documentos em tempo real com destaque de texto
-- Efeito de pulso na seleção · Zoom/pan com eventos nativos
-
-</td>
-</tr>
-</table>
-
-<br/>
-
-## `> resultados_e_benchmark`
-
-<div align="center">
-<img src="https://img.shields.io/badge/Dataset-315_Artigos-f7768e?style=for-the-badge"/>
-<img src="https://img.shields.io/badge/Categorias-6_Classes-7aa2f7?style=for-the-badge"/>
-<img src="https://img.shields.io/badge/Configurações-12_Combinações-bb9af7?style=for-the-badge"/>
-<img src="https://img.shields.io/badge/Melhor_Purity-93.3%25-9ece6a?style=for-the-badge"/>
-</div>
-
-<br/>
-
-**Tabela completa de métricas (ARI · NMI · Purity · Silhouette):**
-
-| Configuração | ARI ↑ | NMI ↑ | Purity ↑ | Silhouette ↑ |
-|:---|:---:|:---:|:---:|:---:|
-| 🏆 **TF-IDF + Agglomerative** | **0.852** | **0.852** | **0.933** | 0.025 |
-| TF-IDF + K-Means | 0.705 | 0.778 | 0.857 | 0.024 |
-| ST + Agglomerative | 0.587 | 0.743 | 0.756 | 0.079 |
-| ST + K-Means | 0.556 | 0.665 | 0.752 | 0.083 |
-| Ollama + K-Means | 0.500 | 0.616 | 0.724 | 0.064 |
-| Ollama + Agglomerative | 0.455 | 0.564 | 0.695 | 0.056 |
-| TF-IDF + DBSCAN | 0.029 | 0.369 | 0.994* | 0.007 |
-| ST + HDBSCAN | 0.091 | 0.221 | 0.429 | 0.173 |
-
-> \* A purity do DBSCAN é inflada por colapsar a maioria dos artigos em clusters de ruído (-1).
-
-**Principais descobertas:**
-- **TF-IDF + Agglomerative (Ward)** é o vencedor geral — ARI/NMI altos indicam forte alinhamento com as categorias reais (ground-truth)
-- **Sentence Transformers** (modelo multilingual PT-BR) tem desempenho inferior ao TF-IDF neste dataset — provavelmente por conta do texto curto, estilo manchete, do `Texto Original`; a representação de texto expandido reduz parcialmente essa diferença
-- **DBSCAN / HDBSCAN** têm dificuldade nesses embeddings de alta dimensionalidade e distribuição uniforme — métodos baseados em densidade exigem estrutura de região densa que vetores de frequência/semânticos não formam naturalmente aqui
-
-<br/>
-
-## `> funcionalidades_do_dashboard`
-
-<table align="center">
-<tr>
-<td width="50%">
-
-**🗺️ Cluster Plot (Canvas 2D)**
-- Alterna entre **12 combinações** de algoritmo/representação
-- Alterna projeções: **PCA · UMAP · t-SNE**
-- **Animação de transição** suave entre projeções
-- Zoom (scroll) + pan (arraste) com eventos nativos
-- Colore por **cluster previsto** ou **categoria real**
-- Legenda com toggle individual por cluster
-
-</td>
-<td width="50%">
-
-**📖 Sidebar de Detalhes do Cluster**
-- **Rótulo semântico via LLM** com badge de coerência
-- **Barras de pureza por categoria** — distribuição da classe real dentro do cluster
-- **Documentos medoides** (mais próximos do centroide) vs **documentos de fronteira** (menor silhouette)
-- **Leitor de documentos** — texto completo + texto expandido + rótulo previsto vs real
-- **Busca em tempo real** com destaque de correspondências entre os 315 artigos
-
-</td>
-</tr>
-<tr>
-<td width="50%">
-
-**📈 Painel de Métricas**
-- Tabela comparativa completa das 12 configurações
-- Destaca automaticamente a melhor configuração ao carregar
-
-</td>
-<td width="50%">
-
-**🤖 Comparação de LLMs**
-- Comparação lado a lado **Gemini vs Ollama** por cluster
-- Saída estruturada em JSON: rótulo · resumo · análise de fronteira · coerência
-
-</td>
-</tr>
-</table>
-
-<br/>
-
-## `> categorias_de_notícias`
-
-O dataset cobre **6 classes temáticas** de notícias em português brasileiro:
-
-| # | Categoria | Descrição |
-|:---:|:---|:---|
-| 1 | 🔵 **Economia** | Notícias econômicas, mercados, finanças |
-| 2 | 🟠 **Esportes** | Cobertura esportiva, campeonatos |
-| 3 | 🔴 **Polícia e Direitos** | Ocorrências policiais, direitos civis, justiça |
-| 4 | 🟣 **Política** | Governo, eleições, políticas públicas |
-| 5 | 🩵 **Turismo** | Viagens, cultura, turismo |
-| 6 | 🟡 **Variedades e Sociedade** | Estilo de vida, sociedade, entretenimento |
-
-<br/>
-
-## `> instalação`
-
-```bash
-# 1. Clonar o repositório
-git clone https://github.com/takaokensei/news-clustering-llm.git
-cd news-clustering-llm
-```
-
-### 🐍 Backend (Pipeline de ML)
-
-```bash
-cd backend
-
-# Instalar dependências Python
-pip install -r requirements.txt
-
-# Configurar chaves de API
-cp .env.example .env
-# Editar .env e definir: GEMINI_API_KEY e, opcionalmente, OLLAMA_HOST
-
-# (Opcional) Subir o Ollama para inferência local
-ollama serve
-ollama pull llama3
-ollama pull nomic-embed-text
-
-# Rodar o pipeline completo (~5-15 min dependendo do hardware)
-python pipeline.py
-```
-
-> O pipeline gera `backend/outputs/clustering_results.json` — a única fonte de verdade consumida pelo frontend.
-
-### 🌐 Frontend (Dashboard)
-
-```bash
-cd frontend
-
-# Instalar dependências Node.js
-npm install
-
-# Iniciar o servidor de desenvolvimento
-npm run dev
-# → http://localhost:5173
-```
-
-<br/>
-
-## `> schema_de_saída_do_llm`
-
-Cada cluster recebe uma explicação estruturada em JSON de ambos os backends de LLM:
-
-```json
-{
-  "rotulo": "Economia & Mercados",
-  "resumo": "Este cluster agrupa notícias sobre movimentações no mercado financeiro...",
-  "analise_fronteira": "Os textos de fronteira misturam temas de política econômica...",
-  "coerencia": "Alta"
-}
-```
-
-Campos: **`rotulo`** (rótulo curto, ≤4 palavras) · **`resumo`** (resumo de 3–4 linhas) · **`analise_fronteira`** (ambiguidade de fronteira) · **`coerencia`** (`Alta / Média / Baixa`)
-
-<br/>
-
-## `> contato`
-
-<div align="center">
-
-  <strong>Cauã Vitor (takaokensei)</strong>
-  <br/>
-  <samp>Pesquisador de IA & Estudante de Engenharia Elétrica</samp>
-  <br/>
-  <samp>UFRN — Universidade Federal do Rio Grande do Norte</samp>
-
-  <br/><br/>
-
-  <a href="https://github.com/takaokensei">
-    <img src="https://img.shields.io/badge/-GitHub-1a1b26?style=for-the-badge&logo=github&logoColor=c0caf5"/>
-  </a>
-
-</div>
-
-<br/>
-
-<div align="center">
-  <img src="https://img.shields.io/badge/Feito_com-Python_🐍_+_React_⚛️-c0caf5?style=for-the-badge"/>
-  <img src="https://img.shields.io/badge/Powered_by-Gemini_+_Ollama-7aa2f7?style=for-the-badge"/>
-  <img src="https://img.shields.io/badge/Tema-Tokyo_Night_🌃-bb9af7?style=for-the-badge"/>
-</div>
-
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=1a1b26&height=100&section=footer"/>
+---
+
+## ⚡ Execução e Desenvolvimento
+
+### Pré-requisitos
+* Node.js v20+
+* Python v3.10+ com dependências instaladas (`pip install -r requirements.txt`)
+
+### 🌐 Frontend (React + Vite)
+1. Navegue até a pasta do frontend:
+   ```bash
+   cd frontend
+   ```
+2. Instale as dependências:
+   ```bash
+   npm install
+   ```
+3. Inicie o servidor de desenvolvimento:
+   ```bash
+   npm run dev
+   ```
+4. O projeto estará rodando em: `http://localhost:5173`.
+
+### 🐍 API Backend Local (Opcional)
+Para habilitar inferência em tempo real com TF-IDF nativo ou processar embeddings localmente de forma veloz:
+1. Inicie a API FastAPI a partir da raiz do projeto:
+   ```bash
+   python src/api.py
+   ```
+2. A API rodará em `http://127.0.0.1:8000`. O frontend mudará o indicador de status para **Servidor Local: ATIVO** de forma automatizada.
+
+---
+
+## 🎯 Acessibilidade & Detalhes Especiais
+* **Suporte à Teclado:** Toda a malha hexagonal é navegável usando a tecla `Tab`. O neurônio focado pode ser ativado usando `Enter` ou `Espaço`.
+* **Leitores de Tela:** Tags ARIA completas (`role="button"`, `aria-label`) descrevem o ID do neurônio, a quantidade de amostras associadas, a classe dominante e a pureza de cada hexágono.
+* **Segurança:** O token do Hugging Face foi removido do código cliente, sendo carregado via variáveis de ambiente (`VITE_HF_TOKEN`) com fallback seguro e tokenless de taxa limitada para uso anônimo.

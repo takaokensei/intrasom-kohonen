@@ -244,7 +244,7 @@ export function HexGrid() {
       className={
         isFullscreen
           ? "fixed inset-0 bg-[#16161e] z-50 p-8 flex flex-col"
-          : "glass-panel rounded-2xl p-5 flex flex-col h-full overflow-visible"
+          : "glass-panel rounded-2xl p-5 flex flex-col"
       }
     >
       <style>{`
@@ -313,7 +313,7 @@ export function HexGrid() {
       </div>
 
       {/* ── Content: hex map + optional sliding side panel ── */}
-      <div className="flex-1 flex overflow-hidden gap-5 min-h-0">
+      <div className={`${isFullscreen ? 'flex-1' : ''} flex overflow-hidden gap-5 min-h-0`}>
 
         {/* Hex Map column — shrinks when panel is open */}
         <div
@@ -321,7 +321,7 @@ export function HexGrid() {
           style={{ flex: sidePanelOpen ? '0 0 48%' : '1 1 100%' }}
         >
           {/* SVG Hex Map */}
-          <div className="flex-1 flex justify-center items-center relative overflow-hidden bg-tokyo-dark bg-opacity-40 rounded-xl border border-tokyo-border border-opacity-30">
+          <div className={`${isFullscreen ? 'flex-1' : 'min-h-[320px]'} flex justify-center items-center relative overflow-hidden bg-tokyo-dark bg-opacity-40 rounded-xl border border-tokyo-border border-opacity-30`}>
             <svg
               id="som-hex-grid-svg"
               viewBox={`0 0 ${svgWidth} ${svgHeight}`}
@@ -356,7 +356,16 @@ export function HexGrid() {
                   return (
                     <g
                       key={`${selectedMapSize}-${neuron.id}`}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Neurônio N${neuron.id}, Classe Dominante: ${neuron.total_samples > 0 ? neuron.dominant_class : 'Vazio'}, Amostras: ${neuron.total_samples}, Valor U-Matrix: ${neuron.umatrix_value.toFixed(3)}`}
                       onClick={() => setSelectedNeuronId(isSelected ? null : neuron.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setSelectedNeuronId(isSelected ? null : neuron.id);
+                        }
+                      }}
                       onMouseEnter={(e) => {
                         setHoveredNeuron(neuron);
                         const rect = e.currentTarget.getBoundingClientRect();
@@ -366,7 +375,7 @@ export function HexGrid() {
                         });
                       }}
                       onMouseLeave={() => setHoveredNeuron(null)}
-                      className="cursor-pointer group"
+                      className="cursor-pointer group focus:outline-none"
                     >
                       <polygon
                         points={pointsStr}
@@ -374,7 +383,7 @@ export function HexGrid() {
                         fillOpacity={neuron.total_samples === 0 && colorMode === 'class' ? 0.2 : 0.8}
                         stroke={stroke}
                         strokeWidth={strokeWidth}
-                        className="hex-polygon transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80"
+                        className="hex-polygon transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80 group-focus:stroke-white group-focus:stroke-opacity-100"
                         style={{
                           transformOrigin: `${cx}px ${cy}px`,
                           animationDelay: `${(neuron.row * cols + neuron.col) * 5}ms`

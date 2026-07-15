@@ -130,10 +130,21 @@ export function TextHexGrid() {
               return (
                 <g 
                   key={neuron.id}
-                  className="cursor-pointer group"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Neurônio N${neuron.id}, Classe Dominante: ${neuron.total_samples > 0 ? neuron.dominant_class : 'Vazio'}, Amostras: ${neuron.total_samples}, Pureza: ${(neuron.purity * 100).toFixed(0)}%`}
+                  className="cursor-pointer group focus:outline-none"
                   onClick={() => {
                     if (neuron.doc_indices.length > 0) {
                       setSelectedDocId(neuron.doc_indices[0]);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      if (neuron.doc_indices.length > 0) {
+                        setSelectedDocId(neuron.doc_indices[0]);
+                      }
                     }
                   }}
                 >
@@ -143,7 +154,7 @@ export function TextHexGrid() {
                     fillOpacity={neuron.total_samples === 0 ? 0.2 : 0.8}
                     stroke={stroke}
                     strokeWidth={strokeWidth}
-                    className="transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80"
+                    className="transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80 group-focus:stroke-white group-focus:stroke-opacity-100"
                   />
                   
                   <text

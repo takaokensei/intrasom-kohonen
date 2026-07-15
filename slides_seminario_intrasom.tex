@@ -35,7 +35,7 @@
 \title{IntraSOM Kohonen Maps Analyzer}
 \subtitle{Visualização Não-Supervisionada de Séries Temporais e Semântica de Textos}
 \author{Cauã Vitor}
-\institute{Universidade Federal do Norte (UFRN)}
+\institute{Universidade Federal do Rio Grande do Norte (UFRN)}
 \date{Julho de 2026}
 
 \begin{document}
@@ -59,9 +59,11 @@
     \end{column}
     \begin{column}{0.5\textwidth}
       \centering
-      \includegraphics[width=\textwidth]{outputs/figures/dim_reduction_comparison.png}
+      \begin{beamercolorbox}[wd=\linewidth,rounded=true,center,sep=2pt]{frametitle}
+        \includegraphics[width=0.96\linewidth]{outputs/figures/dim_reduction_comparison.png}
+      \end{beamercolorbox}
       
-      \vspace{0.2cm}
+      \vspace{0.1cm}
       \scriptsize \textcolor{tokyoBlue}{Fig. 1: PCA vs t-SNE vs UMAP}
     \end{column}
   \end{columns}
@@ -79,9 +81,11 @@
     \end{column}
     \begin{column}{0.45\textwidth}
       \centering
-      \includegraphics[width=0.9\textwidth]{outputs/figures/umatrix_10x10.jpg}
+      \begin{beamercolorbox}[wd=\linewidth,rounded=true,center,sep=2pt]{frametitle}
+        \includegraphics[width=0.96\linewidth]{outputs/figures/umatrix_10x10.jpg}
+      \end{beamercolorbox}
       
-      \vspace{0.2cm}
+      \vspace{0.1cm}
       \scriptsize \textcolor{tokyoBlue}{Fig. 2: U-Matrix do SOM (Fronteiras)}
     \end{column}
   \end{columns}
@@ -106,21 +110,34 @@
     \end{column}
     \begin{column}{0.5\textwidth}
       \centering
-      \includegraphics[width=\textwidth]{outputs/figures/time_series_classes.png}
+      \begin{beamercolorbox}[wd=\linewidth,rounded=true,center,sep=2pt]{frametitle}
+        \includegraphics[width=0.96\linewidth]{outputs/figures/time_series_classes.png}
+      \end{beamercolorbox}
       
-      \vspace{0.2cm}
+      \vspace{0.1cm}
       \scriptsize \textcolor{tokyoBlue}{Fig. 3: Sinais do Synthetic Control}
     \end{column}
   \end{columns}
 \end{frame}
 
 \begin{frame}{4. O Coração do Projeto: Dashboard Interativo}
-  \begin{itemize}
-    \item \textbf{Visualização Coesa:} Estética Tokyo Night integrando gráficos de séries e malha de Kohonen.
-    \item \textbf{Análise Interativa:} Seleção de múltiplos mapas (5x5 a 20x20), projeções de U-Matrix, Pureza e Hits.
-    \item \textbf{Inferência SBERT na Nuvem:} Classificação em tempo real enviando o texto para a API Hugging Face e aplicando projeção PCA local no browser (100\% serverless).
-    \item \textbf{Link Online:} \href{https://intrasom-kohonen.vercel.app}{intrasom-kohonen.vercel.app}
-  \end{itemize}
+  \begin{columns}
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}
+        \item \textbf{Visualização Coesa:} Estética Tokyo Night integrando gráficos de séries e malha de Kohonen.
+        \item \textbf{Análise Interativa:} Seleção de múltiplos mapas, projeções de U-Matrix, Pureza e Hits.
+        \item \textbf{Inferência SBERT na Nuvem:} Classificação em tempo real enviando o texto para a API Hugging Face e aplicando projeção PCA local no browser (100\% serverless).
+        \item \textbf{Link Online:} \href{https://intrasom-kohonen.vercel.app}{intrasom-kohonen.vercel.app}
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.52\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{outputs/figures/dashboard_screenshot1.png}
+      
+      \vspace{0.1cm}
+      \scriptsize \textcolor{tokyoBlue}{Fig. 4: Dashboard Interativo (Malha Kohonen)}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}{5. Resultado 1: Séries Temporais Organizadas}
@@ -137,7 +154,7 @@
       \includegraphics[width=0.88\textwidth]{outputs/figures/som_10x10_dominant_classes.png}
       
       \vspace{0.2cm}
-      \scriptsize \textcolor{tokyoBlue}{Fig. 4: Mapa de Classes Dominantes (10x10)}
+      \scriptsize \textcolor{tokyoBlue}{Fig. 5: Mapa de Classes Dominantes (10x10)}
     \end{column}
   \end{columns}
 \end{frame}
@@ -149,9 +166,9 @@
       \toprule
       Método / Algoritmo & ARI & NMI & Silhueta & Davies-Bouldin \\
       \midrule
-      \textbf{SOM 10x10 (IntraSOM)} & \textbf{0.6557} & \textbf{0.7715} & \textbf{0.2042} & \textbf{1.5975} \\
+      \textbf{SOM 10x10 (IntraSOM)} & \textbf{0.6557} & 0.7715 & 0.2042 & 1.5975 \\
       K-Means Direto & 0.6120 & 0.7107 & 0.1610 & 1.9582 \\
-      Clustering Aglomerativo & 0.6318 & 0.8008 & 0.2510 & 1.2821 \\
+      Clustering Aglomerativo & 0.6318 & \textbf{0.8008} & \textbf{0.2510} & \textbf{1.2821} \\
       DBSCAN & 0.1418 & 0.4019 & 0.1319 & 2.3495 \\
       \bottomrule
     \end{tabular}
@@ -176,17 +193,28 @@
       \includegraphics[width=0.88\textwidth]{outputs/figures/som_text_sbert_dominant.png}
       
       \vspace{0.2cm}
-      \scriptsize \textcolor{tokyoBlue}{Fig. 5: Mapeamento Semântico SBERT (10x10)}
+      \scriptsize \textcolor{tokyoBlue}{Fig. 6: Mapeamento Semântico SBERT (10x10)}
     \end{column}
   \end{columns}
 \end{frame}
 
 \begin{frame}{8. Aplicações em IA, Direito e Gestão Pública}
-  \begin{itemize}
-    \item \textbf{Triagem Inteligente de Processos:} Organização de petições e decisões semelhantes por proximidade temática (Jurimetria/Visual Law).
-    \item \textbf{Mapa Temático de Jurisprudência:} Interface navegável para buscar acórdãos e entendimentos semelhantes de forma não-supervisionada.
-    \item \textbf{Triagem Documental na Administração:} Agrupamento e organização de memorandos, pareceres e relatórios técnicos.
-  \end{itemize}
+  \begin{columns}
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}
+        \item \textbf{Triagem Inteligente de Processos:} Organização de petições e decisões semelhantes por proximidade temática (Jurimetria/Visual Law).
+        \item \textbf{Mapa Temático de Jurisprudência:} Interface navegável para buscar acórdãos e entendimentos semelhantes de forma não-supervisionada.
+        \item \textbf{Triagem Documental na Administração:} Agrupamento e organização de memorandos, pareceres e relatórios técnicos.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.52\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{outputs/figures/dashboard_screenshot2.png}
+      
+      \vspace{0.1cm}
+      \scriptsize \textcolor{tokyoBlue}{Fig. 7: Classificação de Textos em Tempo Real}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}{9. Conclusão}

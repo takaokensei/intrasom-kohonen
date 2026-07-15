@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1784134820.06137 "slides_seminario_intrasom.tex" "slides_seminario_intrasom.pdf" "slides_seminario_intrasom" 1784134827.02801 0
+["pdflatex"] 1784135087.55384 "slides_seminario_intrasom.tex" "slides_seminario_intrasom.pdf" "slides_seminario_intrasom" 1784135094.72776 0
   "C:/Users/Cauã" 1748141215.38727 19046 bfe6e618771e499646319602481cf77f ""
   "C:/Users/Cauã V/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1782530077.63917 620454 ad19782b732e9d9c8e77ebca8e2b4a0c ""
   "C:/Users/Cauã V/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1779492164.47647 13351276 69db83dadfcf2359742f6c89463d7187 ""
@@ -216,15 +216,17 @@
   "C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/tex/latex/translator/translator.sty" 1622471510 8765 56d370785f0143111ff9898b5adfe08e ""
   "C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1729265222 55384 b454dec21c2d9f45ec0b793f0995b992 ""
+  "outputs/figures/dashboard_screenshot1.png" 1784134022.04171 199833 e46c1fc0a0310c1c5f64909dec934e57 ""
+  "outputs/figures/dashboard_screenshot2.png" 1784134022.04052 118506 49923d40992132d522334c9df07f9703 ""
   "outputs/figures/dim_reduction_comparison.png" 1783353544.35395 768422 73caac6730d1cd5e337b5bbd01f40c3a ""
   "outputs/figures/som_10x10_dominant_classes.png" 1783353546.10767 857477 0ee0f25dfae2297e58c32b836e1d32d7 ""
   "outputs/figures/som_text_sbert_dominant.png" 1784073170.69743 758921 327e1c96f8759311c493403d1594476e ""
   "outputs/figures/time_series_classes.png" 1783353541.4567 2707497 cb00a8451fa22de1fa775df5f21c9d6a ""
   "outputs/figures/umatrix_10x10.jpg" 1783353545.02257 374217 3a4e05f51a0a7711c951e4a94c923371 ""
-  "slides_seminario_intrasom.aux" 1784134826.57521 1992 cfd95eb26021faf9fda57ec08af229da "pdflatex"
-  "slides_seminario_intrasom.nav" 1784134826.58898 1202 a971439ba5eedf62b158aa4c3f07763d "pdflatex"
-  "slides_seminario_intrasom.out" 1784134822.5414 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "slides_seminario_intrasom.tex" 1784134806.97885 8902 873ac6257082c75ab339b9894bb48175 ""
+  "slides_seminario_intrasom.aux" 1784135094.2343 1992 cfd95eb26021faf9fda57ec08af229da "pdflatex"
+  "slides_seminario_intrasom.nav" 1784135094.25003 1202 a971439ba5eedf62b158aa4c3f07763d "pdflatex"
+  "slides_seminario_intrasom.out" 1784135090.09443 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "slides_seminario_intrasom.tex" 1784135073.02992 10003 fd9d16cddcf924e719317a151a4d8543 ""
   (generated)
   "slides_seminario_intrasom.aux"
   "slides_seminario_intrasom.log"

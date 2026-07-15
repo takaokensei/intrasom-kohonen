@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.5.22)  15 JUL 2026 14:00
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.5.22)  15 JUL 2026 14:04
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1148,20 +1148,20 @@ Overfull \vbox (39.39362pt too high) detected at line 45
 [1
 
 {C:/Users/Cauã V/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
-LaTeX Font Info:    Trying to load font information for U+msa on input line 68.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 70.
 
 
 (C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 68.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 70.
 
 
 (C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Trying to load font information for OT1+mathkerncmss on inp
-ut line 68.
+ut line 70.
 
 (C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/sansmathaccent\ot1mat
 hkerncmss.fd
@@ -1172,8 +1172,8 @@ thkerncmss.
 File: outputs/figures/dim_reduction_comparison.png Graphic file (type png)
 <use outputs/figures/dim_reduction_comparison.png>
 Package pdftex.def Info: outputs/figures/dim_reduction_comparison.png  used on 
-input line 68.
-(pdftex.def)             Requested size: 199.1693pt x 87.13489pt.
+input line 70.
+(pdftex.def)             Requested size: 191.20386pt x 83.64578pt.
  [2
 
 {C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/cm-super/cm-sup
@@ -1182,10 +1182,10 @@ er-ts1.enc} <./outputs/figures/dim_reduction_comparison.png>]
 File: outputs/figures/umatrix_10x10.jpg Graphic file (type jpg)
 <use outputs/figures/umatrix_10x10.jpg>
 Package pdftex.def Info: outputs/figures/umatrix_10x10.jpg  used on input line 
-88.
-(pdftex.def)             Requested size: 161.32492pt x 222.04022pt.
+92.
+(pdftex.def)             Requested size: 172.08229pt x 236.8516pt.
 
-Overfull \vbox (33.58836pt too high) detected at line 88
+Overfull \vbox (58.57721pt too high) detected at line 92
  []
 
 [3
@@ -1195,37 +1195,50 @@ Overfull \vbox (33.58836pt too high) detected at line 88
 File: outputs/figures/time_series_classes.png Graphic file (type png)
 <use outputs/figures/time_series_classes.png>
 Package pdftex.def Info: outputs/figures/time_series_classes.png  used on input
- line 115.
-(pdftex.def)             Requested size: 199.1693pt x 142.25475pt.
+ line 121.
+(pdftex.def)             Requested size: 191.20386pt x 136.57558pt.
  [4
 
- <./outputs/figures/time_series_classes.png>] [5
+ <./outputs/figures/time_series_classes.png>]
+<outputs/figures/dashboard_screenshot1.png, id=47, 1027.84pt x 380.42125pt>
+File: outputs/figures/dashboard_screenshot1.png Graphic file (type png)
+<use outputs/figures/dashboard_screenshot1.png>
+Package pdftex.def Info: outputs/figures/dashboard_screenshot1.png  used on inp
+ut line 141.
+(pdftex.def)             Requested size: 207.13776pt x 76.66336pt.
+ [5
 
-]
-<outputs/figures/som_10x10_dominant_classes.png, id=52, 881.694pt x 687.5286pt>
+ <./outputs/figures/dashboard_screenshot1.png>]
+<outputs/figures/som_10x10_dominant_classes.png, id=54, 881.694pt x 687.5286pt>
 
 File: outputs/figures/som_10x10_dominant_classes.png Graphic file (type png)
 <use outputs/figures/som_10x10_dominant_classes.png>
 Package pdftex.def Info: outputs/figures/som_10x10_dominant_classes.png  used o
-n input line 143.
+n input line 160.
 (pdftex.def)             Requested size: 168.25764pt x 131.19829pt.
  [6
 
  <./outputs/figures/som_10x10_dominant_classes.png>] [7
 
 ]
-<outputs/figures/som_text_sbert_dominant.png, id=66, 723.6636pt x 570.4512pt>
+<outputs/figures/som_text_sbert_dominant.png, id=68, 723.6636pt x 570.4512pt>
 File: outputs/figures/som_text_sbert_dominant.png Graphic file (type png)
 <use outputs/figures/som_text_sbert_dominant.png>
 Package pdftex.def Info: outputs/figures/som_text_sbert_dominant.png  used on i
-nput line 182.
+nput line 199.
 (pdftex.def)             Requested size: 175.26994pt x 138.1558pt.
+ [8
 
-[8
+ <./outputs/figures/som_text_sbert_dominant.png>]
+<outputs/figures/dashboard_screenshot2.png, id=75, 1027.84pt x 358.33875pt>
+File: outputs/figures/dashboard_screenshot2.png Graphic file (type png)
+<use outputs/figures/dashboard_screenshot2.png>
+Package pdftex.def Info: outputs/figures/dashboard_screenshot2.png  used on inp
+ut line 218.
+(pdftex.def)             Requested size: 207.13776pt x 72.21326pt.
+ [9
 
- <./outputs/figures/som_text_sbert_dominant.png>] [9
-
-] [10
+ <./outputs/figures/dashboard_screenshot2.png>] [10
 
 ] [11
 
@@ -1250,10 +1263,10 @@ ed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 26352 strings out of 467691
- 535366 string characters out of 5413983
- 915091 words of memory out of 5000000
- 54860 multiletter control sequences out of 15000+600000
+ 26391 strings out of 467691
+ 536770 string characters out of 5413983
+ 916133 words of memory out of 5000000
+ 54899 multiletter control sequences out of 15000+600000
  635556 words of font info for 67 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,13n,123p,1924b,708s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1268,9 +1281,9 @@ auã V/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmssi10.pfb
 ><C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/fonts/type1/public/cm-super/sf
 ss0900.pfb><C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/fonts/type1/public/c
 m-super/sfss1000.pfb>
-Output written on slides_seminario_intrasom.pdf (11 pages, 5019455 bytes).
+Output written on slides_seminario_intrasom.pdf (11 pages, 5227426 bytes).
 PDF statistics:
- 135 PDF objects out of 1000 (max. 8388607)
+ 139 PDF objects out of 1000 (max. 8388607)
  23 named destinations out of 1000 (max. 500000)
- 68 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 78 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -435,6 +435,13 @@ INPUT .\outputs\figures\time_series_classes.png
 INPUT .\outputs\figures\time_series_classes.png
 INPUT .\outputs\figures\time_series_classes.png
 INPUT .\outputs\figures\time_series_classes.png
+INPUT .\outputs\figures\dashboard_screenshot1.png
+INPUT .\outputs\figures\dashboard_screenshot1.png
+INPUT .\outputs\figures\dashboard_screenshot1.png
+INPUT .\outputs\figures\dashboard_screenshot1.png
+INPUT .\outputs\figures\dashboard_screenshot1.png
+INPUT .\outputs\figures\dashboard_screenshot1.png
+INPUT .\outputs\figures\dashboard_screenshot1.png
 INPUT C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmssi10.tfm
 INPUT .\outputs\figures\som_10x10_dominant_classes.png
 INPUT .\outputs\figures\som_10x10_dominant_classes.png
@@ -450,6 +457,13 @@ INPUT .\outputs\figures\som_text_sbert_dominant.png
 INPUT .\outputs\figures\som_text_sbert_dominant.png
 INPUT .\outputs\figures\som_text_sbert_dominant.png
 INPUT .\outputs\figures\som_text_sbert_dominant.png
+INPUT .\outputs\figures\dashboard_screenshot2.png
+INPUT .\outputs\figures\dashboard_screenshot2.png
+INPUT .\outputs\figures\dashboard_screenshot2.png
+INPUT .\outputs\figures\dashboard_screenshot2.png
+INPUT .\outputs\figures\dashboard_screenshot2.png
+INPUT .\outputs\figures\dashboard_screenshot2.png
+INPUT .\outputs\figures\dashboard_screenshot2.png
 INPUT C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmss17.tfm
 INPUT C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmss8.tfm
 OUTPUT slides_seminario_intrasom.nav

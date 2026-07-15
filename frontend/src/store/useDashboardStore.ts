@@ -51,6 +51,7 @@ export interface TextNeuronItem {
   purity: number;
   total_samples: number;
   doc_indices: number[];
+  codebook?: number[];
 }
 
 export interface TextModel {
@@ -94,9 +95,10 @@ interface DashboardState {
     dominantClass: string;
     purity: number;
     score: number;
-    isBackend?: boolean;
+    source: 'local' | 'cloud' | 'fallback';
   } | null;
   backendOnline: boolean | null;
+  pcaParams: { mean: number[]; components: number[][] } | null;
   
   // Actions
   setActiveTab: (tab: TabType) => void;
@@ -139,6 +141,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   customTextQuery: '',
   classificationResult: null,
   backendOnline: null,
+  pcaParams: null,
   
   // Actions
   setActiveTab: (activeTab) => {
@@ -178,17 +181,19 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     
     set({ loadingText: true });
     try {
-      const [modelsRes, metricsRes, samplesRes] = await Promise.all([
+      const [modelsRes, metricsRes, samplesRes, pcaRes] = await Promise.all([
         fetch('/data/text_models.json'),
         fetch('/data/text_metrics.json'),
-        fetch('/data/news_samples.json')
+        fetch('/data/news_samples.json'),
+        fetch('/data/pca_params.json')
       ]);
       
       const textModels = await modelsRes.json();
       const textMetrics = await metricsRes.json();
       const newsSamples = await samplesRes.json();
+      const pcaParams = await pcaRes.json();
       
-      set({ textModels, textMetrics, newsSamples, loadingText: false });
+      set({ textModels, textMetrics, newsSamples, pcaParams, loadingText: false });
       get().checkBackend();
     } catch (err) {
       console.error("Error loading text news data:", err);
@@ -227,17 +232,90 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
             dominantClass: result.dominantClass,
             purity: result.purity,
             score: result.score,
-            isBackend: true
+            source: 'local'
           },
           backendOnline: true
         });
         return;
       }
     } catch (err) {
-      // Backend is offline, fall back to local client matching
+      // Backend is offline, try cloud HF Inference API for SBERT
     }
     
-    // 2. Client-side fallback matching
+    // 2. Try Hugging Face Inference API for SBERT (Cloud-based real embedding projection)
+    if (rep === 'SBERT') {
+      try {
+        const hfResponse = await fetch('https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer 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' // User HF token
+          },
+          body: JSON.stringify({ inputs: text })
+        });
+        
+        if (hfResponse.ok) {
+          const emb = await hfResponse.json(); // Array of 384 floats
+          const pca = get().pcaParams;
+          const model = get().textModels[rep];
+          
+          if (Array.isArray(emb) && emb.length === 384 && pca && model) {
+            // Apply PCA projection: Q_20 = (emb - mean) * components
+            const vec_20 = new Array(20).fill(0);
+            for (let i = 0; i < 20; i++) {
+              let sum = 0;
+              for (let j = 0; j < 384; j++) {
+                sum += (emb[j] - pca.mean[j]) * pca.components[i][j];
+              }
+              vec_20[i] = sum;
+            }
+            
+            // Find BMU in model neurons using Euclidean distance
+            let bestNeuronId = 1;
+            let minDistance = Infinity;
+            let bestNeuron = model.neurons[0];
+            
+            model.neurons.forEach(neuron => {
+              if (neuron.codebook && neuron.codebook.length === 20) {
+                let sumSq = 0;
+                for (let i = 0; i < 20; i++) {
+                  const diff = vec_20[i] - neuron.codebook[i];
+                  sumSq += diff * diff;
+                }
+                const dist = Math.sqrt(sumSq);
+                if (dist < minDistance) {
+                  minDistance = dist;
+                  bestNeuronId = neuron.id;
+                  bestNeuron = neuron;
+                }
+              }
+            });
+            
+            // Calculate score (confidence)
+            const maxExpectedDist = 6.0;
+            const confidence = Math.max(0, Math.min(100, Math.round((1.0 - (minDistance / maxExpectedDist)) * 100)));
+            const adjustedConfidence = confidence > 0 ? Math.round(50 + (confidence / 2)) : 0;
+            const finalScore = minDistance < 1.0 ? Math.max(adjustedConfidence, 95) : adjustedConfidence;
+            
+            set({
+              classificationResult: {
+                bmu: bestNeuronId,
+                dominantClass: bestNeuron.dominant_class,
+                purity: bestNeuron.purity,
+                score: finalScore,
+                source: 'cloud'
+              },
+              backendOnline: false
+            });
+            return;
+          }
+        }
+      } catch (hfErr) {
+        console.error("Hugging Face Inference API failed:", hfErr);
+      }
+    }
+    
+    // 3. Client-side fallback matching (Heuristics)
     const queryLower = text.toLowerCase();
     const samples = get().newsSamples;
     
@@ -326,7 +404,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         dominantClass,
         purity,
         score,
-        isBackend: false
+        source: 'fallback'
       },
       backendOnline: false
     });

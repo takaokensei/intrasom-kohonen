@@ -66,10 +66,15 @@ export function ClassifierPanel() {
             <span className="w-1.5 h-1.5 rounded-full bg-tokyo-green animate-pulse" />
             Servidor Local: ATIVO (Real)
           </span>
+        ) : selectedTextRep === 'SBERT' ? (
+          <span className="flex items-center gap-1 text-tokyo-blue font-bold bg-tokyo-blue bg-opacity-10 px-1.5 py-0.5 rounded border border-tokyo-blue border-opacity-35" title="Utilizando API de inferência do Hugging Face com projeção PCA local. 100% fiel e sem backend necessário!">
+            <span className="w-1.5 h-1.5 rounded-full bg-tokyo-blue animate-pulse" />
+            Nuvem HF API: ATIVO (Real)
+          </span>
         ) : (
-          <span className="flex items-center gap-1 text-tokyo-orange font-bold bg-tokyo-orange bg-opacity-10 px-1.5 py-0.5 rounded border border-[#ff9e64] border-opacity-35" title="Rode 'python src/api.py' no terminal para ativar inferência real com SBERT e TF-IDF">
+          <span className="flex items-center gap-1 text-tokyo-orange font-bold bg-tokyo-orange bg-opacity-10 px-1.5 py-0.5 rounded border border-[#ff9e64] border-opacity-35" title="Rode 'python src/api.py' no terminal para ativar inferência real do TF-IDF. Usando busca por palavras-chave.">
             <span className="w-1.5 h-1.5 rounded-full bg-[#ff9e64]" />
-            Servidor Local: INATIVO (Fallback)
+            Inativo (Fallback Heurístico)
           </span>
         )}
       </div>
@@ -145,10 +150,14 @@ export function ClassifierPanel() {
               <div>
                 <div className="text-[10px] text-[#9aa5ce] uppercase font-mono tracking-wider font-semibold flex items-center gap-1.5">
                   SOM Categoria Predita
-                  {classificationResult.isBackend ? (
-                    <span className="text-[8px] bg-tokyo-green bg-opacity-25 text-tokyo-green px-1 rounded-sm border border-tokyo-green border-opacity-30 font-bold uppercase tracking-normal">Real</span>
-                  ) : (
-                    <span className="text-[8px] bg-tokyo-panel text-tokyo-muted px-1 rounded-sm border border-tokyo-border font-bold uppercase tracking-normal">Heurística</span>
+                  {classificationResult.source === 'local' && (
+                    <span className="text-[8px] bg-tokyo-green bg-opacity-25 text-tokyo-green px-1.5 py-0.5 rounded-sm border border-tokyo-green border-opacity-30 font-bold uppercase tracking-normal">Local</span>
+                  )}
+                  {classificationResult.source === 'cloud' && (
+                    <span className="text-[8px] bg-tokyo-blue bg-opacity-25 text-tokyo-blue px-1.5 py-0.5 rounded-sm border border-tokyo-blue border-opacity-30 font-bold uppercase tracking-normal">Nuvem HF</span>
+                  )}
+                  {classificationResult.source === 'fallback' && (
+                    <span className="text-[8px] bg-tokyo-panel text-tokyo-muted px-1.5 py-0.5 rounded-sm border border-tokyo-border font-bold uppercase tracking-normal">Heurística</span>
                   )}
                 </div>
                 <div className={`text-sm font-bold flex items-center gap-1.5 ${

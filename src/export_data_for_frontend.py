@@ -178,6 +178,11 @@ def export_all():
             r_idx = idx // cols
             c_idx = idx % cols
             
+            # Get codebook from neurons_df
+            neuron_row = neurons_df[neurons_df['BMU'] == bmu_idx]
+            dim_cols = [f"B_Dim_{i}" for i in range(1, 21)]
+            codebook = neuron_row[dim_cols].values[0].tolist() if not neuron_row.empty else []
+            
             neurons_list.append({
                 "id": bmu_idx,
                 "x": float(cx),
@@ -188,7 +193,8 @@ def export_all():
                 "dominant_class": bmu_dominant,
                 "purity": bmu_purity,
                 "total_samples": bmu_totals,
-                "doc_indices": doc_indices
+                "doc_indices": doc_indices,
+                "codebook": codebook
             })
             
         text_models[rep] = {
@@ -200,6 +206,21 @@ def export_all():
     with open(os.path.join(public_data_dir, "text_models.json"), "w", encoding="utf-8") as f:
         json.dump(text_models, f, ensure_ascii=False)
     print("Exported text_models.json")
+    
+    # Export PCA parameters for client-side SBERT projection
+    try:
+        import pickle
+        with open(os.path.join(maps_dir, "sbert_pca.pkl"), "rb") as f:
+            pca = pickle.load(f)
+        pca_params = {
+            "mean": pca.mean_.tolist(),
+            "components": pca.components_.tolist()
+        }
+        with open(os.path.join(public_data_dir, "pca_params.json"), "w", encoding="utf-8") as f:
+            json.dump(pca_params, f, ensure_ascii=False)
+        print("Exported pca_params.json")
+    except Exception as e:
+        print(f"Error exporting pca_params.json: {e}")
         
     # Text clustering comparison metrics
     text_metrics_file = os.path.join(metrics_dir, "text_clustering_comparison.json")

@@ -85,7 +85,7 @@ function App() {
         <main className="flex-1 p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
           {/* Left Area - HexGrid Map & Metrics */}
           <section className="lg:col-span-8 flex flex-col space-y-6 min-w-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 min-h-[350px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[380px]">
               <HexGrid />
               <TimeSeriesPlot />
             </div>
@@ -101,7 +101,7 @@ function App() {
           </section>
 
           {/* Right Area - Config & Selection Details */}
-          <aside className="lg:col-span-4 flex flex-col space-y-6 h-full min-w-0">
+          <aside className="lg:col-span-4 flex flex-col space-y-6 min-w-0">
             {/* SOM Model Configurations */}
             <div className="glass-panel rounded-2xl p-5 flex flex-col">
               <h3 className="text-sm font-bold text-tokyo-text mb-4 uppercase font-mono tracking-wider flex items-center gap-1.5">
@@ -227,7 +227,7 @@ function App() {
           </section>
 
           {/* Right Side: Interactive classifier & explanations */}
-          <aside className="lg:col-span-5 flex flex-col space-y-6 h-full min-w-0">
+          <aside className="lg:col-span-5 flex flex-col space-y-6 min-w-0">
             <ClassifierPanel />
             
             {/* Scientific Explanation Panel */}

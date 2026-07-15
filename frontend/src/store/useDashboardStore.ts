@@ -272,6 +272,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
           headers['Authorization'] = `Bearer ${token}`;
         }
         
+        // Unified proxy URL: handled by Vite middleware in dev and Vercel Serverless Function in production
         const url = '/api/hf-sbert';
           
         const hfResponse = await fetch(url, {

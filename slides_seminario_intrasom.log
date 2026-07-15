@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.5.22)  15 JUL 2026 13:41
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.5.22)  15 JUL 2026 14:00
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -769,25 +769,147 @@ medefault.sty
 )
 (C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerouterthe
 medefault.sty)))
-(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerthemeMad
-rid.sty
-(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamercolorthe
-mewhale.sty)
-(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamercolorthe
-meorchid.sty)
-(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerinnerthe
-merounded.sty)
-(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerouterthe
-meinfolines.sty))
-(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/base\inputenc.sty
-Package: inputenc 2024/02/08 v1.3d Input encoding file
-\inpenc@prehook=\toks46
-\inpenc@posthook=\toks47
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/beamertheme-metropoli
+s\beamerthememetropolis.sty
+Package: beamerthememetropolis 2017/01/23 v1.2 Metropolis Beamer theme
+
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/pgfopts\pgfopts.sty
+Package: pgfopts 2014/07/10 v2.1a LaTeX package options with pgfkeys
+\pgfopts@list@add@a@toks=\toks46
+\pgfopts@list@add@b@toks=\toks47
 )
-(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/generic/babel\babel.sty
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/beamertheme-metropoli
+s\beamerinnerthememetropolis.sty
+Package: beamerinnerthememetropolis 2017/01/23 Metropolis inner theme
+
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/tools\calc.sty
+Package: calc 2025/03/01 v4.3b Infix arithmetic (KKT,FJ)
+\calc@Acount=\count358
+\calc@Bcount=\count359
+\calc@Adimen=\dimen304
+\calc@Bdimen=\dimen305
+\calc@Askip=\skip67
+\calc@Bskip=\skip68
+LaTeX Info: Redefining \setlength on input line 86.
+LaTeX Info: Redefining \addtolength on input line 87.
+\calc@Ccount=\count360
+\calc@Cskip=\skip69
+)
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/pgf/frontendlayer\tik
+z.sty
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/pgf/basiclayer\pgf.st
+y
+Package: pgf 2025-08-29 v3.1.11a (3.1.11a)
+
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/generic/pgf/modules\pgfmodu
+leshapes.code.tex
+File: pgfmoduleshapes.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfnodeparttextbox=\box78
+)
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/generic/pgf/modules\pgfmodu
+leplot.code.tex
+File: pgfmoduleplot.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/pgf/compatibility\pgf
+comp-version-0-65.sty
+Package: pgfcomp-version-0-65 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@nodesepstart=\dimen306
+\pgf@nodesepend=\dimen307
+)
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/pgf/compatibility\pgf
+comp-version-1-18.sty
+Package: pgfcomp-version-1-18 2025-08-29 v3.1.11a (3.1.11a)
+))
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/pgf/utilities\pgffor.
+sty
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities\pgffo
+r.code.tex
+Package: pgffor 2025-08-29 v3.1.11a (3.1.11a)
+\pgffor@iter=\dimen308
+\pgffor@skip=\dimen309
+\pgffor@stack=\toks48
+\pgffor@toks=\toks49
+))
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/t
+ikz\tikz.code.tex
+Package: tikz 2025-08-29 v3.1.11a (3.1.11a)
+
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/generic/pgf/libraries\pgfli
+braryplothandlers.code.tex
+File: pgflibraryplothandlers.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@plot@mark@count=\count361
+\pgfplotmarksize=\dimen310
+)
+\tikz@lastx=\dimen311
+\tikz@lasty=\dimen312
+\tikz@lastxsaved=\dimen313
+\tikz@lastysaved=\dimen314
+\tikz@lastmovetox=\dimen315
+\tikz@lastmovetoy=\dimen316
+\tikzleveldistance=\dimen317
+\tikzsiblingdistance=\dimen318
+\tikz@figbox=\box79
+\tikz@figbox@bg=\box80
+\tikz@tempbox=\box81
+\tikz@tempbox@bg=\box82
+\tikztreelevel=\count362
+\tikznumberofchildren=\count363
+\tikznumberofcurrentchild=\count364
+\tikz@fig@count=\count365
+
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/generic/pgf/modules\pgfmodu
+lematrix.code.tex
+File: pgfmodulematrix.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfmatrixcurrentrow=\count366
+\pgfmatrixcurrentcolumn=\count367
+\pgf@matrix@numberofcolumns=\count368
+)
+\tikz@expandcount=\count369
+
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/t
+ikz/libraries\tikzlibrarytopaths.code.tex
+File: tikzlibrarytopaths.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)))
+\metropolis@titleseparator@linewidth=\skip70
+\metropolis@progressonsectionpage=\skip71
+\metropolis@progressonsectionpage@linewidth=\skip72
+\metropolis@blocksep=\skip73
+\metropolis@blockadjust=\skip74
+\metropolis@parskip=\skip75
+)
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/beamertheme-metropoli
+s\beamerouterthememetropolis.sty
+Package: beamerouterthememetropolis 2017/01/23 Metropolis outer theme
+\metropolis@frametitle@padding=\skip76
+\metropolis@progressinheadfoot=\skip77
+\metropolis@progressinheadfoot@linewidth=\skip78
+)
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/beamertheme-metropoli
+s\beamercolorthememetropolis.sty
+Package: beamercolorthememetropolis 2017/01/23 Metropolis color theme
+)
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/beamertheme-metropoli
+s\beamerfontthememetropolis.sty
+Package: beamerfontthememetropolis 2017/01/23 Metropolis font theme
+
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifxetex.sty
+Package: ifxetex 2019/10/25 v0.7 ifxetex legacy package. Use iftex instead.
+)
+(C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifluatex.sty
+Package: ifluatex 2019/10/25 v1.5 ifluatex legacy package. Use iftex instead.
+)
+
+Package beamerthememetropolis Warning: You need to compile with XeLaTeX or LuaL
+aTeX to use the Fira fonts on input line 95.
+
+)) (C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/base\inputenc.sty
+Package: inputenc 2024/02/08 v1.3d Input encoding file
+\inpenc@prehook=\toks50
+\inpenc@posthook=\toks51
+) (C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/generic/babel\babel.sty
 Package: babel 2026/04/15 v26.6 The multilingual framework for LuaLaTeX, pdfLaT
 eX and XeLaTeX
-\babel@savecnt=\count358
+\babel@savecnt=\count370
 LaTeX Encoding Info:    Redeclaring text command \ij (encoding OT1) on input li
 ne 2078.
 LaTeX Encoding Info:    Redeclaring text command \IJ (encoding OT1) on input li
@@ -802,13 +924,13 @@ LaTeX Encoding Info:    Ignoring declaration for text command \IJ (encoding ?)
 on input line 2086.
 LaTeX Encoding Info:    Ignoring declaration for text command \SS (encoding ?) 
 on input line 2111.
-\U@D=\dimen304
+\U@D=\dimen319
 \l@unhyphenated=\language79
 
 (C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/generic/babel\txtbabel.def)
 \bbl@readstream=\read3
 LaTeX Info: Redefining \textlatin on input line 3974.
-\bbl@dirlevel=\count359
+\bbl@dirlevel=\count371
 Package babel Info: Configuration files are deprecated, as
 (babel)             they can break document portability.
 (babel)             Reported on input line 4206.
@@ -831,52 +953,52 @@ Package babel Info: Making " an active character on input line 132.
 ))
 (C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\booktabs.sty
 Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
-\heavyrulewidth=\dimen305
-\lightrulewidth=\dimen306
-\cmidrulewidth=\dimen307
-\belowrulesep=\dimen308
-\belowbottomsep=\dimen309
-\aboverulesep=\dimen310
-\abovetopsep=\dimen311
-\cmidrulesep=\dimen312
-\cmidrulekern=\dimen313
-\defaultaddspace=\dimen314
-\@cmidla=\count360
-\@cmidlb=\count361
-\@aboverulesep=\dimen315
-\@belowrulesep=\dimen316
-\@thisruleclass=\count362
-\@lastruleclass=\count363
-\@thisrulewidth=\dimen317
+\heavyrulewidth=\dimen320
+\lightrulewidth=\dimen321
+\cmidrulewidth=\dimen322
+\belowrulesep=\dimen323
+\belowbottomsep=\dimen324
+\aboverulesep=\dimen325
+\abovetopsep=\dimen326
+\cmidrulesep=\dimen327
+\cmidrulekern=\dimen328
+\defaultaddspace=\dimen329
+\@cmidla=\count372
+\@cmidlb=\count373
+\@aboverulesep=\dimen330
+\@belowrulesep=\dimen331
+\@thisruleclass=\count374
+\@lastruleclass=\count375
+\@thisrulewidth=\dimen332
 )
 (C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-p
 dftex.def
 File: l3backend-pdftex.def 2026-02-18 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count364
+\l__color_backend_stack_int=\count376
 ) (slides_seminario_intrasom.aux
 Package babel Info: 'portuguese' activates 'portuges' shorthands.
 (babel)             Reported on input line 8.
 )
 \openout1 = `slides_seminario_intrasom.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -886,14 +1008,14 @@ LaTeX Font Info:    ... okay on input line 30.
 * layout: <same size as paper>
 * layoutoffset:(h,v)=(0.0pt,0.0pt)
 * modes: includehead includefoot 
-* h-part:(L,W,R)=(10.00002pt, 435.24405pt, 10.00002pt)
+* h-part:(L,W,R)=(28.45274pt, 398.3386pt, 28.45274pt)
 * v-part:(T,H,B)=(0.0pt, 256.0748pt, 0.0pt)
 * \paperwidth=455.24408pt
 * \paperheight=256.0748pt
-* \textwidth=435.24405pt
+* \textwidth=398.3386pt
 * \textheight=227.62207pt
-* \oddsidemargin=-62.26997pt
-* \evensidemargin=-62.26997pt
+* \oddsidemargin=-43.81725pt
+* \evensidemargin=-43.81725pt
 * \topmargin=-72.26999pt
 * \headheight=14.22636pt
 * \headsep=0.0pt
@@ -916,17 +1038,17 @@ LaTeX Font Info:    ... okay on input line 30.
 (C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.
 mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count365
-\scratchdimen=\dimen318
-\scratchbox=\box78
-\nofMPsegments=\count366
-\nofMParguments=\count367
-\everyMPshowfont=\toks48
-\MPscratchCnt=\count368
-\MPscratchDim=\dimen319
-\MPnumerator=\count369
-\makeMPintoPDFobject=\count370
-\everyMPtoPDFconversion=\toks49
+\scratchcounter=\count377
+\scratchdimen=\dimen333
+\scratchbox=\box83
+\nofMPsegments=\count378
+\nofMParguments=\count379
+\everyMPshowfont=\toks52
+\MPscratchCnt=\count380
+\MPscratchDim=\dimen334
+\MPnumerator=\count381
+\makeMPintoPDFobject=\count382
+\everyMPtoPDFconversion=\toks53
 )
 (C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf
 -base.sty
@@ -938,63 +1060,63 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 .cfg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-Package hyperref Info: Link coloring OFF on input line 30.
+Package hyperref Info: Link coloring OFF on input line 41.
  (slides_seminario_intrasom.out) (slides_seminario_intrasom.out)
 \@outlinefile=\write5
 \openout5 = `slides_seminario_intrasom.out'.
 
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
-(Font)                  OT1/cmr/m/n --> OT1/cmss/m/n on input line 30.
+(Font)                  OT1/cmr/m/n --> OT1/cmss/m/n on input line 41.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
-(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 30.
+(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 41.
 \symnumbers=\mathgroup6
 \sympureletters=\mathgroup7
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `normal'
-(Font)                  OT1/cmss/m/n --> OT1/cmr/m/n on input line 30.
-LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 30.
+(Font)                  OT1/cmss/m/n --> OT1/cmr/m/n on input line 41.
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 41.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
-(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 30.
+(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 41.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
-(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 30.
-LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 30.
+(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 41.
+LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 41.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
-(Font)                  OT1/cmss/m/n --> OT1/cmss/m/n on input line 30.
+(Font)                  OT1/cmss/m/n --> OT1/cmss/m/n on input line 41.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/cmss/bx/n --> OT1/cmss/m/n on input line 30.
-LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 30.
+(Font)                  OT1/cmss/bx/n --> OT1/cmss/m/n on input line 41.
+LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 41.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
-(Font)                  OT1/cmr/m/it --> OT1/cmss/m/it on input line 30.
+(Font)                  OT1/cmr/m/it --> OT1/cmss/m/it on input line 41.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  OT1/cmr/bx/it --> OT1/cmss/m/it on input line 30.
-LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 30.
+(Font)                  OT1/cmr/bx/it --> OT1/cmss/m/it on input line 41.
+LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 41.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
-(Font)                  OT1/cmtt/m/n --> OT1/cmtt/m/n on input line 30.
+(Font)                  OT1/cmtt/m/n --> OT1/cmtt/m/n on input line 41.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/cmtt/m/n --> OT1/cmtt/m/n on input line 30.
+(Font)                  OT1/cmtt/m/n --> OT1/cmtt/m/n on input line 41.
 LaTeX Font Info:    Overwriting symbol font `numbers' in version `bold'
-(Font)                  OT1/cmss/m/n --> OT1/cmss/b/n on input line 30.
+(Font)                  OT1/cmss/m/n --> OT1/cmss/b/n on input line 41.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `bold'
-(Font)                  OT1/cmss/m/it --> OT1/cmss/b/it on input line 30.
+(Font)                  OT1/cmss/m/it --> OT1/cmss/b/it on input line 41.
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `bold'
-(Font)                  OT1/cmss/b/n --> OT1/cmr/b/n on input line 30.
+(Font)                  OT1/cmss/b/n --> OT1/cmr/b/n on input line 41.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
-(Font)                  OT1/cmss/b/n --> OT1/cmss/b/n on input line 30.
+(Font)                  OT1/cmss/b/n --> OT1/cmss/b/n on input line 41.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/cmss/m/n --> OT1/cmss/b/n on input line 30.
+(Font)                  OT1/cmss/m/n --> OT1/cmss/b/n on input line 41.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  OT1/cmss/m/it --> OT1/cmss/b/it on input line 30.
+(Font)                  OT1/cmss/m/it --> OT1/cmss/b/it on input line 41.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/cmtt/m/n --> OT1/cmtt/b/n on input line 30.
-LaTeX Font Info:    Redeclaring symbol font `pureletters' on input line 30.
+(Font)                  OT1/cmtt/m/n --> OT1/cmtt/b/n on input line 41.
+LaTeX Font Info:    Redeclaring symbol font `pureletters' on input line 41.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `normal'
-(Font)                  OT1/cmss/m/it --> OT1/mathkerncmss/m/sl on input line 3
-0.
+(Font)                  OT1/cmss/m/it --> OT1/mathkerncmss/m/sl on input line 4
+1.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `bold'
-(Font)                  OT1/cmss/b/it --> OT1/mathkerncmss/m/sl on input line 3
-0.
+(Font)                  OT1/cmss/b/it --> OT1/mathkerncmss/m/sl on input line 4
+1.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `bold'
 (Font)                  OT1/mathkerncmss/m/sl --> OT1/mathkerncmss/bx/sl on inp
-ut line 30.
+ut line 41.
 
 (C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/translator\translator
 -basic-dictionary-English.dict
@@ -1019,64 +1141,93 @@ Dictionary: translator-numbers-dictionary, Language: English
 (C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/translator\translator
 -theorem-dictionary-English.dict
 Dictionary: translator-theorem-dictionary, Language: English 
-) (slides_seminario_intrasom.nav) [1
+) (slides_seminario_intrasom.nav)
+Overfull \vbox (39.39362pt too high) detected at line 45
+ []
 
-{C:/Users/Cauã V/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}] [2
+[1
 
-] [3
-
-]
-LaTeX Font Info:    Trying to load font information for U+msa on input line 74.
+{C:/Users/Cauã V/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
+LaTeX Font Info:    Trying to load font information for U+msa on input line 68.
 
 
 (C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 74.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 68.
 
 
 (C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Trying to load font information for OT1+mathkerncmss on inp
-ut line 74.
+ut line 68.
 
 (C:\Users\Cauã V\AppData\Local\Programs\MiKTeX\tex/latex/sansmathaccent\ot1mat
 hkerncmss.fd
 File: ot1mathkerncmss.fd 2020/01/31 Fontinst v1.933 font definitions for OT1/ma
 thkerncmss.
-) [4
+)
+<outputs/figures/dim_reduction_comparison.png, id=22, 1156.32pt x 505.89pt>
+File: outputs/figures/dim_reduction_comparison.png Graphic file (type png)
+<use outputs/figures/dim_reduction_comparison.png>
+Package pdftex.def Info: outputs/figures/dim_reduction_comparison.png  used on 
+input line 68.
+(pdftex.def)             Requested size: 199.1693pt x 87.13489pt.
+ [2
 
-] [5
+{C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/cm-super/cm-sup
+er-ts1.enc} <./outputs/figures/dim_reduction_comparison.png>]
+<outputs/figures/umatrix_10x10.jpg, id=33, 620.7993pt x 854.4723pt>
+File: outputs/figures/umatrix_10x10.jpg Graphic file (type jpg)
+<use outputs/figures/umatrix_10x10.jpg>
+Package pdftex.def Info: outputs/figures/umatrix_10x10.jpg  used on input line 
+88.
+(pdftex.def)             Requested size: 161.32492pt x 222.04022pt.
 
-] [6
+Overfull \vbox (33.58836pt too high) detected at line 88
+ []
 
-] [7
+[3
 
-] [8
+ <./outputs/figures/umatrix_10x10.jpg>]
+<outputs/figures/time_series_classes.png, id=39, 1011.78pt x 722.7pt>
+File: outputs/figures/time_series_classes.png Graphic file (type png)
+<use outputs/figures/time_series_classes.png>
+Package pdftex.def Info: outputs/figures/time_series_classes.png  used on input
+ line 115.
+(pdftex.def)             Requested size: 199.1693pt x 142.25475pt.
+ [4
 
-] [9
+ <./outputs/figures/time_series_classes.png>] [5
+
+]
+<outputs/figures/som_10x10_dominant_classes.png, id=52, 881.694pt x 687.5286pt>
+
+File: outputs/figures/som_10x10_dominant_classes.png Graphic file (type png)
+<use outputs/figures/som_10x10_dominant_classes.png>
+Package pdftex.def Info: outputs/figures/som_10x10_dominant_classes.png  used o
+n input line 143.
+(pdftex.def)             Requested size: 168.25764pt x 131.19829pt.
+ [6
+
+ <./outputs/figures/som_10x10_dominant_classes.png>] [7
+
+]
+<outputs/figures/som_text_sbert_dominant.png, id=66, 723.6636pt x 570.4512pt>
+File: outputs/figures/som_text_sbert_dominant.png Graphic file (type png)
+<use outputs/figures/som_text_sbert_dominant.png>
+Package pdftex.def Info: outputs/figures/som_text_sbert_dominant.png  used on i
+nput line 182.
+(pdftex.def)             Requested size: 175.26994pt x 138.1558pt.
+
+[8
+
+ <./outputs/figures/som_text_sbert_dominant.png>] [9
 
 ] [10
 
 ] [11
-
-] [12
-
-] [13
-
-] [14
-
-] [15
-
-] [16
-
-]
-[17
-
-] [18
-
-] [19
 
 ]
 \tf@nav=\write6
@@ -1088,7 +1239,8 @@ thkerncmss.
 \tf@snm=\write8
 \openout8 = `slides_seminario_intrasom.snm'.
 
- (slides_seminario_intrasom.aux)
+
+(slides_seminario_intrasom.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-03-20>
@@ -1098,29 +1250,27 @@ ed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 23100 strings out of 467691
- 453391 string characters out of 5413983
- 843826 words of memory out of 5000000
- 51641 multiletter control sequences out of 15000+600000
- 637495 words of font info for 75 fonts, out of 8000000 for 9000
+ 26352 strings out of 467691
+ 535366 string characters out of 5413983
+ 915091 words of memory out of 5000000
+ 54860 multiletter control sequences out of 15000+600000
+ 635556 words of font info for 67 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 128i,16n,123p,419b,695s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 128i,13n,123p,1924b,708s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/c
-m/cmmi9.pfb><C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/fonts/type1/public/
-amsfonts/cm/cmss10.pfb><C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/fonts/ty
-pe1/public/amsfonts/cm/cmss12.pfb><C:/Users/Cauã V/AppData/Local/Programs/MiKT
-eX/fonts/type1/public/amsfonts/cm/cmss8.pfb><C:/Users/Cauã V/AppData/Local/Pro
-grams/MiKTeX/fonts/type1/public/amsfonts/cm/cmss9.pfb><C:/Users/Cauã V/AppData
-/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmssbx10.pfb><C:/Users/Ca
-uã V/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmssi10.pfb>
-<C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/
-cmssi8.pfb><C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/fonts/type1/public/a
-msfonts/cm/cmssi9.pfb><C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/fonts/typ
-e1/public/amsfonts/cm/cmsy9.pfb><C:/Users/Cauã V/AppData/Local/Programs/MiKTeX
-/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on slides_seminario_intrasom.pdf (19 pages, 271186 bytes).
+m/cmss10.pfb><C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/fonts/type1/public
+/amsfonts/cm/cmss12.pfb><C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/fonts/t
+ype1/public/amsfonts/cm/cmss17.pfb><C:/Users/Cauã V/AppData/Local/Programs/MiK
+TeX/fonts/type1/public/amsfonts/cm/cmss8.pfb><C:/Users/Cauã V/AppData/Local/Pr
+ograms/MiKTeX/fonts/type1/public/amsfonts/cm/cmss9.pfb><C:/Users/Cauã V/AppDat
+a/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmssbx10.pfb><C:/Users/C
+auã V/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmssi10.pfb
+><C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/fonts/type1/public/cm-super/sf
+ss0900.pfb><C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/fonts/type1/public/c
+m-super/sfss1000.pfb>
+Output written on slides_seminario_intrasom.pdf (11 pages, 5019455 bytes).
 PDF statistics:
- 617 PDF objects out of 1000 (max. 8388607)
- 39 named destinations out of 1000 (max. 500000)
- 91 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 135 PDF objects out of 1000 (max. 8388607)
+ 23 named destinations out of 1000 (max. 500000)
+ 68 words of extra memory for PDF output out of 10000 (max. 10000000)
 

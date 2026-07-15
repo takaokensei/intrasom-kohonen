@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1784135087.55384 "slides_seminario_intrasom.tex" "slides_seminario_intrasom.pdf" "slides_seminario_intrasom" 1784135094.72776 0
+["pdflatex"] 1784135240.90322 "slides_seminario_intrasom.tex" "slides_seminario_intrasom.pdf" "slides_seminario_intrasom" 1784135247.82413 0
   "C:/Users/Cauã" 1748141215.38727 19046 bfe6e618771e499646319602481cf77f ""
   "C:/Users/Cauã V/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1782530077.63917 620454 ad19782b732e9d9c8e77ebca8e2b4a0c ""
   "C:/Users/Cauã V/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1779492164.47647 13351276 69db83dadfcf2359742f6c89463d7187 ""
@@ -223,10 +223,10 @@
   "outputs/figures/som_text_sbert_dominant.png" 1784073170.69743 758921 327e1c96f8759311c493403d1594476e ""
   "outputs/figures/time_series_classes.png" 1783353541.4567 2707497 cb00a8451fa22de1fa775df5f21c9d6a ""
   "outputs/figures/umatrix_10x10.jpg" 1783353545.02257 374217 3a4e05f51a0a7711c951e4a94c923371 ""
-  "slides_seminario_intrasom.aux" 1784135094.2343 1992 cfd95eb26021faf9fda57ec08af229da "pdflatex"
-  "slides_seminario_intrasom.nav" 1784135094.25003 1202 a971439ba5eedf62b158aa4c3f07763d "pdflatex"
-  "slides_seminario_intrasom.out" 1784135090.09443 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "slides_seminario_intrasom.tex" 1784135073.02992 10003 fd9d16cddcf924e719317a151a4d8543 ""
+  "slides_seminario_intrasom.aux" 1784135247.34856 1992 cfd95eb26021faf9fda57ec08af229da "pdflatex"
+  "slides_seminario_intrasom.nav" 1784135247.37045 1202 a971439ba5eedf62b158aa4c3f07763d "pdflatex"
+  "slides_seminario_intrasom.out" 1784135243.20283 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "slides_seminario_intrasom.tex" 1784135236.79533 10011 a5f27c7890dcd86677bfd0e59154519b ""
   (generated)
   "slides_seminario_intrasom.aux"
   "slides_seminario_intrasom.log"

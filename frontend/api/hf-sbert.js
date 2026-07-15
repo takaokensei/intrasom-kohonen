@@ -38,7 +38,7 @@ export default async function handler(req, res) {
 
   try {
     const hfResponse = await fetch(
-      'https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2',
+      'https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2/pipeline/feature-extraction',
       {
         method: 'POST',
         headers,

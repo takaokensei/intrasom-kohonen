@@ -38,8 +38,8 @@ export default defineConfig(({ mode }) => {
               }
 
               const options = {
-                hostname: 'api-inference.huggingface.co',
-                path: '/models/sentence-transformers/all-MiniLM-L6-v2',
+                hostname: 'router.huggingface.co',
+                path: '/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2/pipeline/feature-extraction',
                 method: 'POST',
                 headers,
               };

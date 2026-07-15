@@ -44,7 +44,7 @@ export default defineConfig({
               let responseData = '';
               hfRes.on('data', chunk => { responseData += chunk; });
               hfRes.on('end', () => {
-                res.writeHead(hfRes.statusCode, {
+                res.writeHead(hfRes.statusCode || 502, {
                   'Content-Type': 'application/json',
                   'Access-Control-Allow-Origin': '*',
                 });

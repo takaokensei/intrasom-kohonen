@@ -150,71 +150,115 @@ export function ClassifierPanel() {
           )}
         </div>
         
-        {/* News Samples Selectors */}
-        <div className="h-[90px] overflow-y-auto border-t border-tokyo-border border-opacity-20 pt-2 flex flex-col space-y-1.5">
-          <span className="text-[9px] text-[#9aa5ce] uppercase font-mono tracking-wider font-semibold">Amostras do Dataset:</span>
-          <div className="grid grid-cols-2 gap-2">
-            {newsSamples.map((sample) => (
-              <button
-                key={sample.id}
-                onClick={() => handleSampleClick(sample.text)}
-                className="p-2 text-left bg-tokyo-panel bg-opacity-35 hover:bg-opacity-70 rounded-lg border border-tokyo-border border-opacity-30 transition flex flex-col text-[10px]"
-              >
-                <span className="font-bold text-tokyo-blue uppercase font-mono text-[8px]">
-                  Categoria real: {sample.class}
-                </span>
-                <span className="text-tokyo-text truncate w-full mt-0.5">
-                  {sample.text}
-                </span>
-              </button>
-            ))}
+        {/* News Samples Dropdown Selector */}
+        <div className="flex flex-col space-y-2 pt-2 border-t border-tokyo-border border-opacity-20">
+          <div className="flex items-center justify-between">
+            <span className="text-[9px] text-[#9aa5ce] uppercase font-mono tracking-wider font-semibold">Testar com Amostras do Dataset:</span>
+            <button 
+              onClick={() => {
+                const randomIdx = Math.floor(Math.random() * newsSamples.length);
+                handleSampleClick(newsSamples[randomIdx].text);
+              }}
+              className="text-[9px] text-tokyo-blue hover:text-tokyo-teal font-mono flex items-center gap-1 transition-colors"
+              title="Testar uma notícia aleatória"
+            >
+              <RefreshCw size={10} />
+              Aleatório
+            </button>
           </div>
+          
+          <select
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val) handleSampleClick(val);
+            }}
+            className="w-full bg-tokyo-dark bg-opacity-50 border border-tokyo-border border-opacity-30 rounded-lg px-2.5 py-2 text-xs text-tokyo-text focus:outline-none focus:border-tokyo-blue cursor-pointer transition-colors"
+            value={newsSamples.find(s => s.text === customTextQuery)?.text || ''}
+          >
+            <option value="" disabled>-- Selecione uma notícia para testar --</option>
+            {newsSamples.map((sample) => (
+              <option key={sample.id} value={sample.text} className="bg-tokyo-dark text-tokyo-text">
+                [{sample.class}] {sample.text.substring(0, 80)}...
+              </option>
+            ))}
+          </select>
         </div>
         
         {/* Classification Result display */}
         {classificationResult ? (
-          <div className={`p-3 rounded-xl border flex items-center justify-between transition-all ${
+          <div className={`p-4 rounded-xl border flex flex-col space-y-3.5 transition-all ${
             classificationResult.dominantClass === "Desconhecido"
               ? "bg-tokyo-panel bg-opacity-35 border-tokyo-border border-opacity-30"
               : (NEWS_BG_COLORS[classificationResult.dominantClass] || "")
           }`}>
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-tokyo-dark bg-opacity-40 rounded-lg text-tokyo-blue">
-                <BrainCircuit size={18} />
-              </div>
-              <div>
-                <div className="text-[10px] text-[#9aa5ce] uppercase font-mono tracking-wider font-semibold flex items-center gap-1.5">
+            {/* Top row: Label & Source Badge */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="p-1.5 bg-tokyo-dark bg-opacity-40 rounded-md text-tokyo-blue">
+                  <BrainCircuit size={14} />
+                </div>
+                <span className="text-[10px] text-[#9aa5ce] uppercase font-mono tracking-wider font-semibold">
                   SOM Categoria Predita
-                  {classificationResult.source === 'local' && (
-                    <span className="text-[8px] bg-tokyo-green bg-opacity-25 text-tokyo-green px-1.5 py-0.5 rounded-sm border border-tokyo-green border-opacity-30 font-bold uppercase tracking-normal">Local</span>
-                  )}
-                  {classificationResult.source === 'cloud' && (
-                    <span className="text-[8px] bg-tokyo-blue bg-opacity-25 text-tokyo-blue px-1.5 py-0.5 rounded-sm border border-tokyo-blue border-opacity-30 font-bold uppercase tracking-normal">Nuvem HF</span>
-                  )}
-                  {classificationResult.source === 'fallback' && (
-                    <span className="text-[8px] bg-tokyo-panel text-tokyo-muted px-1.5 py-0.5 rounded-sm border border-tokyo-border font-bold uppercase tracking-normal">Heurística</span>
-                  )}
+                </span>
+              </div>
+              
+              {classificationResult.source === 'local' && (
+                <span className="text-[8px] bg-tokyo-green bg-opacity-20 text-tokyo-green px-1.5 py-0.5 rounded border border-tokyo-green border-opacity-30 font-bold uppercase tracking-normal">Local</span>
+              )}
+              {classificationResult.source === 'cloud' && (
+                <span className="text-[8px] bg-tokyo-blue bg-opacity-20 text-tokyo-blue px-1.5 py-0.5 rounded border border-tokyo-blue border-opacity-30 font-bold uppercase tracking-normal">Nuvem HF</span>
+              )}
+              {classificationResult.source === 'fallback' && (
+                <span className="text-[8px] bg-tokyo-panel text-[#9aa5ce] px-1.5 py-0.5 rounded border border-tokyo-border border-opacity-40 font-bold uppercase tracking-normal">Heurística</span>
+              )}
+            </div>
+
+            {/* Middle Row: Big Class Name & Neuron ID */}
+            <div className="flex items-baseline justify-between border-b border-tokyo-border border-opacity-15 pb-2">
+              <span className={`text-base font-extrabold tracking-tight ${
+                classificationResult.dominantClass === "Desconhecido"
+                  ? "text-[#9aa5ce]"
+                  : (NEWS_COLORS[classificationResult.dominantClass] || "")
+              }`}>
+                {classificationResult.dominantClass === "Desconhecido" ? "Não Identificado" : classificationResult.dominantClass}
+              </span>
+              
+              <span className="text-[10px] bg-tokyo-dark bg-opacity-50 text-tokyo-text px-2 py-0.5 rounded font-mono font-semibold">
+                {classificationResult.bmu > 0 
+                  ? `Neurônio N${classificationResult.bmu}` 
+                  : 'Sem Correspondência'}
+              </span>
+            </div>
+
+            {/* Bottom Row: Metrics Grid with Progress Bars */}
+            <div className="grid grid-cols-2 gap-4 text-[10px]">
+              {classificationResult.dominantClass !== "Desconhecido" && (
+                <div className="flex flex-col space-y-1">
+                  <div className="flex justify-between text-[#9aa5ce] font-semibold">
+                    <span>Pureza:</span>
+                    <span className="text-tokyo-text font-mono font-bold">{(classificationResult.purity * 100).toFixed(0)}%</span>
+                  </div>
+                  <div className="w-full bg-tokyo-dark bg-opacity-40 rounded-full h-1">
+                    <div 
+                      className="bg-tokyo-blue h-1 rounded-full transition-all duration-500" 
+                      style={{ width: `${classificationResult.purity * 100}%` }}
+                    />
+                  </div>
                 </div>
-                <div className={`text-sm font-bold flex items-center gap-1.5 ${
-                  classificationResult.dominantClass === "Desconhecido"
-                    ? "text-[#9aa5ce]"
-                    : (NEWS_COLORS[classificationResult.dominantClass] || "")
-                }`}>
-                  {classificationResult.dominantClass === "Desconhecido" ? "Não Identificado" : classificationResult.dominantClass}
-                  <span className="text-xs text-tokyo-text font-normal opacity-90 font-mono">
-                    {classificationResult.bmu > 0 
-                      ? `(Neurônio N${classificationResult.bmu})` 
-                      : '(Sem Correspondência)'}
-                  </span>
+              )}
+              
+              <div className="flex flex-col space-y-1">
+                <div className="flex justify-between text-[#9aa5ce] font-semibold">
+                  <span>Confiança:</span>
+                  <span className="text-tokyo-text font-mono font-bold">{classificationResult.score}%</span>
+                </div>
+                <div className="w-full bg-tokyo-dark bg-opacity-40 rounded-full h-1">
+                  <div 
+                    className="bg-tokyo-teal h-1 rounded-full transition-all duration-500" 
+                    style={{ width: `${classificationResult.score}%` }}
+                  />
                 </div>
               </div>
-            </div>
-            
-            <div className="text-right text-[10px] font-mono text-[#9aa5ce]">
-              {classificationResult.dominantClass !== "Desconhecido" && (
-                <div>Purity: <span className="text-tokyo-text font-bold">{(classificationResult.purity * 100).toFixed(0)}%</span></div>
-              )}
-              <div>Confiança: <span className="text-tokyo-text font-bold">{classificationResult.score}%</span></div>
             </div>
           </div>
         ) : (

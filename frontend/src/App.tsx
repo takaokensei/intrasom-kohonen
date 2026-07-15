@@ -278,7 +278,7 @@ function App() {
               
               <div className="space-y-2.5 text-tokyo-text text-opacity-90">
                 <p>
-                  Nos nossos experimentos de clusterização, o SOM treinado com <strong>Sentence-BERT (SBERT)</strong> obteve um ganho considerável nas métricas quantitativas (ARI de <strong>0.2738</strong> contra <strong>0.1973</strong> do TF-IDF).
+                  Nos nossos experimentos de clusterização, o SOM treinado com <strong>Sentence-BERT (SBERT)</strong> obteve um ganho considerável nas métricas quantitativas (ARI de <strong>0.5873</strong> contra <strong>0.1695</strong> do TF-IDF).
                 </p>
                 <p>
                   O <strong>TF-IDF</strong> representa documentos baseando-se apenas na contagem exata de termos (Bag-of-Words). Se duas notícias falam do mesmo assunto (ex: Astronomia) mas usam sinônimos diferentes (ex: <em>"space"</em> e <em>"cosmos"</em>), o TF-IDF não detecta a similaridade física.

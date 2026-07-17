@@ -30,3 +30,14 @@ Thumbs.db
 
 # Editor local history (VS Code Local History extension)
 .history/
+
+# LaTeX build outputs
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.synctex.gz

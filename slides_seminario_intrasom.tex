@@ -106,6 +106,11 @@
             \item 400 notícias, 4 classes temáticas (Graphics, Space, Baseball, Mideast).
             \item Grade base hexagonal 10x10.
           \end{itemize}
+        \item \textbf{6News (Textos - Novo!):}
+          \begin{itemize}
+            \item 317 notícias acadêmicas brasileiras, 6 classes.
+            \item Grade base hexagonal 10x10.
+          \end{itemize}
       \end{itemize}
     \end{column}
     \begin{column}{0.5\textwidth}
@@ -179,20 +184,28 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{7. Resultado 3: Representação de Texto}
+\begin{frame}{7. Resultado 3: Representação de Texto (Comparativo)}
   \begin{columns}
-    \begin{column}{0.5\textwidth}
+    \begin{column}{0.58\textwidth}
+      \small
       \begin{itemize}
-        \item \textbf{TF-IDF (ARI: 0.1695, NMI: 0.2844):} Abordagem Bag-of-Words. Falha ao lidar com sinônimos e contexto semântico.
-        \item \textbf{Sentence-BERT (ARI: 0.5873, NMI: 0.6027):} Embeddings contextuais densos.
-        \item \textbf{Vantagem do SBERT:} Agrupa ideias e significado conceitual de forma extremamente coesa na grade de Kohonen.
+        \item \textbf{Dataset 20 Newsgroups (4 classes):}
+          \begin{itemize}
+            \item \textbf{TF-IDF (ARI: 0.1981, NMI: 0.2245):} Limitação por termos exatos.
+            \item \textbf{SBERT (ARI: 0.4177, NMI: 0.4828):} Embeddings contextuais densos melhoram vizinhança semântica na grade.
+          \end{itemize}
+        \item \textbf{Dataset 6News (6 classes - Base Acadêmica):}
+          \begin{itemize}
+            \item \textbf{TF-IDF (ARI: 0.1286, NMI: 0.2120):} Overlap lexical de termos específicos é uma forte heurística.
+            \item \textbf{SBERT (ARI: 0.1178, NMI: 0.1822):} Ligeira queda devido a termos técnicos específicos em português.
+          \end{itemize}
       \end{itemize}
     \end{column}
-    \begin{column}{0.5\textwidth}
+    \begin{column}{0.42\textwidth}
       \centering
-      \includegraphics[width=0.88\textwidth]{outputs/figures/som_text_sbert_dominant.png}
+      \includegraphics[width=\linewidth]{outputs/figures/som_text_sbert_dominant.png}
       
-      \vspace{0.2cm}
+      \vspace{0.1cm}
       \scriptsize \textcolor{tokyoBlue}{Fig. 6: Mapeamento Semântico SBERT (10x10)}
     \end{column}
   \end{columns}

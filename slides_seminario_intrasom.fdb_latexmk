@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1784135240.90322 "slides_seminario_intrasom.tex" "slides_seminario_intrasom.pdf" "slides_seminario_intrasom" 1784135247.82413 0
+["pdflatex"] 1784309150.33052 "slides_seminario_intrasom.tex" "slides_seminario_intrasom.pdf" "slides_seminario_intrasom" 1784309156.93554 0
   "C:/Users/Cauã" 1748141215.38727 19046 bfe6e618771e499646319602481cf77f ""
   "C:/Users/Cauã V/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1782530077.63917 620454 ad19782b732e9d9c8e77ebca8e2b4a0c ""
   "C:/Users/Cauã V/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1779492164.47647 13351276 69db83dadfcf2359742f6c89463d7187 ""
@@ -217,16 +217,16 @@
   "C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1729265222 55384 b454dec21c2d9f45ec0b793f0995b992 ""
   "outputs/figures/dashboard_screenshot1.png" 1784134022.04171 199833 e46c1fc0a0310c1c5f64909dec934e57 ""
-  "outputs/figures/dashboard_screenshot2.png" 1784134022.04052 118506 49923d40992132d522334c9df07f9703 ""
-  "outputs/figures/dim_reduction_comparison.png" 1783353544.35395 768422 73caac6730d1cd5e337b5bbd01f40c3a ""
-  "outputs/figures/som_10x10_dominant_classes.png" 1783353546.10767 857477 0ee0f25dfae2297e58c32b836e1d32d7 ""
-  "outputs/figures/som_text_sbert_dominant.png" 1784073170.69743 758921 327e1c96f8759311c493403d1594476e ""
-  "outputs/figures/time_series_classes.png" 1783353541.4567 2707497 cb00a8451fa22de1fa775df5f21c9d6a ""
-  "outputs/figures/umatrix_10x10.jpg" 1783353545.02257 374217 3a4e05f51a0a7711c951e4a94c923371 ""
-  "slides_seminario_intrasom.aux" 1784135247.34856 1992 cfd95eb26021faf9fda57ec08af229da "pdflatex"
-  "slides_seminario_intrasom.nav" 1784135247.37045 1202 a971439ba5eedf62b158aa4c3f07763d "pdflatex"
-  "slides_seminario_intrasom.out" 1784135243.20283 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "slides_seminario_intrasom.tex" 1784135236.79533 10011 a5f27c7890dcd86677bfd0e59154519b ""
+  "outputs/figures/dashboard_screenshot2.png" 1784137453.50254 87756 e08960f55b5a26ed1e1b9639fe70487a ""
+  "outputs/figures/dim_reduction_comparison.png" 1784137010.12526 759026 652c31b442134e005762ba699489ee04 ""
+  "outputs/figures/som_10x10_dominant_classes.png" 1784137011.92623 819185 8fb9b06e909629236be8b31995e466da ""
+  "outputs/figures/som_text_sbert_dominant.png" 1784246356.98345 849501 5f084577894d828661ccef6dcd57128e ""
+  "outputs/figures/time_series_classes.png" 1784137006.91254 4482020 d241732cb74760dd70d678cce018a350 ""
+  "outputs/figures/umatrix_10x10.jpg" 1784137010.81284 366838 ba46aea97273cbd02c8254351b85f522 ""
+  "slides_seminario_intrasom.aux" 1784309156.46189 1992 cfd95eb26021faf9fda57ec08af229da "pdflatex"
+  "slides_seminario_intrasom.nav" 1784309156.48718 1202 a971439ba5eedf62b158aa4c3f07763d "pdflatex"
+  "slides_seminario_intrasom.out" 1784309152.75379 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "slides_seminario_intrasom.tex" 1784309143.93046 10594 8e360f367b0d4eb42d56a6d5ffff5dbe ""
   (generated)
   "slides_seminario_intrasom.aux"
   "slides_seminario_intrasom.log"

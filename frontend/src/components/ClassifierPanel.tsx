@@ -85,7 +85,7 @@ export function ClassifierPanel() {
             className="bg-tokyo-dark border border-tokyo-border text-[10px] font-mono font-bold rounded p-1 text-tokyo-text focus:outline-none focus:border-tokyo-blue cursor-pointer"
           >
             <option value="20news">20 Newsgroups (4 classes)</option>
-            <option value="6class">Base 3ª Unidade (6 classes)</option>
+            <option value="6class">Base 6News (6 classes)</option>
           </select>
           
           <select

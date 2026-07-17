@@ -104,7 +104,7 @@ export const TextHexGrid = memo(function TextHexGrid() {
           <p className="text-[10px] text-tokyo-muted font-mono mt-0.5">
             {selectedTextDataset === '20news' 
               ? '4 categorias do dataset 20 Newsgroups (400 documentos)'
-              : '6 categorias do dataset da 3ª Unidade (317 documentos)'}
+              : '6 categorias do dataset 6News (317 documentos)'}
           </p>
         </div>
         

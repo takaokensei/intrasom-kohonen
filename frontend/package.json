@@ -20,10 +20,10 @@
     "zustand": "^5.0.14"
   },
   "optionalDependencies": {
-    "@rolldown/binding-win32-x64-msvc": "^1.1.5"
+    "@rolldown/binding-win32-x64-msvc": "^1.1.5",
+    "@oxlint/binding-win32-x64-msvc": "^1.74.0"
   },
   "devDependencies": {
-    "@oxlint/binding-win32-x64-msvc": "^1.74.0",
     "@types/node": "^24.13.2",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",

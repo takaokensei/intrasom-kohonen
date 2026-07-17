@@ -2,7 +2,9 @@ import os
 import shutil
 from huggingface_hub import HfApi
 
-TOKEN = "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"
+TOKEN = os.environ.get("HF_TOKEN")
+if not TOKEN:
+    print("Warning: HF_TOKEN environment variable not set. Please set it or login via huggingface-cli.")
 REPO_ID = "takaokensei/intrasom-kohonen-api"
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

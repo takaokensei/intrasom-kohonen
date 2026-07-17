@@ -2,15 +2,7 @@ import { useState } from 'react';
 import { useDashboardStore, type NeuronItem } from '../store/useDashboardStore';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { Maximize2, Minimize2, Download, X } from 'lucide-react';
-
-const CLASS_COLORS: Record<string, string> = {
-  "Normal": "#7aa2f7",
-  "Cyclic": "#7dcfff",
-  "Increasing Trend": "#ff9e64",
-  "Decreasing Trend": "#e0af68",
-  "Upward Shift": "#9ece6a",
-  "Downward Shift": "#f7768e"
-};
+import { SYNTHETIC_CLASS_COLORS as CLASS_COLORS } from '../lib/colors';
 
 const getUMatrixColor = (val: number, max: number) => {
   const norm = val / (max || 1);

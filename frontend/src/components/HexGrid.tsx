@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useMemo, memo } from 'react';
 import { useDashboardStore, type NeuronItem } from '../store/useDashboardStore';
 import { useFullscreen } from '../hooks/useFullscreen';
-import { Maximize2, Minimize2, Download, X } from 'lucide-react';
+import { Maximize2, Minimize2, Download } from 'lucide-react';
 import { SYNTHETIC_CLASS_COLORS as CLASS_COLORS } from '../lib/colors';
+import { NeuronDetailPanel } from './NeuronDetailPanel';
+import { getHexPoints } from '../lib/geometry';
+import { FullscreenPanel } from './FullscreenPanel';
 
 const getUMatrixColor = (val: number, max: number) => {
   const norm = val / (max || 1);
@@ -21,129 +24,9 @@ const getUMatrixColor = (val: number, max: number) => {
 };
 
 // ──────────────────────────────────────────────────────────
-// Inline NeuronDetailPanel (used only inside FullScreen)
-// ──────────────────────────────────────────────────────────
-function NeuronDetailPanel({ neuron, series, onClose }: {
-  neuron: NeuronItem;
-  series: { id: number; values: number[]; class: string }[];
-  onClose: () => void;
-}) {
-  const neuronSeries = series.filter(s => neuron.sample_ids.includes(s.id));
-  const allValues = neuronSeries.flatMap(s => s.values);
-  const minVal = allValues.length ? Math.min(...allValues) - 2 : -10;
-  const maxVal = allValues.length ? Math.max(...allValues) + 2 : 10;
-
-  const W = 560;
-  const H = 320;
-  const PAD = 28;
-
-  const getSvgPath = (values: number[]) =>
-    values.map((val, step) => {
-      const x = PAD + (step / (values.length - 1)) * (W - 2 * PAD);
-      const y = H - PAD - ((val - minVal) / (maxVal - minVal || 1)) * (H - 2 * PAD);
-      return `${step === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
-    }).join(' ');
-
-  const codebookPath = getSvgPath(neuron.codebook);
-  const classColor = CLASS_COLORS[neuron.dominant_class] || '#7aa2f7';
-
-  return (
-    <div className="flex flex-col h-full w-full">
-      {/* Panel header */}
-      <div className="flex items-start justify-between mb-5">
-        <div>
-          <h3 className="text-base font-bold text-white uppercase font-mono tracking-wider">
-            Padrões no Neurônio N{neuron.id}
-          </h3>
-          <p className="text-[11px] text-[#9aa5ce] font-mono mt-0.5">
-            {neuron.total_samples} amostras mapeadas
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span
-            className="px-2 py-1 rounded text-[10px] font-bold font-mono uppercase border"
-            style={{ color: classColor, borderColor: classColor + '55', background: classColor + '15' }}
-          >
-            {neuron.dominant_class}
-          </span>
-          <span className="px-2 py-1 rounded text-[10px] font-bold font-mono border border-tokyo-blue text-tokyo-blue bg-tokyo-blue bg-opacity-10">
-            Pureza: {(neuron.purity * 100).toFixed(0)}%
-          </span>
-          <button
-            onClick={onClose}
-            className="ml-1 p-1.5 rounded-lg hover:bg-[#1f2335] transition-colors text-[#565f89] hover:text-white"
-            title="Fechar painel"
-          >
-            <X size={16} />
-          </button>
-        </div>
-      </div>
-
-      {/* Stats row */}
-      <div className="grid grid-cols-3 gap-3 mb-5">
-        {[
-          { label: 'Amostras', value: neuron.total_samples, color: '#7aa2f7' },
-          { label: 'U-Dist', value: neuron.umatrix_value.toFixed(4), color: '#bb9af7' },
-          { label: 'Posição', value: `(${neuron.col}, ${neuron.row})`, color: '#7dcfff' },
-        ].map(item => (
-          <div key={item.label} className="bg-[#1f2335] rounded-xl p-3 border border-[#3b4261] border-opacity-60 flex flex-col gap-0.5">
-            <span className="text-[9px] text-[#565f89] uppercase font-mono">{item.label}</span>
-            <span className="text-sm font-bold font-mono" style={{ color: item.color }}>{item.value}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Chart area */}
-      <div className="flex-1 bg-[#13131a] rounded-xl border border-[#3b4261] border-opacity-40 relative overflow-hidden flex items-center justify-center">
-        <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-full">
-          {/* Grid lines */}
-          {[0, 1, 2, 3, 4].map(idx => {
-            const y = PAD + (idx / 4) * (H - 2 * PAD);
-            return (
-              <line key={idx} x1={PAD} y1={y} x2={W - PAD} y2={y}
-                stroke="rgba(122,162,247,0.06)" strokeWidth="1" />
-            );
-          })}
-
-          {/* Sample series */}
-          {neuronSeries.map(s => (
-            <path
-              key={s.id}
-              d={getSvgPath(s.values)}
-              fill="none"
-              stroke={classColor}
-              strokeWidth="1.5"
-              strokeOpacity="0.5"
-            />
-          ))}
-
-          {/* Codebook glow */}
-          <path d={codebookPath} fill="none"
-            stroke={classColor} strokeWidth="7" strokeOpacity="0.25"
-            strokeLinecap="round" strokeLinejoin="round" />
-          {/* Codebook line */}
-          <path d={codebookPath} fill="none"
-            stroke="#ffffff" strokeWidth="2.5"
-            strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </div>
-
-      {/* Footer legend */}
-      <div className="flex justify-between items-center mt-3 text-[10px] text-[#565f89] font-mono">
-        <span>Linhas coloridas: séries temporais reais associadas a este neurônio</span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-5 h-0.5 bg-white rounded-full inline-block" />
-          <span className="text-[#9aa5ce] font-semibold">Vetor de Pesos (Codebook)</span>
-        </span>
-      </div>
-    </div>
-  );
-}
-
-// ──────────────────────────────────────────────────────────
 // Main HexGrid component
 // ──────────────────────────────────────────────────────────
-export function HexGrid() {
+export const HexGrid = memo(function HexGrid() {
   const { selectedMapSize, selectedNeuronId, setSelectedNeuronId, somModels, loadingSynthetic, series } = useDashboardStore();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   const [colorMode, setColorMode] = useState<'class' | 'umatrix'>('class');
@@ -166,35 +49,42 @@ export function HexGrid() {
 
   const { cols, rows, neurons } = model;
 
-  const xCoords = neurons.map(n => n.x);
-  const yCoords = neurons.map(n => n.y);
-  const minX = Math.min(...xCoords);
-  const maxX = Math.max(...xCoords);
-  const minY = Math.min(...yCoords);
-  const maxY = Math.max(...yCoords);
-
   const padding = 30;
   const svgWidth = isFullscreen ? 800 : 540;
   const svgHeight = isFullscreen ? 550 : 360;
 
-  const scaleX = (x: number) => padding + ((x - minX) / (maxX - minX || 1)) * (svgWidth - 2 * padding);
-  const scaleY = (y: number) => padding + ((y - minY) / (maxY - minY || 1)) * (svgHeight - 2 * padding);
+  const { r, maxUMatrixVal, neuronLayouts } = useMemo(() => {
+    const xCoords = neurons.map(n => n.x);
+    const yCoords = neurons.map(n => n.y);
+    const minX = Math.min(...xCoords);
+    const maxX = Math.max(...xCoords);
+    const minY = Math.min(...yCoords);
+    const maxY = Math.max(...yCoords);
 
-  const r = Math.min(
-    (svgWidth - 2 * padding) / (cols * 1.6),
-    (svgHeight - 2 * padding) / (rows * 1.45)
-  ) * 0.95;
+    const scaleX = (x: number) => padding + ((x - minX) / (maxX - minX || 1)) * (svgWidth - 2 * padding);
+    const scaleY = (y: number) => padding + ((y - minY) / (maxY - minY || 1)) * (svgHeight - 2 * padding);
 
-  const getHexPoints = (cx: number, cy: number, radius: number) => {
-    const points = [];
-    for (let i = 0; i < 6; i++) {
-      const angle = (i * Math.PI) / 3 - Math.PI / 6;
-      points.push(`${cx + radius * Math.cos(angle)},${cy + radius * Math.sin(angle)}`);
-    }
-    return points.join(' ');
-  };
+    const radius = Math.min(
+      (svgWidth - 2 * padding) / (cols * 1.6),
+      (svgHeight - 2 * padding) / (rows * 1.45)
+    ) * 0.95;
 
-  const maxUMatrixVal = Math.max(...neurons.map(n => n.umatrix_value));
+    const maxUVal = Math.max(...neurons.map(n => n.umatrix_value));
+
+    const layouts = neurons.map(neuron => {
+      const cx = scaleX(neuron.x);
+      const cy = scaleY(neuron.y);
+      const pointsStr = getHexPoints(cx, cy, radius);
+      return {
+        ...neuron,
+        cx,
+        cy,
+        pointsStr
+      };
+    });
+
+    return { r: radius, maxUMatrixVal: maxUVal, neuronLayouts: layouts };
+  }, [neurons, cols, rows, svgWidth, svgHeight]);
 
   const downloadSVG = () => {
     const svgEl = document.getElementById('som-hex-grid-svg');
@@ -232,12 +122,9 @@ export function HexGrid() {
   const sidePanelOpen = isFullscreen && selectedNeuron !== null && selectedNeuron.total_samples > 0;
 
   return (
-    <div
-      className={
-        isFullscreen
-          ? "fixed inset-0 bg-[#16161e] z-50 p-8 flex flex-col"
-          : "glass-panel rounded-2xl p-5 flex flex-col"
-      }
+    <FullscreenPanel
+      isFullscreen={isFullscreen}
+      className="glass-panel rounded-2xl p-5 flex flex-col"
     >
       <style>{`
         @keyframes popIn {
@@ -320,9 +207,8 @@ export function HexGrid() {
               className="w-full h-full max-h-[500px]"
             >
               <g>
-                {neurons.map((neuron) => {
-                  const cx = scaleX(neuron.x);
-                  const cy = scaleY(neuron.y);
+                {neuronLayouts.map((neuron) => {
+                  const { cx, cy, pointsStr } = neuron;
 
                   const isSelected = selectedNeuronId === neuron.id;
 
@@ -342,8 +228,6 @@ export function HexGrid() {
                     stroke = '#ffffff';
                     strokeWidth = '2.5';
                   }
-
-                  const pointsStr = getHexPoints(cx, cy, r);
 
                   return (
                     <g
@@ -508,6 +392,6 @@ export function HexGrid() {
           )}
         </div>
       )}
-    </div>
+    </FullscreenPanel>
   );
-}
+});

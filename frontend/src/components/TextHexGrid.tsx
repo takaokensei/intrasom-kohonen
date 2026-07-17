@@ -1,9 +1,12 @@
+import { useMemo, memo } from 'react';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { Maximize2, Minimize2 } from 'lucide-react';
 import { getClassColor, TEXT_CLASS_COLORS } from '../lib/colors';
+import { getHexPoints } from '../lib/geometry';
+import { FullscreenPanel } from './FullscreenPanel';
 
-export function TextHexGrid() {
+export const TextHexGrid = memo(function TextHexGrid() {
   const { selectedTextDataset, selectedTextRep, selectedDocId, setSelectedDocId, textModels, loadingText, classificationResult } = useDashboardStore();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   
@@ -20,45 +23,48 @@ export function TextHexGrid() {
   if (!model) return null;
   
   const { cols, rows, neurons } = model;
-  
-  const xCoords = neurons.map(n => n.x);
-  const yCoords = neurons.map(n => n.y);
-  const minX = Math.min(...xCoords);
-  const maxX = Math.max(...xCoords);
-  const minY = Math.min(...yCoords);
-  const maxY = Math.max(...yCoords);
-
   const padding = 20;
   const svgWidth = isFullscreen ? 800 : 500;
   const svgHeight = isFullscreen ? 550 : 360;
 
-  const scaleX = (x: number) => padding + ((x - minX) / (maxX - minX || 1)) * (svgWidth - 2 * padding);
-  const scaleY = (y: number) => padding + ((y - minY) / (maxY - minY || 1)) * (svgHeight - 2 * padding);
-  
-  const r = Math.min(
-    (svgWidth - 2 * padding) / (cols * 1.6),
-    (svgHeight - 2 * padding) / (rows * 1.45)
-  ) * 0.95;
-  
-  const getHexPoints = (cx: number, cy: number, radius: number) => {
-    const points = [];
-    for (let i = 0; i < 6; i++) {
-      const angle = (i * Math.PI) / 3 - Math.PI / 6;
-      points.push(`${cx + radius * Math.cos(angle)},${cy + radius * Math.sin(angle)}`);
-    }
-    return points.join(' ');
-  };
+  const { r, neuronLayouts } = useMemo(() => {
+    const xCoords = neurons.map(n => n.x);
+    const yCoords = neurons.map(n => n.y);
+    const minX = Math.min(...xCoords);
+    const maxX = Math.max(...xCoords);
+    const minY = Math.min(...yCoords);
+    const maxY = Math.max(...yCoords);
+
+    const scaleX = (x: number) => padding + ((x - minX) / (maxX - minX || 1)) * (svgWidth - 2 * padding);
+    const scaleY = (y: number) => padding + ((y - minY) / (maxY - minY || 1)) * (svgHeight - 2 * padding);
+
+    const radius = Math.min(
+      (svgWidth - 2 * padding) / (cols * 1.6),
+      (svgHeight - 2 * padding) / (rows * 1.45)
+    ) * 0.95;
+
+    const layouts = neurons.map(neuron => {
+      const cx = scaleX(neuron.x);
+      const cy = scaleY(neuron.y);
+      const pointsStr = getHexPoints(cx, cy, radius);
+      return {
+        ...neuron,
+        cx,
+        cy,
+        pointsStr
+      };
+    });
+
+    return { r: radius, neuronLayouts: layouts };
+  }, [neurons, cols, rows, svgWidth, svgHeight]);
 
   // Always use the correct color palette for the active dataset
   const activeColors = TEXT_CLASS_COLORS[selectedTextDataset] ?? {};
 
   return (
-    <div 
-      className={
-        isFullscreen 
-          ? "fixed inset-0 bg-[#16161e] bg-opacity-98 z-50 p-8 flex flex-col" 
-          : "glass-panel rounded-2xl p-5 flex flex-col h-full overflow-visible"
-      }
+    <FullscreenPanel
+      isFullscreen={isFullscreen}
+      className="glass-panel rounded-2xl p-5 flex flex-col h-full overflow-visible"
     >
       <style>{`
         @keyframes ripple {
@@ -98,9 +104,8 @@ export function TextHexGrid() {
           className="w-full h-full max-h-[460px]"
         >
           <g>
-            {neurons.map((neuron) => {
-              const cx = scaleX(neuron.x);
-              const cy = scaleY(neuron.y);
+            {neuronLayouts.map((neuron) => {
+              const { cx, cy, pointsStr } = neuron;
               
               const isClassifiedBMU = classificationResult?.bmu === neuron.id;
               
@@ -124,8 +129,6 @@ export function TextHexGrid() {
                 stroke = '#ffffff';
                 strokeWidth = '2.5';
               }
-              
-              const pointsStr = getHexPoints(cx, cy, r);
               
               return (
                 <g 
@@ -208,6 +211,6 @@ export function TextHexGrid() {
           <span>Vazio</span>
         </div>
       </div>
-    </div>
+    </FullscreenPanel>
   );
-}
+});

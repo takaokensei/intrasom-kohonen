@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useDashboardStore } from '../store/useDashboardStore';
 
 const MODEL_COLORS: Record<string, string> = {
@@ -10,7 +10,7 @@ const MODEL_COLORS: Record<string, string> = {
   "SOM 20x20": "#f7768e"    // Red
 };
 
-export function RadarChart() {
+export const RadarChart = memo(function RadarChart() {
   const { metrics, loadingSynthetic } = useDashboardStore();
   const [hoveredModel, setHoveredModel] = useState<string | null>(null);
 
@@ -169,4 +169,4 @@ export function RadarChart() {
       </div>
     </div>
   );
-}
+});

@@ -139,6 +139,9 @@ def classify(req: QueryRequest):
         # Compute a confidence score (inverse of distance relative to average distance)
         avg_dist = np.mean(dists)
         confidence = max(0, min(100, int((1.0 - (bmu_dist / (avg_dist or 1.0))) * 100)))
+        
+        # ESPELHADO: Esta lógica de escala/ajuste de confiança está espelhada no frontend (lib/pca.ts).
+        # Qualquer alteração nesta lógica de ajuste de pontuação deve ser replicada manualmente nos dois arquivos.
         # Adjust confidence scale to look natural (e.g. at least 50% for good matches, scaling up)
         confidence = int(50 + (confidence / 2.0)) if confidence > 0 else 0
         if bmu_dist < 1.0:

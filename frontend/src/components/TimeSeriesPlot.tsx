@@ -1,6 +1,8 @@
+import { memo } from 'react';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { Maximize2, Minimize2, Download } from 'lucide-react';
+import { FullscreenPanel } from './FullscreenPanel';
 
 const CLASS_COLORS: Record<string, string> = {
   "Normal": "#7aa2f7",
@@ -11,7 +13,7 @@ const CLASS_COLORS: Record<string, string> = {
   "Downward Shift": "#f7768e"
 };
 
-export function TimeSeriesPlot() {
+export const TimeSeriesPlot = memo(function TimeSeriesPlot() {
   const { selectedMapSize, selectedNeuronId, highlightedClass, setHighlightedClass, series, somModels, loadingSynthetic } = useDashboardStore();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
 
@@ -84,12 +86,9 @@ export function TimeSeriesPlot() {
   };
 
   return (
-    <div 
-      className={
-        isFullscreen 
-          ? "fixed inset-0 bg-[#16161e] bg-opacity-98 z-50 p-8 flex flex-col" 
-          : "glass-panel rounded-2xl p-5 flex flex-col"
-      }
+    <FullscreenPanel
+      isFullscreen={isFullscreen}
+      className="glass-panel rounded-2xl p-5 flex flex-col"
     >
       <div className="flex justify-between items-start mb-4">
         <div>
@@ -228,6 +227,6 @@ export function TimeSeriesPlot() {
           </span>
         </div>
       )}
-    </div>
+    </FullscreenPanel>
   );
-}
+});

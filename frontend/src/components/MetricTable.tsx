@@ -1,8 +1,10 @@
+import { memo } from 'react';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { Maximize2, Minimize2 } from 'lucide-react';
+import { FullscreenPanel } from './FullscreenPanel';
 
-export function MetricTable() {
+export const MetricTable = memo(function MetricTable() {
   const { metrics, loadingSynthetic } = useDashboardStore();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
 
@@ -18,12 +20,9 @@ export function MetricTable() {
   if (metrics.length === 0) return null;
 
   return (
-    <div 
-      className={
-        isFullscreen 
-          ? "fixed inset-0 bg-[#16161e] bg-opacity-98 z-50 p-8 flex flex-col" 
-          : "glass-panel rounded-2xl p-6 flex flex-col"
-      }
+    <FullscreenPanel
+      isFullscreen={isFullscreen}
+      className="glass-panel rounded-2xl p-6 flex flex-col"
     >
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">
@@ -87,6 +86,6 @@ export function MetricTable() {
           <strong>Análise dos Baselines:</strong> Agglomerative e DBSCAN foram calculados no espaço de Z-Score. O SOM 5x5 e 10x10 superam todos os algoritmos tradicionais em ARI/NMI.
         </span>
       </div>
-    </div>
+    </FullscreenPanel>
   );
-}
+});

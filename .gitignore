@@ -27,3 +27,6 @@ data/synthetic_control.data
 # OS
 .DS_Store
 Thumbs.db
+
+# Editor local history (VS Code Local History extension)
+.history/

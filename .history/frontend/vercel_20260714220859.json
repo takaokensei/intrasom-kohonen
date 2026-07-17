@@ -1,8 +1,0 @@
-{
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "framework": "vite",
-  "alias": [
-    "intrasom-kohonen.vercel.app"
-  ]
-}

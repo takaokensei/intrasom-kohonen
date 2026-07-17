@@ -1,24 +1,7 @@
 import { useRef, useEffect } from 'react';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { Sparkles, BrainCircuit, RefreshCw } from 'lucide-react';
-
-const NEWS_COLORS: Record<string, string> = {
-  "Turismo": "text-[#3182bd]",
-  "Esportes": "text-[#31a354]",
-  "Policia": "text-[#e6550d]",
-  "Economia": "text-[#756bb1]",
-  "Politica": "text-[#e7ba52]",
-  "Variedades": "text-[#d6616b]"
-};
-
-const NEWS_BG_COLORS: Record<string, string> = {
-  "Turismo": "bg-[#3182bd] bg-opacity-10 border-[#3182bd] border-opacity-30",
-  "Esportes": "bg-[#31a354] bg-opacity-10 border-[#31a354] border-opacity-30",
-  "Policia": "bg-[#e6550d] bg-opacity-10 border-[#e6550d] border-opacity-30",
-  "Economia": "bg-[#756bb1] bg-opacity-10 border-[#756bb1] border-opacity-30",
-  "Politica": "bg-[#e7ba52] bg-opacity-10 border-[#e7ba52] border-opacity-30",
-  "Variedades": "bg-[#d6616b] bg-opacity-10 border-[#d6616b] border-opacity-30"
-};
+import { getTextStyle, getBgStyle } from '../lib/colors';
 
 export function ClassifierPanel() {
   const {
@@ -205,11 +188,14 @@ export function ClassifierPanel() {
         
         {/* Classification Result display */}
         {classificationResult ? (
-          <div className={`p-4 rounded-xl border flex flex-col space-y-3.5 transition-all ${
-            classificationResult.dominantClass === "Desconhecido"
-              ? "bg-tokyo-panel bg-opacity-35 border-tokyo-border border-opacity-30"
-              : (NEWS_BG_COLORS[classificationResult.dominantClass] || "")
-          }`}>
+          <div
+            className="p-4 rounded-xl border flex flex-col space-y-3.5 transition-all"
+            style={
+              classificationResult.dominantClass === "Desconhecido"
+                ? {}
+                : getBgStyle(selectedTextDataset, classificationResult.dominantClass)
+            }
+          >
             {/* Top row: Label & Source Badge */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -234,11 +220,14 @@ export function ClassifierPanel() {
 
             {/* Middle Row: Big Class Name & Neuron ID */}
             <div className="flex items-baseline justify-between border-b border-tokyo-border border-opacity-15 pb-2">
-              <span className={`text-base font-extrabold tracking-tight ${
-                classificationResult.dominantClass === "Desconhecido"
-                  ? "text-[#9aa5ce]"
-                  : (NEWS_COLORS[classificationResult.dominantClass] || "")
-              }`}>
+              <span
+                className="text-base font-extrabold tracking-tight"
+                style={
+                  classificationResult.dominantClass === "Desconhecido"
+                    ? { color: '#9aa5ce' }
+                    : getTextStyle(selectedTextDataset, classificationResult.dominantClass)
+                }
+              >
                 {classificationResult.dominantClass === "Desconhecido" ? "Não Identificado" : classificationResult.dominantClass}
               </span>
               

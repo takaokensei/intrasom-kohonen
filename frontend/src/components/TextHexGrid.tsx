@@ -1,15 +1,7 @@
 import { useDashboardStore } from '../store/useDashboardStore';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { Maximize2, Minimize2 } from 'lucide-react';
-
-const NEWS_COLORS: Record<string, string> = {
-  "Turismo": "#3182bd",
-  "Esportes": "#31a354",
-  "Policia": "#e6550d",
-  "Economia": "#756bb1",
-  "Politica": "#e7ba52",
-  "Variedades": "#d6616b"
-};
+import { getClassColor, TEXT_CLASS_COLORS } from '../lib/colors';
 
 export function TextHexGrid() {
   const { selectedTextDataset, selectedTextRep, selectedDocId, setSelectedDocId, textModels, loadingText, classificationResult } = useDashboardStore();
@@ -56,6 +48,9 @@ export function TextHexGrid() {
     }
     return points.join(' ');
   };
+
+  // Always use the correct color palette for the active dataset
+  const activeColors = TEXT_CLASS_COLORS[selectedTextDataset] ?? {};
 
   return (
     <div 
@@ -121,7 +116,8 @@ export function TextHexGrid() {
               let strokeWidth = '1';
               
               if (neuron.total_samples > 0) {
-                fill = NEWS_COLORS[neuron.dominant_class] || '#1f2335';
+                // Use the color from the active dataset palette
+                fill = getClassColor(selectedTextDataset, neuron.dominant_class);
               }
               
               if (isHighlighted) {
@@ -199,9 +195,9 @@ export function TextHexGrid() {
         </svg>
       </div>
       
-      {/* Legend */}
+      {/* Legend — always reflects the active dataset's palette */}
       <div className="grid grid-cols-5 gap-1.5 mt-4 text-[10px] bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
-        {Object.entries(NEWS_COLORS).map(([name, color]) => (
+        {Object.entries(activeColors).map(([name, color]) => (
           <div key={name} className="flex items-center space-x-1 text-tokyo-text">
             <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
             <span className="truncate">{name}</span>

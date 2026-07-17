@@ -20,6 +20,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import intrasom
 from intrasom.visualization import PlotFactory
+from reproducibility import set_global_seed
 
 # Color palette for news categories (combines both datasets)
 NEWS_COLORS = {
@@ -65,9 +66,17 @@ def load_20news_data():
     return docs, np.array(labels)
 
 def load_6class_data():
-    """Loads the 6-class Excel text dataset from the local path (317 docs)."""
+    """Loads the 6-class Brazilian Portuguese news dataset (317 docs, 6 categories)."""
     print("Loading 6-class Excel text dataset...")
-    file_path = r"C:\Users\Cauã V\Downloads\drive-download-20260627T220035Z-3-001\9. 3ª Unidade\Base_dados_textos_6_classes.xlsx"
+    workspace_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    file_path = os.path.join(workspace_dir, "data", "text", "base_dados_textos_6_classes.xlsx")
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(
+            f"Dataset não encontrado em: {file_path}\n"
+            "Copie o arquivo 'Base_dados_textos_6_classes.xlsx' para a pasta "
+            "'data/text/' na raiz do projeto.\n"
+            "Renomeie para: base_dados_textos_6_classes.xlsx (sem espaços/acentos)."
+        )
     df = pd.read_excel(file_path)
     
     clean_categories = []
@@ -108,6 +117,9 @@ def train_and_plot_text_som(X_embeddings, labels, dataset_name, representation_n
     df_emb.columns = [f"Dim_{i+1}" for i in range(df_emb.shape[1])]
     df_emb.index = [f"Doc_{i+1}" for i in range(df_emb.shape[0])]
     
+    # Seed fixada imediatamente antes: intrasom usa np.random global sem
+    # aceitar seed própria (ver src/reproducibility.py para detalhes)
+    set_global_seed()
     # Build SOM
     som = intrasom.SOMFactory.build(
         data=df_emb,
@@ -250,17 +262,25 @@ def run_experiment_for_dataset(docs, labels, dataset_name):
     with open(os.path.join(models_dir, f"{dataset_name}_sbert_pca.pkl"), "wb") as f:
         pickle.dump(pca, f)
         
+    # Seed fixada novamente: encode() consumiu estado RNG global
+    # (ver reproducibility.py — a seed deve ser reposicionada a cada chamada
+    #  de SOMFactory e KMeans para garantir bit-a-bit reproducibilidade)
+    set_global_seed()
     res_sbert, som_sbert = train_and_plot_text_som(X_sbert_reduced, labels, dataset_name, "SBERT")
 
     # Metrics
     from intrasom.clustering import ClusterFactory
     
+    # Seed antes do KMeans TF-IDF (ClusterFactory usa KMeans sem random_state)
+    set_global_seed()
     cf_tfidf = ClusterFactory(som_tfidf)
     clusters_tfidf = cf_tfidf.kmeans(k=k)
     res_c_tfidf = cf_tfidf.results_cluster(clusters_tfidf, save=False)
     ari_tfidf = adjusted_rand_score(labels, res_c_tfidf[f"{k}_clusters"].values)
     nmi_tfidf = normalized_mutual_info_score(labels, res_c_tfidf[f"{k}_clusters"].values)
     
+    # Seed antes do KMeans SBERT
+    set_global_seed()
     cf_sbert = ClusterFactory(som_sbert)
     clusters_sbert = cf_sbert.kmeans(k=k)
     res_c_sbert = cf_sbert.results_cluster(clusters_sbert, save=False)

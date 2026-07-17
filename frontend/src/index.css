@@ -91,3 +91,107 @@
 .animate-float {
   animation: float 4s ease-in-out infinite;
 }
+
+/* ── Active button scale on click (micro-interaction) ── */
+.active-press-scale:active {
+  transform: scale(0.97);
+  transition: transform 50ms ease-out;
+}
+
+/* ── Tab transition: fade + slide ── */
+@keyframes tabFadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-tab-change {
+  animation: tabFadeSlide 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── Hexagon cascade entrance ── */
+@keyframes hexEntrance {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.hex-polygon {
+  animation: hexEntrance 420ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ── Hover micro-interaction for SOM hexagons ── */
+.som-hex-group {
+  transition: transform 150ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.som-hex-group:hover {
+  transform: scale(1.06);
+  z-index: 10;
+}
+
+/* ── Pop-in for ClassifierResult card ── */
+@keyframes resultPopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(4px);
+  }
+  70% {
+    transform: scale(1.01) translateY(-1px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-result-pop {
+  animation: resultPopIn 300ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ── Status indicator pulse animations ── */
+@keyframes pulseDotGreen {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0);
+  }
+}
+@keyframes pulseDotBlue {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0);
+  }
+}
+@keyframes pulseDotOrange {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0);
+  }
+}
+
+.pulse-dot-green {
+  animation: pulseDotGreen 1.8s infinite;
+}
+.pulse-dot-blue {
+  animation: pulseDotBlue 1.8s infinite;
+}
+.pulse-dot-orange {
+  animation: pulseDotOrange 1.8s infinite;
+}
+

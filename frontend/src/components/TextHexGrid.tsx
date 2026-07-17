@@ -56,9 +56,22 @@ export const TextHexGrid = memo(function TextHexGrid() {
 
   if (loadingText) {
     return (
-      <div className="glass-panel rounded-2xl p-5 h-full flex flex-col justify-center items-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tokyo-blue"></div>
-        <span className="text-xs text-tokyo-muted mt-2 font-mono">Carregando mapa de textos...</span>
+      <div className="glass-panel rounded-2xl p-5 flex flex-col h-full min-h-[380px] animate-pulse">
+        <div className="flex justify-between items-center mb-4">
+          <div className="h-4 bg-[#2e3440] rounded w-1/3" />
+          <div className="h-6 bg-[#2e3440] rounded w-24" />
+        </div>
+        <div className="flex-1 bg-tokyo-dark bg-opacity-40 rounded-xl border border-tokyo-border border-opacity-30 flex justify-center items-center p-4">
+          <div className="grid grid-cols-10 gap-2.5 w-full max-w-[450px]">
+            {Array.from({ length: 60 }).map((_, i) => (
+              <div
+                key={i}
+                className="aspect-square bg-[#1f2335] rounded-lg border border-tokyo-border border-opacity-20 animate-pulse"
+                style={{ animationDelay: `${(i % 10) * 35}ms` }}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -97,7 +110,7 @@ export const TextHexGrid = memo(function TextHexGrid() {
         
         <button 
           onClick={toggleFullscreen}
-          className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-tokyo-muted hover:text-tokyo-text"
+          className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-tokyo-muted hover:text-tokyo-text active-press-scale"
           title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"}
         >
           {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
@@ -111,7 +124,7 @@ export const TextHexGrid = memo(function TextHexGrid() {
           className="w-full h-full max-h-[460px]"
         >
           <g>
-            {neuronLayouts.map((neuron) => {
+            {neuronLayouts.map((neuron, index) => {
               const { cx, cy, pointsStr } = neuron;
               
               const isClassifiedBMU = classificationResult?.bmu === neuron.id;
@@ -137,13 +150,15 @@ export const TextHexGrid = memo(function TextHexGrid() {
                 strokeWidth = '2.5';
               }
               
+              const delay = index * (500 / neuronLayouts.length);
+              
               return (
                 <g 
                   key={neuron.id}
                   role="button"
                   tabIndex={0}
                   aria-label={`Neurônio N${neuron.id}, Classe Dominante: ${neuron.total_samples > 0 ? neuron.dominant_class : 'Vazio'}, Amostras: ${neuron.total_samples}, Pureza: ${(neuron.purity * 100).toFixed(0)}%`}
-                  className="cursor-pointer group focus:outline-none"
+                  className="cursor-pointer group focus:outline-none som-hex-group animate-hex-entrance"
                   onClick={() => {
                     if (neuron.doc_indices.length > 0) {
                       setSelectedDocId(neuron.doc_indices[0]);
@@ -157,6 +172,10 @@ export const TextHexGrid = memo(function TextHexGrid() {
                       }
                     }
                   }}
+                  style={{
+                    transformOrigin: `${cx}px ${cy}px`,
+                    animationDelay: `${delay}ms`
+                  }}
                 >
                   <polygon
                     points={pointsStr}
@@ -164,7 +183,11 @@ export const TextHexGrid = memo(function TextHexGrid() {
                     fillOpacity={neuron.total_samples === 0 ? 0.2 : 0.8}
                     stroke={stroke}
                     strokeWidth={strokeWidth}
-                    className="transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80 group-focus:stroke-white group-focus:stroke-opacity-100"
+                    className="hex-polygon transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80 group-focus:stroke-white group-focus:stroke-opacity-100"
+                    style={{
+                      transformOrigin: `${cx}px ${cy}px`,
+                      animationDelay: `${delay}ms`
+                    }}
                   />
                   
                   <text
@@ -188,7 +211,9 @@ export const TextHexGrid = memo(function TextHexGrid() {
                       stroke="#ffffff"
                       strokeWidth="2"
                       className="ripple-circle pointer-events-none"
-                      style={{ transformOrigin: `${cx}px ${cy}px` }}
+                      style={{
+                        transformOrigin: `${cx}px ${cy}px`
+                      }}
                     />
                   )}
                   

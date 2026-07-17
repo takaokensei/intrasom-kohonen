@@ -83,9 +83,22 @@ export const HexGrid = memo(function HexGrid() {
 
   if (loadingSynthetic) {
     return (
-      <div className="glass-panel rounded-2xl p-5 h-full flex flex-col justify-center items-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tokyo-blue animate-pulse"></div>
-        <span className="text-xs text-tokyo-muted mt-2 font-mono">Carregando mapa...</span>
+      <div className="glass-panel rounded-2xl p-5 flex flex-col h-full min-h-[380px] animate-pulse">
+        <div className="flex justify-between items-center mb-4">
+          <div className="h-4 bg-[#2e3440] rounded w-1/3" />
+          <div className="h-6 bg-[#2e3440] rounded w-24" />
+        </div>
+        <div className="flex-1 bg-tokyo-dark bg-opacity-40 rounded-xl border border-tokyo-border border-opacity-30 flex justify-center items-center p-4">
+          <div className="grid grid-cols-10 gap-2.5 w-full max-w-[450px]">
+            {Array.from({ length: 60 }).map((_, i) => (
+              <div
+                key={i}
+                className="aspect-square bg-[#1f2335] rounded-lg border border-tokyo-border border-opacity-20 animate-pulse"
+                style={{ animationDelay: `${(i % 10) * 35}ms` }}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -165,13 +178,13 @@ export const HexGrid = memo(function HexGrid() {
           <div className="flex rounded border border-tokyo-border overflow-hidden">
             <button
               onClick={() => setColorMode('class')}
-              className={`px-3 py-1 text-xs transition ${colorMode === 'class' ? 'bg-tokyo-blue text-tokyo-bg font-semibold' : 'bg-tokyo-panel text-tokyo-text hover:bg-opacity-80'}`}
+              className={`px-3 py-1 text-xs transition active-press-scale ${colorMode === 'class' ? 'bg-tokyo-blue text-tokyo-bg font-semibold' : 'bg-tokyo-panel text-tokyo-text hover:bg-opacity-80'}`}
             >
               Classes
             </button>
             <button
               onClick={() => setColorMode('umatrix')}
-              className={`px-3 py-1 text-xs transition ${colorMode === 'umatrix' ? 'bg-tokyo-blue text-tokyo-bg font-semibold' : 'bg-tokyo-panel text-tokyo-text hover:bg-opacity-80'}`}
+              className={`px-3 py-1 text-xs transition active-press-scale ${colorMode === 'umatrix' ? 'bg-tokyo-blue text-tokyo-bg font-semibold' : 'bg-tokyo-panel text-tokyo-text hover:bg-opacity-80'}`}
             >
               U-Matrix
             </button>
@@ -180,7 +193,7 @@ export const HexGrid = memo(function HexGrid() {
           {/* Export SVG */}
           <button
             onClick={downloadSVG}
-            className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-tokyo-muted hover:text-tokyo-text"
+            className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-tokyo-muted hover:text-tokyo-text active-press-scale"
             title="Exportar SVG"
           >
             <Download size={16} />
@@ -189,7 +202,7 @@ export const HexGrid = memo(function HexGrid() {
           {/* Fullscreen */}
           <button
             onClick={toggleFullscreen}
-            className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-tokyo-muted hover:text-tokyo-text"
+            className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-tokyo-muted hover:text-tokyo-text active-press-scale"
             title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"}
           >
             {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
@@ -213,7 +226,7 @@ export const HexGrid = memo(function HexGrid() {
               className="w-full h-full max-h-[500px]"
             >
               <g>
-                {neuronLayouts.map((neuron) => {
+                {neuronLayouts.map((neuron, index) => {
                   const { cx, cy, pointsStr } = neuron;
 
                   const isSelected = selectedNeuronId === neuron.id;
@@ -234,6 +247,8 @@ export const HexGrid = memo(function HexGrid() {
                     stroke = '#ffffff';
                     strokeWidth = '2.5';
                   }
+
+                  const delay = index * (500 / neuronLayouts.length);
 
                   return (
                     <g
@@ -257,7 +272,11 @@ export const HexGrid = memo(function HexGrid() {
                         });
                       }}
                       onMouseLeave={() => setHoveredNeuron(null)}
-                      className="cursor-pointer group focus:outline-none"
+                      className="cursor-pointer group focus:outline-none som-hex-group animate-hex-entrance"
+                      style={{
+                        transformOrigin: `${cx}px ${cy}px`,
+                        animationDelay: `${delay}ms`
+                      }}
                     >
                       <polygon
                         points={pointsStr}
@@ -268,7 +287,7 @@ export const HexGrid = memo(function HexGrid() {
                         className="hex-polygon transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80 group-focus:stroke-white group-focus:stroke-opacity-100"
                         style={{
                           transformOrigin: `${cx}px ${cy}px`,
-                          animationDelay: `${(neuron.row * cols + neuron.col) * 5}ms`
+                          animationDelay: `${delay}ms`
                         }}
                       />
 

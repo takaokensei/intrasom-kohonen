@@ -57,7 +57,7 @@ function App() {
         <div className="flex bg-tokyo-dark bg-opacity-80 p-1 rounded-xl border border-tokyo-border z-10">
           <button
             onClick={() => handleTabChange('synthetic')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all active-press-scale ${
               activeTab === 'synthetic'
                 ? 'bg-tokyo-blue text-tokyo-bg shadow-lg'
                 : 'text-[#9aa5ce] hover:text-tokyo-text'
@@ -68,7 +68,7 @@ function App() {
           </button>
           <button
             onClick={() => handleTabChange('text')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all active-press-scale ${
               activeTab === 'text'
                 ? 'bg-tokyo-blue text-tokyo-bg shadow-lg'
                 : 'text-[#9aa5ce] hover:text-tokyo-text'
@@ -85,13 +85,17 @@ function App() {
         errorSynthetic ? (
           <ErrorState message={errorSynthetic} onRetry={loadSyntheticData} />
         ) : (
-          <SyntheticScreen />
+          <div key="synthetic" className="grow flex flex-col animate-tab-change">
+            <SyntheticScreen />
+          </div>
         )
       ) : (
         errorText ? (
           <ErrorState message={errorText} onRetry={loadTextData} />
         ) : (
-          <TextScreen />
+          <div key="text" className="grow flex flex-col animate-tab-change">
+            <TextScreen />
+          </div>
         )
       )}
 

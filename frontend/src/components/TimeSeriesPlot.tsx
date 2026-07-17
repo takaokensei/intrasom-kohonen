@@ -117,7 +117,7 @@ export const TimeSeriesPlot = memo(function TimeSeriesPlot() {
           {/* Export SVG */}
           <button 
             onClick={downloadSVG}
-            className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-[#9aa5ce] hover:text-tokyo-text"
+            className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-[#9aa5ce] hover:text-tokyo-text active-press-scale"
             title="Exportar SVG"
           >
             <Download size={16} />
@@ -126,7 +126,7 @@ export const TimeSeriesPlot = memo(function TimeSeriesPlot() {
           {/* Fullscreen */}
           <button 
             onClick={toggleFullscreen}
-            className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-[#9aa5ce] hover:text-tokyo-text"
+            className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-[#9aa5ce] hover:text-tokyo-text active-press-scale"
             title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"}
           >
             {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}

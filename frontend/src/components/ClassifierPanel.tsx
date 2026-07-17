@@ -103,18 +103,18 @@ export function ClassifierPanel() {
       <div className="flex items-center justify-between mb-3 text-[9px] font-mono">
         <span className="text-tokyo-muted uppercase font-bold">Status da Inferência:</span>
         {backendOnline ? (
-          <span className="flex items-center gap-1 text-tokyo-green font-bold bg-tokyo-green bg-opacity-10 px-1.5 py-0.5 rounded border border-tokyo-green border-opacity-35">
-            <span className="w-1.5 h-1.5 rounded-full bg-tokyo-green animate-pulse" />
+          <span className="flex items-center gap-1.5 text-tokyo-green font-bold bg-tokyo-green bg-opacity-10 px-2 py-1 rounded-lg border border-tokyo-green border-opacity-35 shadow-[0_0_10px_rgba(16,185,129,0.15)]">
+            <span className="w-2 h-2 rounded-full bg-tokyo-green pulse-dot-green" />
             Servidor Local: ATIVO (Real)
           </span>
         ) : selectedTextRep === 'SBERT' ? (
-          <span className="flex items-center gap-1 text-tokyo-blue font-bold bg-tokyo-blue bg-opacity-10 px-1.5 py-0.5 rounded border border-tokyo-blue border-opacity-35" title="Utilizando API de inferência do Hugging Face com projeção PCA local. 100% fiel e sem backend necessário!">
-            <span className="w-1.5 h-1.5 rounded-full bg-tokyo-blue animate-pulse" />
+          <span className="flex items-center gap-1.5 text-tokyo-blue font-bold bg-tokyo-blue bg-opacity-10 px-2 py-1 rounded-lg border border-tokyo-blue border-opacity-35 shadow-[0_0_10px_rgba(59,130,246,0.15)]" title="Utilizando API de inferência do Hugging Face com projeção PCA local. 100% fiel e sem backend necessário!">
+            <span className="w-2 h-2 rounded-full bg-tokyo-blue pulse-dot-blue" />
             Nuvem HF API: ATIVO (Real)
           </span>
         ) : (
-          <span className="flex items-center gap-1 text-tokyo-orange font-bold bg-tokyo-orange bg-opacity-10 px-1.5 py-0.5 rounded border border-[#ff9e64] border-opacity-35" title="Rode 'python src/api.py' no terminal para ativar inferência real do TF-IDF. Usando busca por palavras-chave.">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#ff9e64]" />
+          <span className="flex items-center gap-1.5 text-tokyo-orange font-bold bg-tokyo-orange bg-opacity-10 px-2 py-1 rounded-lg border border-[#ff9e64] border-opacity-35 shadow-[0_0_10px_rgba(249,115,22,0.15)]" title="Rode 'python src/api.py' no terminal para ativar inferência real do TF-IDF. Usando busca por palavras-chave.">
+            <span className="w-2 h-2 rounded-full bg-[#ff9e64] pulse-dot-orange" />
             Inativo (Fallback Heurístico)
           </span>
         )}
@@ -189,7 +189,7 @@ export function ClassifierPanel() {
         {/* Classification Result display */}
         {classificationResult ? (
           <div
-            className="p-4 rounded-xl border flex flex-col space-y-3.5 transition-all"
+            className="p-4 rounded-xl border flex flex-col space-y-3.5 transition-all animate-result-pop"
             style={
               classificationResult.dominantClass === "Desconhecido"
                 ? {}

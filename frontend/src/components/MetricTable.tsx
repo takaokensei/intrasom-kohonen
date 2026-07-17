@@ -10,9 +10,30 @@ export const MetricTable = memo(function MetricTable() {
 
   if (loadingSynthetic) {
     return (
-      <div className="glass-panel rounded-2xl p-6 flex flex-col justify-center items-center min-h-[200px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tokyo-blue"></div>
-        <span className="text-xs text-tokyo-muted mt-2 font-mono">Carregando métricas...</span>
+      <div className="glass-panel rounded-2xl p-6 flex flex-col min-h-[220px] animate-pulse">
+        <div className="flex justify-between items-center mb-4">
+          <div className="h-4 bg-[#2e3440] rounded w-1/2" />
+        </div>
+        <div className="border border-tokyo-border border-opacity-40 rounded-lg overflow-hidden space-y-3 p-4 bg-tokyo-dark bg-opacity-30">
+          {/* Header row */}
+          <div className="grid grid-cols-5 gap-4 border-b border-tokyo-border border-opacity-20 pb-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="h-3 bg-[#1f2335] rounded" />
+            ))}
+          </div>
+          {/* Data rows */}
+          {Array.from({ length: 4 }).map((_, r) => (
+            <div key={r} className="grid grid-cols-5 gap-4 py-1">
+              {Array.from({ length: 5 }).map((_, c) => (
+                <div
+                  key={c}
+                  className="h-2.5 bg-[#1f2335] rounded animate-pulse"
+                  style={{ animationDelay: `${(r * 5 + c) * 30}ms` }}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -31,7 +52,7 @@ export const MetricTable = memo(function MetricTable() {
         
         <button 
           onClick={toggleFullscreen}
-          className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-tokyo-muted hover:text-tokyo-text"
+          className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-tokyo-muted hover:text-tokyo-text active-press-scale"
           title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"}
         >
           {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}

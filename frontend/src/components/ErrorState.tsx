@@ -16,7 +16,7 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
         <p className="text-xs text-[#9aa5ce] leading-relaxed">{message}</p>
         <button 
           onClick={onRetry} 
-          className="w-full py-2.5 bg-tokyo-blue bg-opacity-20 hover:bg-opacity-30 text-tokyo-blue border border-tokyo-blue border-opacity-40 hover:border-opacity-65 rounded-lg text-xs font-bold font-mono uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all"
+          className="w-full py-2.5 bg-tokyo-blue bg-opacity-20 hover:bg-opacity-30 text-tokyo-blue border border-tokyo-blue border-opacity-40 hover:border-opacity-65 rounded-lg text-xs font-bold font-mono uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all active-press-scale"
         >
           <RefreshCw size={12} />
           Tentar Novamente

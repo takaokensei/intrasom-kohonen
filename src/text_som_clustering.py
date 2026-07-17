@@ -154,6 +154,8 @@ def train_and_plot_text_som(X_embeddings, labels, dataset_name, representation_n
     
     # Plot dominant class map
     fig, ax = plt.subplots(figsize=(10, 8))
+    fig.patch.set_facecolor('#1A1B26')
+    ax.set_facecolor('#1A1B26')
     ax.set_aspect('equal')
     
     for idx in range(cols * rows):
@@ -167,15 +169,17 @@ def train_and_plot_text_som(X_embeddings, labels, dataset_name, representation_n
             num_samples = totals[bmu_idx]
             label_text = f"N{bmu_idx}\n{cname}\n{num_samples}d ({pur*100:.0f}%)"
             alpha = 0.85
+            text_color = '#F5F5F5'
         else:
-            face_color = "#f0f0f0"
+            face_color = "#292E42"
             label_text = f"N{bmu_idx}\nVazio"
             alpha = 0.3
+            text_color = '#A9B1D6'
             
         hex_patch = RegularPolygon((cx * 2, cy * 2), numVertices=6, radius=1.05/np.sqrt(3),
-                                   facecolor=face_color, edgecolor='#444444', alpha=alpha, linewidth=0.5)
+                                   facecolor=face_color, edgecolor='#3B4261', alpha=alpha, linewidth=0.5)
         ax.add_patch(hex_patch)
-        ax.text(cx * 2, cy * 2, label_text, ha='center', va='center', fontsize=6, fontweight='bold', color='#111111')
+        ax.text(cx * 2, cy * 2, label_text, ha='center', va='center', fontsize=6, fontweight='bold', color=text_color)
         
     ax.set_xlim(coords[:, 0].min() * 2 - 1.5, coords[:, 0].max() * 2 + 1.5)
     ax.set_ylim(coords[:, 1].min() * 2 - 1.5, coords[:, 1].max() * 2 + 1.5)
@@ -183,11 +187,12 @@ def train_and_plot_text_som(X_embeddings, labels, dataset_name, representation_n
     
     # Add legend
     from matplotlib.patches import Patch
-    legend_elements = [Patch(facecolor=color, edgecolor='#333333', label=cname) for cname, color in NEWS_COLORS.items() if cname in labels]
-    legend_elements.append(Patch(facecolor='#f0f0f0', edgecolor='#444444', label='Vazio', alpha=0.5))
-    ax.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(1.15, 1.0), title="Categorias", fontsize=10)
+    legend_elements = [Patch(facecolor=color, edgecolor='#3B4261', label=cname) for cname, color in NEWS_COLORS.items() if cname in labels]
+    legend_elements.append(Patch(facecolor='#292E42', edgecolor='#3B4261', label='Vazio', alpha=0.5))
+    ax.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(1.15, 1.0), title="Categorias", fontsize=10, 
+              facecolor='#1F2335', edgecolor='#3B4261', labelcolor='#A9B1D6')
     
-    ax.set_title(f"Organização Semântica ({dataset_name} - {representation_name})", fontsize=14, fontweight='bold', pad=20)
+    ax.set_title(f"Organização Semântica ({dataset_name} - {representation_name})", fontsize=14, fontweight='bold', pad=20, color='#FFFFFF')
     
     workspace_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     fig_dir = os.path.join(workspace_dir, "outputs", "figures")
@@ -195,7 +200,7 @@ def train_and_plot_text_som(X_embeddings, labels, dataset_name, representation_n
     
     save_path = os.path.join(fig_dir, f"som_text_{model_key.lower()}_dominant.png")
     plt.tight_layout()
-    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='#1A1B26')
     plt.close()
     print(f"Dominant class map for {model_key} saved to {save_path}")
     

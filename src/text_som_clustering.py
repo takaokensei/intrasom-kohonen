@@ -8,8 +8,9 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import RegularPolygon
 import json
 import shutil
+from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.decomposition import TruncatedSVD
+from sklearn.decomposition import TruncatedSVD, PCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
 from sentence_transformers import SentenceTransformer
@@ -20,8 +21,14 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import intrasom
 from intrasom.visualization import PlotFactory
 
-# Color palette for 6 news categories
+# Color palette for news categories (combines both datasets)
 NEWS_COLORS = {
+    # 20 Newsgroups (4 classes)
+    "Graphics": "#3182bd",     # Blue
+    "Space": "#31a354",        # Green
+    "Baseball": "#e6550d",     # Orange
+    "Mideast": "#756bb1",      # Purple
+    # 6-class dataset (Português)
     "Turismo": "#3182bd",      # Blue
     "Esportes": "#31a354",     # Green
     "Policia": "#e6550d",      # Orange
@@ -30,8 +37,35 @@ NEWS_COLORS = {
     "Variedades": "#d6616b"    # Red
 }
 
-def load_news_data():
-    """Loads the 6-class Excel text dataset from the specified local path."""
+def load_20news_data():
+    """Loads a subset of 20 Newsgroups with 4 distinct categories (400 docs)."""
+    print("Fetching 20 Newsgroups subset...")
+    categories = [
+        'comp.graphics',
+        'sci.space',
+        'rec.sport.baseball',
+        'talk.politics.mideast'
+    ]
+    newsgroups = fetch_20newsgroups(subset='train', categories=categories, remove=('headers', 'footers', 'quotes'), random_state=42)
+    docs = []
+    labels = []
+    class_map = {
+        'comp.graphics': 'Graphics',
+        'sci.space': 'Space',
+        'rec.sport.baseball': 'Baseball',
+        'talk.politics.mideast': 'Mideast'
+    }
+    counts = {cat: 0 for cat in categories}
+    for text, label_idx in zip(newsgroups.data, newsgroups.target):
+        cat_name = newsgroups.target_names[label_idx]
+        if counts[cat_name] < 100 and len(text.strip()) > 50:
+            docs.append(text)
+            labels.append(class_map[cat_name])
+            counts[cat_name] += 1
+    return docs, np.array(labels)
+
+def load_6class_data():
+    """Loads the 6-class Excel text dataset from the local path (317 docs)."""
     print("Loading 6-class Excel text dataset...")
     file_path = r"C:\Users\Cauã V\Downloads\drive-download-20260627T220035Z-3-001\9. 3ª Unidade\Base_dados_textos_6_classes.xlsx"
     df = pd.read_excel(file_path)
@@ -42,7 +76,7 @@ def load_news_data():
         c = c.replace("Pol\u00edcia", "Policia")
         c = c.replace("Pol\u00edtica", "Politica").replace("Poltica", "Politica")
         c = c.replace("Polícia e Direitos", "Policia").replace("Política", "Politica")
-        c = c.split(" e ")[0] # simplify
+        c = c.split(" e ")[0]
         
         if "Turismo" in c:
             clean_categories.append("Turismo")
@@ -62,13 +96,12 @@ def load_news_data():
     df['CleanCategory'] = clean_categories
     docs = df['Texto Original'].fillna('').astype(str).tolist()
     labels = np.array(df['CleanCategory'].tolist())
-    
-    print(f"Loaded {len(docs)} documents from local Excel. Distribution: {pd.Series(labels).value_counts().to_dict()}")
     return docs, labels
 
-def train_and_plot_text_som(X_embeddings, labels, representation_name, mapsize=(10, 10)):
+def train_and_plot_text_som(X_embeddings, labels, dataset_name, representation_name, mapsize=(10, 10)):
     """Trains a SOM on text embeddings and plots dominant classes."""
-    print(f"\nTraining Text SOM for {representation_name}...")
+    model_key = f"{dataset_name}_{representation_name}"
+    print(f"\nTraining Text SOM for {model_key}...")
     
     # Create DataFrame for IntraSOM input
     df_emb = pd.DataFrame(X_embeddings)
@@ -85,7 +118,7 @@ def train_and_plot_text_som(X_embeddings, labels, representation_name, mapsize=(
         initialization='random',
         neighborhood='gaussian',
         training='batch',
-        name=f"SOM_Text_{representation_name}",
+        name=f"SOM_Text_{model_key}",
         sample_names=list(df_emb.index)
     )
     
@@ -138,27 +171,27 @@ def train_and_plot_text_som(X_embeddings, labels, representation_name, mapsize=(
     
     # Add legend
     from matplotlib.patches import Patch
-    legend_elements = [Patch(facecolor=color, edgecolor='#333333', label=cname) for cname, color in NEWS_COLORS.items()]
+    legend_elements = [Patch(facecolor=color, edgecolor='#333333', label=cname) for cname, color in NEWS_COLORS.items() if cname in labels]
     legend_elements.append(Patch(facecolor='#f0f0f0', edgecolor='#444444', label='Vazio', alpha=0.5))
     ax.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(1.15, 1.0), title="Categorias", fontsize=10)
     
-    ax.set_title(f"Organização Semântica de Notícias ({representation_name})", fontsize=14, fontweight='bold', pad=20)
+    ax.set_title(f"Organização Semântica ({dataset_name} - {representation_name})", fontsize=14, fontweight='bold', pad=20)
     
     workspace_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     fig_dir = os.path.join(workspace_dir, "outputs", "figures")
     os.makedirs(fig_dir, exist_ok=True)
     
-    save_path = os.path.join(fig_dir, f"som_text_{representation_name.lower()}_dominant.png")
+    save_path = os.path.join(fig_dir, f"som_text_{model_key.lower()}_dominant.png")
     plt.tight_layout()
     plt.savefig(save_path, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"Dominant class map for {representation_name} saved to {save_path}")
+    print(f"Dominant class map for {model_key} saved to {save_path}")
     
     # Move params/neurons parquet files to outputs/maps
     results_src_dir = os.path.join(os.getcwd(), "Results")
     if os.path.exists(results_src_dir):
          for file_name in os.listdir(results_src_dir):
-             if representation_name in file_name or f"Text_{representation_name}" in file_name:
+             if model_key in file_name or f"Text_{model_key}" in file_name:
                  src_file = os.path.join(results_src_dir, file_name)
                  dest_file = os.path.join(workspace_dir, "outputs", "maps", file_name)
                  if os.path.exists(dest_file):
@@ -169,7 +202,7 @@ def train_and_plot_text_som(X_embeddings, labels, representation_name, mapsize=(
     if os.path.exists("Plots"):
         for root, dirs, files in os.walk("Plots"):
             for file in files:
-                if representation_name in file:
+                if model_key in file:
                     src_file = os.path.join(root, file)
                     dest_file = os.path.join(fig_dir, file)
                     if os.path.exists(dest_file):
@@ -179,77 +212,91 @@ def train_and_plot_text_som(X_embeddings, labels, representation_name, mapsize=(
         
     return results_df, som
 
-def run_text_experiments():
-    docs, labels = load_news_data()
-    
+def run_experiment_for_dataset(docs, labels, dataset_name):
+    """Runs the full TF-IDF and SBERT experiments for a specific dataset."""
     workspace_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     models_dir = os.path.join(workspace_dir, "outputs", "maps")
     os.makedirs(models_dir, exist_ok=True)
     import pickle
- 
-    # 1. TF-IDF + LSA Representation
+    
+    k = len(np.unique(labels))
+    print(f"\n====== Running experiments for {dataset_name} (k={k}) ======")
+
+    # 1. TF-IDF + LSA
     print("\n--- Extracting TF-IDF + LSA ---")
-    vectorizer = TfidfVectorizer(max_features=1000, stop_words='english')
+    vectorizer = TfidfVectorizer(max_features=1000, stop_words='english' if dataset_name == '20news' else None)
     X_tfidf = vectorizer.fit_transform(docs)
     
     svd = TruncatedSVD(n_components=20, random_state=42)
     X_lsa = svd.fit_transform(X_tfidf)
-    print("TF-IDF LSA shape:", X_lsa.shape)
     
-    # Save TF-IDF Vectorizer and SVD/LSA models
-    with open(os.path.join(models_dir, "tfidf_vectorizer.pkl"), "wb") as f:
+    # Save vectorizer and SVD
+    with open(os.path.join(models_dir, f"{dataset_name}_tfidf_vectorizer.pkl"), "wb") as f:
         pickle.dump(vectorizer, f)
-    with open(os.path.join(models_dir, "lsa_svd.pkl"), "wb") as f:
+    with open(os.path.join(models_dir, f"{dataset_name}_lsa_svd.pkl"), "wb") as f:
         pickle.dump(svd, f)
-    print("Saved TF-IDF vectorizer and LSA SVD models.")
     
-    res_tfidf, som_tfidf = train_and_plot_text_som(X_lsa, labels, "TF-IDF")
-    
-    # 2. Sentence-BERT Representation
+    res_tfidf, som_tfidf = train_and_plot_text_som(X_lsa, labels, dataset_name, "TF-IDF")
+
+    # 2. SBERT + PCA
     print("\n--- Extracting Sentence-BERT Embeddings ---")
     model = SentenceTransformer('all-MiniLM-L6-v2')
     X_sbert = model.encode(docs, show_progress_bar=True)
     
-    # Apply PCA to reduce to 20 components to make it comparable
-    from sklearn.decomposition import PCA
     pca = PCA(n_components=20, random_state=42)
     X_sbert_reduced = pca.fit_transform(X_sbert)
-    print("Sentence-BERT embedding shape:", X_sbert_reduced.shape)
     
-    # Save SBERT PCA model
-    with open(os.path.join(models_dir, "sbert_pca.pkl"), "wb") as f:
+    # Save SBERT PCA
+    with open(os.path.join(models_dir, f"{dataset_name}_sbert_pca.pkl"), "wb") as f:
         pickle.dump(pca, f)
-    print("Saved SBERT PCA model.")
-    
-    res_sbert, som_sbert = train_and_plot_text_som(X_sbert_reduced, labels, "SBERT")
-    
-    # Calculate Cluster quality of winner neurons for both (k=6)
+        
+    res_sbert, som_sbert = train_and_plot_text_som(X_sbert_reduced, labels, dataset_name, "SBERT")
+
+    # Metrics
     from intrasom.clustering import ClusterFactory
     
     cf_tfidf = ClusterFactory(som_tfidf)
-    clusters_tfidf = cf_tfidf.kmeans(k=6)
+    clusters_tfidf = cf_tfidf.kmeans(k=k)
     res_c_tfidf = cf_tfidf.results_cluster(clusters_tfidf, save=False)
-    ari_tfidf = adjusted_rand_score(labels, res_c_tfidf["6_clusters"].values)
-    nmi_tfidf = normalized_mutual_info_score(labels, res_c_tfidf["6_clusters"].values)
+    ari_tfidf = adjusted_rand_score(labels, res_c_tfidf[f"{k}_clusters"].values)
+    nmi_tfidf = normalized_mutual_info_score(labels, res_c_tfidf[f"{k}_clusters"].values)
     
     cf_sbert = ClusterFactory(som_sbert)
-    clusters_sbert = cf_sbert.kmeans(k=6)
+    clusters_sbert = cf_sbert.kmeans(k=k)
     res_c_sbert = cf_sbert.results_cluster(clusters_sbert, save=False)
-    ari_sbert = adjusted_rand_score(labels, res_c_sbert["6_clusters"].values)
-    nmi_sbert = normalized_mutual_info_score(labels, res_c_sbert["6_clusters"].values)
+    ari_sbert = adjusted_rand_score(labels, res_c_sbert[f"{k}_clusters"].values)
+    nmi_sbert = normalized_mutual_info_score(labels, res_c_sbert[f"{k}_clusters"].values)
     
-    print("\n=======================================================")
-    print("COMPARATIVO DE CLUSTERIZAÇÃO TEXTUAL (6 CLASSES):")
-    print("=======================================================")
-    print(f"TF-IDF + LSA SOM: ARI = {ari_tfidf:.4f}, NMI = {nmi_tfidf:.4f}")
-    print(f"Sentence-BERT SOM: ARI = {ari_sbert:.4f}, NMI = {nmi_sbert:.4f}")
+    print(f"\nComparativo {dataset_name}:")
+    print(f"TF-IDF SOM: ARI = {ari_tfidf:.4f}, NMI = {nmi_tfidf:.4f}")
+    print(f"SBERT SOM: ARI = {ari_sbert:.4f}, NMI = {nmi_sbert:.4f}")
     
-    # Save text results comparison
+    return {
+        "TF_IDF": {"ARI": ari_tfidf, "NMI": nmi_tfidf},
+        "SBERT": {"ARI": ari_sbert, "NMI": nmi_sbert}
+    }
+
+def run_text_experiments():
+    workspace_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    from sklearn.decomposition import PCA
+    
+    # Run 1: 20 Newsgroups (4 classes)
+    docs_20news, labels_20news = load_20news_data()
+    metrics_20news = run_experiment_for_dataset(docs_20news, labels_20news, "20news")
+    
+    # Run 2: 6 classes (Local Excel)
+    docs_6class, labels_6class = load_6class_data()
+    metrics_6class = run_experiment_for_dataset(docs_6class, labels_6class, "6class")
+    
+    # Save combined metrics
+    combined_metrics = {
+        "20news": metrics_20news,
+        "6class": metrics_6class
+    }
     with open(os.path.join(workspace_dir, "outputs", "metrics", "text_clustering_comparison.json"), "w") as f:
-        json.dump({
-            "TF_IDF": {"ARI": ari_tfidf, "NMI": nmi_tfidf},
-            "SBERT": {"ARI": ari_sbert, "NMI": nmi_sbert}
-        }, f, indent=4)
+        json.dump(combined_metrics, f, indent=4)
         
+    print("\nText experiments completed for both datasets!")
+
 if __name__ == "__main__":
     run_text_experiments()

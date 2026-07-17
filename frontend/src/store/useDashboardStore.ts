@@ -73,9 +73,11 @@ interface DashboardState {
   series: SeriesItem[];
   somModels: Record<string, SOMModel>;
   metrics: MetricRow[];
-  textModels: Record<string, TextModel>;
-  textMetrics: Record<string, { ARI: number; NMI: number }>;
-  newsSamples: NewsSample[];
+  textModels: Record<string, Record<string, TextModel>>;
+  textMetrics: Record<string, Record<string, { ARI: number; NMI: number }>>;
+  newsSamples: Record<string, NewsSample[]>;
+  selectedTextDataset: '20news' | '6class';
+  setSelectedTextDataset: (dataset: '20news' | '6class') => void;
   
   // Loading states
   loadingSynthetic: boolean;
@@ -98,7 +100,7 @@ interface DashboardState {
     source: 'local' | 'cloud' | 'fallback';
   } | null;
   backendOnline: boolean | null;
-  pcaParams: { mean: number[]; components: number[][] } | null;
+  pcaParams: Record<string, { mean: number[]; components: number[][] }> | null;
   errorSynthetic: string | null;
   errorText: string | null;
   
@@ -126,7 +128,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   metrics: [],
   textModels: {},
   textMetrics: {},
-  newsSamples: [],
+  newsSamples: {},
   
   // Loading initial states
   loadingSynthetic: false,
@@ -138,6 +140,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   highlightedClass: null,
   
   // Text SOM Defaults
+  selectedTextDataset: '20news',
   selectedTextRep: 'SBERT',
   selectedDocId: null,
   customTextQuery: '',
@@ -146,6 +149,14 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   pcaParams: null,
   errorSynthetic: null,
   errorText: null,
+  
+  // Actions
+  setSelectedTextDataset: (selectedTextDataset) => set({ 
+    selectedTextDataset, 
+    selectedDocId: null, 
+    classificationResult: null, 
+    customTextQuery: '' 
+  }),
   
   // Actions
   setActiveTab: (activeTab) => {
@@ -185,7 +196,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       });
     }
   },  loadTextData: async () => {
-    if (get().newsSamples.length > 0) {
+    if (Object.keys(get().newsSamples).length > 0) {
       get().checkBackend();
       return; // Already loaded
     }
@@ -233,13 +244,14 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     }
     
     const rep = get().selectedTextRep;
+    const dataset = get().selectedTextDataset;
     
     // 1. Try to fetch from FastAPI local backend
     try {
       const response = await fetch('http://127.0.0.1:8000/classify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, representation: rep })
+        body: JSON.stringify({ text, representation: rep, dataset })
       });
       
       if (response.ok) {
@@ -283,8 +295,9 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         
         if (hfResponse.ok) {
           const emb = await hfResponse.json(); // Array of 384 floats
-          const pca = get().pcaParams;
-          const model = get().textModels[rep];
+          const pcaParamsObj = get().pcaParams;
+          const pca = pcaParamsObj ? pcaParamsObj[dataset] : null;
+          const model = get().textModels[dataset] ? get().textModels[dataset][rep] : null;
           
           if (Array.isArray(emb) && emb.length === 384 && pca && model) {
             // Apply PCA projection: Q_20 = (emb - mean) * components
@@ -344,7 +357,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     
     // 3. Client-side fallback matching (Heuristics)
     const queryLower = text.toLowerCase();
-    const samples = get().newsSamples;
+    const samples = get().newsSamples[dataset] || [];
     
     let bestDocIdx = 0;
     let maxOverlap = 0;
@@ -364,7 +377,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       }
     });
     
-    const model = get().textModels[rep];
+    const model = get().textModels[dataset] ? get().textModels[dataset][rep] : null;
     if (!model) return;
     
     let targetNeuron = null;

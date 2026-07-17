@@ -12,7 +12,7 @@ const NEWS_COLORS: Record<string, string> = {
 };
 
 export function TextHexGrid() {
-  const { selectedTextRep, selectedDocId, setSelectedDocId, textModels, loadingText, classificationResult } = useDashboardStore();
+  const { selectedTextDataset, selectedTextRep, selectedDocId, setSelectedDocId, textModels, loadingText, classificationResult } = useDashboardStore();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   
   if (loadingText) {
@@ -24,7 +24,7 @@ export function TextHexGrid() {
     );
   }
 
-  const model = textModels[selectedTextRep];
+  const model = textModels[selectedTextDataset]?.[selectedTextRep];
   if (!model) return null;
   
   const { cols, rows, neurons } = model;
@@ -81,7 +81,9 @@ export function TextHexGrid() {
             Organização Semântica de Notícias (10x10)
           </h3>
           <p className="text-[10px] text-tokyo-muted font-mono mt-0.5">
-            6 categorias do dataset da 3ª Unidade (317 documentos)
+            {selectedTextDataset === '20news' 
+              ? '4 categorias do dataset 20 Newsgroups (400 documentos)'
+              : '6 categorias do dataset da 3ª Unidade (317 documentos)'}
           </p>
         </div>
         

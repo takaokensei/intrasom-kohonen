@@ -36,8 +36,7 @@ text_metadata = None
 
 @app.on_event("startup")
 def startup_event():
-    global sbert_model, sbert_pca, tfidf_vectorizer, lsa_svd
-    global sbert_neurons_df, tfidf_neurons_df, text_metadata
+    global sbert_model, text_metadata
     
     print("Loading models and metadata...")
     
@@ -48,27 +47,7 @@ def startup_event():
     except Exception as e:
         print(f"Error loading SentenceTransformer: {e}")
         
-    # 2. Load Pickle files
-    try:
-        with open(os.path.join(MAPS_DIR, "sbert_pca.pkl"), "rb") as f:
-            sbert_pca = pickle.load(f)
-        with open(os.path.join(MAPS_DIR, "tfidf_vectorizer.pkl"), "rb") as f:
-            tfidf_vectorizer = pickle.load(f)
-        with open(os.path.join(MAPS_DIR, "lsa_svd.pkl"), "rb") as f:
-            lsa_svd = pickle.load(f)
-        print("Pickle models loaded successfully.")
-    except Exception as e:
-        print(f"Error loading pickle models: {e}")
-        
-    # 3. Load Parquet codebooks
-    try:
-        sbert_neurons_df = pd.read_parquet(os.path.join(MAPS_DIR, "SOM_Text_SBERT_neurons.parquet"))
-        tfidf_neurons_df = pd.read_parquet(os.path.join(MAPS_DIR, "SOM_Text_TF-IDF_neurons.parquet"))
-        print("Neurons codebook Parquet data loaded.")
-    except Exception as e:
-        print(f"Error loading parquet files: {e}")
-        
-    # 4. Load metadata from text_models.json
+    # 2. Load metadata from text_models.json
     try:
         with open(os.path.join(PUBLIC_DATA_DIR, "text_models.json"), "r", encoding="utf-8") as f:
             text_metadata = json.load(f)
@@ -79,6 +58,7 @@ def startup_event():
 class QueryRequest(BaseModel):
     text: str
     representation: str # 'SBERT' or 'TF-IDF'
+    dataset: str = '20news' # '20news' or '6class'
 
 @app.get("/health")
 def health():
@@ -99,30 +79,38 @@ def classify(req: QueryRequest):
     if rep == 'TF_IDF':
         rep = 'TF-IDF'
         
+    dname = req.dataset
+    if dname not in ['20news', '6class']:
+        dname = '20news'
+        
     try:
-        # Project text to 20-dimensional space
+        # Load correct models/neurons depending on dataset
+        neurons_file = os.path.join(MAPS_DIR, f"SOM_Text_{dname}_{rep}_neurons.parquet")
+        if not os.path.exists(neurons_file):
+            raise HTTPException(status_code=404, detail=f"Model for dataset {dname} {rep} not found")
+            
+        neurons_df = pd.read_parquet(neurons_file)
+        
+        # Load SBERT model or TF-IDF models
         if rep == 'SBERT':
-            if sbert_model is None or sbert_pca is None or sbert_neurons_df is None:
-                raise HTTPException(status_code=500, detail="SBERT models not loaded")
-            
-            # 1. Get embedding
-            emb = sbert_model.encode([req.text])[0]
-            # 2. PCA projection to 20 components
-            vec_20 = sbert_pca.transform([emb])[0]
-            
-            # 3. Compute distances to 100 codebooks
-            neurons_df = sbert_neurons_df
-        else:
-            if tfidf_vectorizer is None or lsa_svd is None or tfidf_neurons_df is None:
-                raise HTTPException(status_code=500, detail="TF-IDF models not loaded")
+            if sbert_model is None:
+                raise HTTPException(status_code=500, detail="SBERT model not loaded")
                 
-            # 1. TF-IDF vectorization
-            tfidf_vec = tfidf_vectorizer.transform([req.text])
-            # 2. LSA SVD projection to 20 components
-            vec_20 = lsa_svd.transform(tfidf_vec)[0]
-            
-            # 3. Compute distances to 100 codebooks
-            neurons_df = tfidf_neurons_df
+            # Load specific PCA for dataset
+            with open(os.path.join(MAPS_DIR, f"{dname}_sbert_pca.pkl"), "rb") as f:
+                pca = pickle.load(f)
+                
+            emb = sbert_model.encode([req.text])[0]
+            vec_20 = pca.transform([emb])[0]
+        else:
+            # Load specific TF-IDF vectorizer and SVD for dataset
+            with open(os.path.join(MAPS_DIR, f"{dname}_tfidf_vectorizer.pkl"), "rb") as f:
+                vectorizer = pickle.load(f)
+            with open(os.path.join(MAPS_DIR, f"{dname}_lsa_svd.pkl"), "rb") as f:
+                svd = pickle.load(f)
+                
+            tfidf_vec = vectorizer.transform([req.text])
+            vec_20 = svd.transform(tfidf_vec)[0]
             
         # Get dimensions B_Dim_1 to B_Dim_20
         dim_cols = [f"B_Dim_{i}" for i in range(1, 21)]
@@ -132,7 +120,7 @@ def classify(req: QueryRequest):
         diffs = codebooks - vec_20
         dists = np.linalg.norm(diffs, axis=1) # shape (100,)
         
-        # Best Matching Unit (BMU) is the neuron with minimum distance
+        # Best Matching Unit (BMU)
         min_idx = np.argmin(dists)
         bmu_row = neurons_df.iloc[min_idx]
         bmu_id = int(bmu_row['BMU'])
@@ -142,7 +130,7 @@ def classify(req: QueryRequest):
         dominant_class = "Desconhecido"
         purity = 0.0
         
-        meta_neurons = text_metadata.get(rep, {}).get("neurons", [])
+        meta_neurons = text_metadata.get(dname, {}).get(rep, {}).get("neurons", [])
         meta_neuron = next((n for n in meta_neurons if n["id"] == bmu_id), None)
         if meta_neuron:
             dominant_class = meta_neuron["dominant_class"]

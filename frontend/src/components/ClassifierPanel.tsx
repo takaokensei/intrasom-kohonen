@@ -22,6 +22,8 @@ const NEWS_BG_COLORS: Record<string, string> = {
 
 export function ClassifierPanel() {
   const {
+    selectedTextDataset,
+    setSelectedTextDataset,
     selectedTextRep,
     setSelectedTextRep,
     customTextQuery,
@@ -82,7 +84,7 @@ export function ClassifierPanel() {
     );
   }
 
-  const currentMetrics = textMetrics[selectedTextRep === 'SBERT' ? 'SBERT' : 'TF_IDF'] || { ARI: 0, NMI: 0 };
+  const currentMetrics = textMetrics[selectedTextDataset]?.[selectedTextRep === 'SBERT' ? 'SBERT' : 'TF_IDF'] || { ARI: 0, NMI: 0 };
 
   return (
     <div className="glass-panel rounded-2xl p-5 flex flex-col h-full overflow-hidden">
@@ -93,14 +95,25 @@ export function ClassifierPanel() {
           Classificador de Textos em Tempo Real
         </h3>
         
-        <select
-          value={selectedTextRep}
-          onChange={(e) => setSelectedTextRep(e.target.value as 'SBERT' | 'TF-IDF')}
-          className="bg-tokyo-dark border border-tokyo-border text-[10px] font-mono font-bold rounded p-1 text-tokyo-text focus:outline-none focus:border-tokyo-blue cursor-pointer"
-        >
-          <option value="SBERT">Sentence-BERT (Semântico)</option>
-          <option value="TF-IDF">TF-IDF (Frequencial)</option>
-        </select>
+        <div className="flex gap-2">
+          <select
+            value={selectedTextDataset}
+            onChange={(e) => setSelectedTextDataset(e.target.value as '20news' | '6class')}
+            className="bg-tokyo-dark border border-tokyo-border text-[10px] font-mono font-bold rounded p-1 text-tokyo-text focus:outline-none focus:border-tokyo-blue cursor-pointer"
+          >
+            <option value="20news">20 Newsgroups (4 classes)</option>
+            <option value="6class">Base 3ª Unidade (6 classes)</option>
+          </select>
+          
+          <select
+            value={selectedTextRep}
+            onChange={(e) => setSelectedTextRep(e.target.value as 'SBERT' | 'TF-IDF')}
+            className="bg-tokyo-dark border border-tokyo-border text-[10px] font-mono font-bold rounded p-1 text-tokyo-text focus:outline-none focus:border-tokyo-blue cursor-pointer"
+          >
+            <option value="SBERT">Sentence-BERT (Semântico)</option>
+            <option value="TF-IDF">TF-IDF (Frequencial)</option>
+          </select>
+        </div>
       </div>
       
       {/* Backend Status Indicator */}
@@ -160,8 +173,10 @@ export function ClassifierPanel() {
             <span className="text-[9px] text-[#9aa5ce] uppercase font-mono tracking-wider font-semibold">Testar com Amostras do Dataset:</span>
             <button 
               onClick={() => {
-                const randomIdx = Math.floor(Math.random() * newsSamples.length);
-                handleSampleClick(newsSamples[randomIdx].text);
+                const samplesList = newsSamples[selectedTextDataset] || [];
+                if (samplesList.length === 0) return;
+                const randomIdx = Math.floor(Math.random() * samplesList.length);
+                handleSampleClick(samplesList[randomIdx].text);
               }}
               className="text-[9px] text-tokyo-blue hover:text-tokyo-teal font-mono flex items-center gap-1 transition-colors"
               title="Testar uma notícia aleatória"
@@ -177,10 +192,10 @@ export function ClassifierPanel() {
               if (val) handleSampleClick(val);
             }}
             className="w-full bg-tokyo-dark bg-opacity-50 border border-tokyo-border border-opacity-30 rounded-lg px-2.5 py-2 text-xs text-tokyo-text focus:outline-none focus:border-tokyo-blue cursor-pointer transition-colors"
-            value={newsSamples.find(s => s.text === customTextQuery)?.text || ''}
+            value={(newsSamples[selectedTextDataset] || []).find(s => s.text === customTextQuery)?.text || ''}
           >
             <option value="" disabled>-- Selecione uma notícia para testar --</option>
-            {newsSamples.map((sample) => (
+            {(newsSamples[selectedTextDataset] || []).map((sample) => (
               <option key={sample.id} value={sample.text} className="bg-tokyo-dark text-tokyo-text">
                 [{sample.class}] {sample.text.substring(0, 80)}...
               </option>

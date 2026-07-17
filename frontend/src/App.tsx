@@ -21,7 +21,9 @@ function App() {
     loadTextData,
     loadingSynthetic,
     errorSynthetic,
-    errorText
+    errorText,
+    selectedTextDataset,
+    textMetrics
   } = useDashboardStore();
 
   // Load initial data on mount
@@ -270,31 +272,50 @@ function App() {
             <ClassifierPanel />
             
             {/* Scientific Explanation Panel */}
-            <div className="glass-panel rounded-2xl p-5 flex flex-col text-xs leading-relaxed text-tokyo-text">
-              <h4 className="font-bold text-tokyo-magenta uppercase font-mono tracking-wider mb-3 flex items-center gap-1.5">
-                <CheckCircle size={14} className="text-tokyo-green" />
-                Por que o Sentence-BERT superou o TF-IDF?
-              </h4>
+            {(() => {
+              const datasetMetrics = textMetrics[selectedTextDataset] || {};
+              const sbertAriVal = datasetMetrics["SBERT"]?.ARI;
+              const tfidfAriVal = datasetMetrics["TF_IDF"]?.ARI;
               
-              <div className="space-y-2.5 text-tokyo-text text-opacity-90">
-                <p>
-                  Nos nossos experimentos de clusterização, o SOM treinado com <strong>Sentence-BERT (SBERT)</strong> obteve um ganho considerável nas métricas quantitativas (ARI de <strong>0.5873</strong> contra <strong>0.1695</strong> do TF-IDF).
-                </p>
-                <p>
-                  O <strong>TF-IDF</strong> representa documentos baseando-se apenas na contagem exata de termos (Bag-of-Words). Se duas notícias falam do mesmo assunto (ex: Astronomia) mas usam sinônimos diferentes (ex: <em>"space"</em> e <em>"cosmos"</em>), o TF-IDF não detecta a similaridade física.
-                </p>
-                <p>
-                  Já o <strong>Sentence-BERT</strong> projeta as frases em um espaço latente de alta dimensionalidade onde a proximidade é governada pelo <strong>significado contextual (semântica)</strong>. O SOM consegue organizar esse espaço de forma muito mais coesa, mantendo as categorias bem agrupadas e separadas na malha hexagonal.
-                </p>
-              </div>
-            </div>
+              const sbertAri = sbertAriVal !== undefined ? sbertAriVal.toFixed(4) : "0.0000";
+              const tfidfAri = tfidfAriVal !== undefined ? tfidfAriVal.toFixed(4) : "0.0000";
+              const sbertBetter = (sbertAriVal ?? 0) >= (tfidfAriVal ?? 0);
+              
+              return (
+                <div className="glass-panel rounded-2xl p-5 flex flex-col text-xs leading-relaxed text-tokyo-text">
+                  <h4 className="font-bold text-tokyo-magenta uppercase font-mono tracking-wider mb-3 flex items-center gap-1.5">
+                    <CheckCircle size={14} className="text-tokyo-green" />
+                    Como o Sentence-BERT se compara ao TF-IDF?
+                  </h4>
+                  
+                  <div className="space-y-2.5 text-tokyo-text text-opacity-90">
+                    <p>
+                      Nos nossos experimentos de clusterização, o SOM treinado com <strong>Sentence-BERT (SBERT)</strong> obteve um índice de concordância externa Rand Ajustado (ARI) de <strong>{sbertAri}</strong> contra <strong>{tfidfAri}</strong> do TF-IDF no dataset selecionado.
+                    </p>
+                    <p>
+                      {sbertBetter ? (
+                        <span>
+                          O <strong>Sentence-BERT</strong> superou o TF-IDF porque projeta as frases em um espaço latente de alta dimensionalidade governado pelo significado semântico/contextual em vez de simples contagem vocabular, permitindo que o SOM agrupe conceitos semanticamente afins na malha.
+                        </span>
+                      ) : (
+                        <span>
+                          O <strong>TF-IDF</strong> obteve desempenho superior neste cenário por conta de termos exclusivos muito bem definidos para cada classe, facilitando a separação espacial imediata pelo SOM mesmo sem contexto semântico.
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
           </aside>
         </main>
       )}
 
       {/* Footer bar */}
       <footer className="px-6 py-3 bg-tokyo-dark bg-opacity-90 border-t border-tokyo-border text-[9.5px] text-[#9aa5ce] font-semibold flex flex-col md:flex-row justify-between items-center gap-2 md:gap-0 text-center md:text-left z-10">
-        <span>Base de Dados: 600 séries temporais (Synthetic Control) | 400 notícias (20 Newsgroups)</span>
+        <span>
+          Base de Dados: 600 séries temporais (Synthetic Control) | {selectedTextDataset === '20news' ? '400 notícias (20 Newsgroups)' : '317 notícias (Base Acadêmica 6 Classes)'}
+        </span>
         <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
           <span>USP IntraSOM Library Integration</span>
           <span>Tokyo Night Design System</span>

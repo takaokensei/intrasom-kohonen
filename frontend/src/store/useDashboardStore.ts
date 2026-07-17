@@ -270,7 +270,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         });
         return;
       }
-    } catch (err) {
+    } catch {
       // Backend is offline, try cloud HF Inference API for SBERT
     }
     
@@ -349,7 +349,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         set({ backendOnline: true });
         return;
       }
-    } catch (e) {
+    } catch {
       // Offline
     }
     set({ backendOnline: false });

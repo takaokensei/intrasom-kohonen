@@ -35,25 +35,20 @@ export const HexGrid = memo(function HexGrid() {
   const [hoveredNeuron, setHoveredNeuron] = useState<NeuronItem | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  if (loadingSynthetic) {
-    return (
-      <div className="glass-panel rounded-2xl p-5 h-full flex flex-col justify-center items-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tokyo-blue animate-pulse"></div>
-        <span className="text-xs text-tokyo-muted mt-2 font-mono">Carregando mapa...</span>
-      </div>
-    );
-  }
-
   const model = somModels[selectedMapSize];
-  if (!model) return null;
-
-  const { cols, rows, neurons } = model;
+  const neurons = model?.neurons;
+  const cols = model?.cols || 1;
+  const rows = model?.rows || 1;
 
   const padding = 30;
   const svgWidth = isFullscreen ? 800 : 540;
   const svgHeight = isFullscreen ? 550 : 360;
 
   const { r, maxUMatrixVal, neuronLayouts } = useMemo(() => {
+    if (!neurons || neurons.length === 0) {
+      return { r: 0, maxUMatrixVal: 0, neuronLayouts: [] };
+    }
+
     const xCoords = neurons.map(n => n.x);
     const yCoords = neurons.map(n => n.y);
     const minX = Math.min(...xCoords);
@@ -85,6 +80,17 @@ export const HexGrid = memo(function HexGrid() {
 
     return { r: radius, maxUMatrixVal: maxUVal, neuronLayouts: layouts };
   }, [neurons, cols, rows, svgWidth, svgHeight]);
+
+  if (loadingSynthetic) {
+    return (
+      <div className="glass-panel rounded-2xl p-5 h-full flex flex-col justify-center items-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tokyo-blue animate-pulse"></div>
+        <span className="text-xs text-tokyo-muted mt-2 font-mono">Carregando mapa...</span>
+      </div>
+    );
+  }
+
+  if (!model) return null;
 
   const downloadSVG = () => {
     const svgEl = document.getElementById('som-hex-grid-svg');

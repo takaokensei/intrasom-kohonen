@@ -10,24 +10,20 @@ export const TextHexGrid = memo(function TextHexGrid() {
   const { selectedTextDataset, selectedTextRep, selectedDocId, setSelectedDocId, textModels, loadingText, classificationResult } = useDashboardStore();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   
-  if (loadingText) {
-    return (
-      <div className="glass-panel rounded-2xl p-5 h-full flex flex-col justify-center items-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tokyo-blue"></div>
-        <span className="text-xs text-tokyo-muted mt-2 font-mono">Carregando mapa de textos...</span>
-      </div>
-    );
-  }
-
   const model = textModels[selectedTextDataset]?.[selectedTextRep];
-  if (!model) return null;
-  
-  const { cols, rows, neurons } = model;
+  const neurons = model?.neurons;
+  const cols = model?.cols || 1;
+  const rows = model?.rows || 1;
+
   const padding = 20;
   const svgWidth = isFullscreen ? 800 : 500;
   const svgHeight = isFullscreen ? 550 : 360;
 
   const { r, neuronLayouts } = useMemo(() => {
+    if (!neurons || neurons.length === 0) {
+      return { r: 0, neuronLayouts: [] };
+    }
+
     const xCoords = neurons.map(n => n.x);
     const yCoords = neurons.map(n => n.y);
     const minX = Math.min(...xCoords);
@@ -57,6 +53,17 @@ export const TextHexGrid = memo(function TextHexGrid() {
 
     return { r: radius, neuronLayouts: layouts };
   }, [neurons, cols, rows, svgWidth, svgHeight]);
+
+  if (loadingText) {
+    return (
+      <div className="glass-panel rounded-2xl p-5 h-full flex flex-col justify-center items-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tokyo-blue"></div>
+        <span className="text-xs text-tokyo-muted mt-2 font-mono">Carregando mapa de textos...</span>
+      </div>
+    );
+  }
+
+  if (!model) return null;
 
   // Always use the correct color palette for the active dataset
   const activeColors = TEXT_CLASS_COLORS[selectedTextDataset] ?? {};

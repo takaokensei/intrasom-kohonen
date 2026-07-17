@@ -3,10 +3,12 @@ import { useFullscreen } from '../hooks/useFullscreen';
 import { Maximize2, Minimize2 } from 'lucide-react';
 
 const NEWS_COLORS: Record<string, string> = {
-  "Graphics": "#3182bd",
-  "Space": "#31a354",
-  "Baseball": "#e6550d",
-  "Mideast": "#756bb1"
+  "Turismo": "#3182bd",
+  "Esportes": "#31a354",
+  "Policia": "#e6550d",
+  "Economia": "#756bb1",
+  "Politica": "#e7ba52",
+  "Variedades": "#d6616b"
 };
 
 export function TextHexGrid() {
@@ -79,7 +81,7 @@ export function TextHexGrid() {
             Organização Semântica de Notícias (10x10)
           </h3>
           <p className="text-[10px] text-tokyo-muted font-mono mt-0.5">
-            4 categorias do dataset 20 Newsgroups (400 documentos)
+            6 categorias do dataset da 3ª Unidade (317 documentos)
           </p>
         </div>
         

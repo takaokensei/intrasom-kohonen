@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.5.22)  15 JUL 2026 14:07
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.5.22)  15 JUL 2026 14:46
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1178,12 +1178,12 @@ input line 70.
 
 {C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/cm-super/cm-sup
 er-ts1.enc} <./outputs/figures/dim_reduction_comparison.png>]
-<outputs/figures/umatrix_10x10.jpg, id=33, 620.7993pt x 854.4723pt>
+<outputs/figures/umatrix_10x10.jpg, id=33, 627.5445pt x 856.8813pt>
 File: outputs/figures/umatrix_10x10.jpg Graphic file (type jpg)
 <use outputs/figures/umatrix_10x10.jpg>
 Package pdftex.def Info: outputs/figures/umatrix_10x10.jpg  used on input line 
 92.
-(pdftex.def)             Requested size: 78.54698pt x 108.12054pt.
+(pdftex.def)             Requested size: 79.18018pt x 108.12054pt.
 
 [3
 
@@ -1206,28 +1206,28 @@ ut line 141.
  [5
 
  <./outputs/figures/dashboard_screenshot1.png>]
-<outputs/figures/som_10x10_dominant_classes.png, id=54, 881.694pt x 687.5286pt>
+<outputs/figures/som_10x10_dominant_classes.png, id=54, 881.694pt x 688.2513pt>
 
 File: outputs/figures/som_10x10_dominant_classes.png Graphic file (type png)
 <use outputs/figures/som_10x10_dominant_classes.png>
 Package pdftex.def Info: outputs/figures/som_10x10_dominant_classes.png  used o
 n input line 160.
-(pdftex.def)             Requested size: 168.25764pt x 131.19829pt.
+(pdftex.def)             Requested size: 168.25764pt x 131.3362pt.
  [6
 
  <./outputs/figures/som_10x10_dominant_classes.png>] [7
 
 ]
-<outputs/figures/som_text_sbert_dominant.png, id=68, 723.6636pt x 570.4512pt>
+<outputs/figures/som_text_sbert_dominant.png, id=68, 3015.265pt x 2376.88pt>
 File: outputs/figures/som_text_sbert_dominant.png Graphic file (type png)
 <use outputs/figures/som_text_sbert_dominant.png>
 Package pdftex.def Info: outputs/figures/som_text_sbert_dominant.png  used on i
 nput line 199.
-(pdftex.def)             Requested size: 175.26994pt x 138.1558pt.
+(pdftex.def)             Requested size: 175.26994pt x 138.14565pt.
  [8
 
- <./outputs/figures/som_text_sbert_dominant.png>]
-<outputs/figures/dashboard_screenshot2.png, id=75, 1027.84pt x 358.33875pt>
+ <./outputs/figures/som_text_sbert_dominant.png (PNG copy)>]
+<outputs/figures/dashboard_screenshot2.png, id=74, 1027.84pt x 358.33875pt>
 File: outputs/figures/dashboard_screenshot2.png Graphic file (type png)
 <use outputs/figures/dashboard_screenshot2.png>
 Package pdftex.def Info: outputs/figures/dashboard_screenshot2.png  used on inp
@@ -1235,7 +1235,7 @@ ut line 218.
 (pdftex.def)             Requested size: 207.13776pt x 72.21326pt.
  [9
 
- <./outputs/figures/dashboard_screenshot2.png>] [10
+ <./outputs/figures/dashboard_screenshot2.png (PNG copy)>] [10
 
 ] [11
 
@@ -1249,8 +1249,7 @@ ut line 218.
 \tf@snm=\write8
 \openout8 = `slides_seminario_intrasom.snm'.
 
-
-(slides_seminario_intrasom.aux)
+ (slides_seminario_intrasom.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-03-20>
@@ -1278,9 +1277,9 @@ auã V/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmssi10.pfb
 ><C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/fonts/type1/public/cm-super/sf
 ss0900.pfb><C:/Users/Cauã V/AppData/Local/Programs/MiKTeX/fonts/type1/public/c
 m-super/sfss1000.pfb>
-Output written on slides_seminario_intrasom.pdf (11 pages, 5227429 bytes).
+Output written on slides_seminario_intrasom.pdf (11 pages, 6823840 bytes).
 PDF statistics:
- 139 PDF objects out of 1000 (max. 8388607)
+ 137 PDF objects out of 1000 (max. 8388607)
  23 named destinations out of 1000 (max. 500000)
  78 words of extra memory for PDF output out of 10000 (max. 10000000)
 

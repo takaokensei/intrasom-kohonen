@@ -3,8 +3,8 @@ Project: SOM_Text_SBERT
 
 Input Data:
 Features: 20
-Samples: 400
-Cells: 8000
+Samples: 317
+Cells: 6340
 
 --------------------------------------------------
 Initialization Parameters:
@@ -21,17 +21,17 @@ Number of Labels: 0
 Training Parameters:
 
 Rough Training:
-Size: 16
+Size: 20
 Initial Ratio: 4.0
 Final Ratio: 1
 
 Finetube Training:
-Size: 26
+Size: 32
 Initial Ratio: 1.25
 Final Ratio: 1
 
 --------------------------------------------------
 Training Evaluation:
 
-Quantization Error: 3.3753
-Topographic Error: 0.105
+Quantization Error: 3.405
+Topographic Error: 0.0915

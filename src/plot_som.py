@@ -17,10 +17,19 @@ from load_data import load_synthetic_control, CLASS_NAMES
 import intrasom
 from intrasom.visualization import PlotFactory
 
-# Set visual style
-plt.style.use('seaborn-v0_8-whitegrid' if 'seaborn-v0_8-whitegrid' in plt.style.available else 'default')
+# Set visual style (dark Tokyo Night palette)
+plt.style.use('dark_background')
 plt.rcParams['font.family'] = 'sans-serif'
 plt.rcParams['figure.autolayout'] = True
+plt.rcParams['figure.facecolor'] = '#1A1B26'   # tokyoDark
+plt.rcParams['axes.facecolor'] = '#1A1B26'
+plt.rcParams['savefig.facecolor'] = '#1A1B26'
+plt.rcParams['axes.edgecolor'] = '#3B4261'
+plt.rcParams['grid.color'] = '#292E42'
+plt.rcParams['text.color'] = '#A9B1D6'         # tokyoText
+plt.rcParams['axes.labelcolor'] = '#A9B1D6'
+plt.rcParams['xtick.color'] = '#A9B1D6'
+plt.rcParams['ytick.color'] = '#A9B1D6'
 
 # Color palette for the 6 classes
 CLASS_COLORS = {
@@ -57,16 +66,16 @@ def plot_time_series_by_class(X, y, save_path="outputs/figures/time_series_class
         ax.fill_between(time_steps, mean_series - std_series, mean_series + std_series, 
                         color=CLASS_COLORS[class_name], alpha=0.2, label="Desvio Padrão")
         
-        ax.set_title(f"Classe: {class_name}", fontsize=14, fontweight='bold', color='#333333')
+        ax.set_title(f"Classe: {class_name}", fontsize=14, fontweight='bold', color='#A9B1D6')
         ax.set_ylabel("Valor", fontsize=11)
         if i >= 4:
             ax.set_xlabel("Passo de Tempo", fontsize=11)
         ax.tick_params(labelsize=10)
-        ax.legend(loc="upper left", frameon=True, facecolor="white", edgecolor="none")
+        ax.legend(loc="upper left", frameon=True, facecolor=plt.rcParams['axes.facecolor'], edgecolor="none")
         
     plt.tight_layout()
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    plt.savefig(save_path, dpi=300)
+    plt.savefig(save_path, dpi=300, facecolor=plt.rcParams['savefig.facecolor'])
     plt.close()
     print(f"Time series plot saved to {save_path}")
 
@@ -110,7 +119,7 @@ def plot_dimensionality_reduction(X, y, save_path="outputs/figures/dim_reduction
     ax2.legend(loc="best", frameon=True)
     
     plt.tight_layout()
-    plt.savefig(save_path, dpi=300)
+    plt.savefig(save_path, dpi=300, facecolor=plt.rcParams['savefig.facecolor'])
     plt.close()
     print(f"Dimensionality reduction plot saved to {save_path}")
 
@@ -187,14 +196,14 @@ def generate_som_plots(size_name="10x10"):
             label_text = f"N{bmu_idx}\n{cname[:4]}\n{num_samples}s ({pur*100:.0f}%)"
             alpha = 0.85
         else:
-            face_color = "#f0f0f0" # empty neuron
+            face_color = "#292E42" # empty neuron (dark gray-blue)
             label_text = f"N{bmu_idx}\nVazio"
             alpha = 0.3
             
         hex_patch = RegularPolygon((cx * 2, cy * 2), numVertices=6, radius=1.05/np.sqrt(3),
                                    facecolor=face_color, edgecolor='#444444', alpha=alpha, linewidth=0.5)
         ax.add_patch(hex_patch)
-        ax.text(cx * 2, cy * 2, label_text, ha='center', va='center', fontsize=6, fontweight='bold', color='#111111')
+        ax.text(cx * 2, cy * 2, label_text, ha='center', va='center', fontsize=6, fontweight='bold', color='#F5F5F5')
         
     ax.set_xlim(coords[:, 0].min() * 2 - 1.5, coords[:, 0].max() * 2 + 1.5)
     ax.set_ylim(coords[:, 1].min() * 2 - 1.5, coords[:, 1].max() * 2 + 1.5)
@@ -202,15 +211,15 @@ def generate_som_plots(size_name="10x10"):
     
     # Create legend
     from matplotlib.patches import Patch
-    legend_elements = [Patch(facecolor=color, edgecolor='#333333', label=cname) for cname, color in CLASS_COLORS.items()]
-    legend_elements.append(Patch(facecolor='#f0f0f0', edgecolor='#444444', label='Vazio', alpha=0.5))
+    legend_elements = [Patch(facecolor=color, edgecolor='#A9B1D6', label=cname) for cname, color in CLASS_COLORS.items()]
+    legend_elements.append(Patch(facecolor='#292E42', edgecolor='#3B4261', label='Vazio', alpha=0.8))
     ax.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(1.15, 1.0), title="Classes Dominantes", fontsize=11, title_fontsize=12)
     
     ax.set_title(f"Mapa de Classes Dominantes e Pureza - SOM {size_name}", fontsize=16, fontweight='bold', pad=20)
     plt.tight_layout()
     fig_dir = os.path.join(workspace_dir, "outputs", "figures")
     os.makedirs(fig_dir, exist_ok=True)
-    plt.savefig(os.path.join(fig_dir, f"som_{size_name}_dominant_classes.png"), dpi=300, bbox_inches='tight')
+    plt.savefig(os.path.join(fig_dir, f"som_{size_name}_dominant_classes.png"), dpi=300, bbox_inches='tight', facecolor=plt.rcParams['savefig.facecolor'])
     plt.close()
     
     print(f"Dominant class map for {size_name} saved to outputs/figures/")

@@ -3,17 +3,21 @@ import { useDashboardStore } from '../store/useDashboardStore';
 import { Sparkles, BrainCircuit, RefreshCw } from 'lucide-react';
 
 const NEWS_COLORS: Record<string, string> = {
-  "Graphics": "text-[#3182bd]",
-  "Space": "text-[#31a354]",
-  "Baseball": "text-[#e6550d]",
-  "Mideast": "text-[#756bb1]"
+  "Turismo": "text-[#3182bd]",
+  "Esportes": "text-[#31a354]",
+  "Policia": "text-[#e6550d]",
+  "Economia": "text-[#756bb1]",
+  "Politica": "text-[#e7ba52]",
+  "Variedades": "text-[#d6616b]"
 };
 
 const NEWS_BG_COLORS: Record<string, string> = {
-  "Graphics": "bg-[#3182bd] bg-opacity-10 border-[#3182bd] border-opacity-30",
-  "Space": "bg-[#31a354] bg-opacity-10 border-[#31a354] border-opacity-30",
-  "Baseball": "bg-[#e6550d] bg-opacity-10 border-[#e6550d] border-opacity-30",
-  "Mideast": "bg-[#756bb1] bg-opacity-10 border-[#756bb1] border-opacity-30"
+  "Turismo": "bg-[#3182bd] bg-opacity-10 border-[#3182bd] border-opacity-30",
+  "Esportes": "bg-[#31a354] bg-opacity-10 border-[#31a354] border-opacity-30",
+  "Policia": "bg-[#e6550d] bg-opacity-10 border-[#e6550d] border-opacity-30",
+  "Economia": "bg-[#756bb1] bg-opacity-10 border-[#756bb1] border-opacity-30",
+  "Politica": "bg-[#e7ba52] bg-opacity-10 border-[#e7ba52] border-opacity-30",
+  "Variedades": "bg-[#d6616b] bg-opacity-10 border-[#d6616b] border-opacity-30"
 };
 
 export function ClassifierPanel() {

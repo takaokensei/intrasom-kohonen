@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import RegularPolygon
 import json
 import shutil
-from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import TruncatedSVD
 from sklearn.preprocessing import StandardScaler
@@ -21,47 +20,51 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import intrasom
 from intrasom.visualization import PlotFactory
 
-# Color palette for 4 news categories
+# Color palette for 6 news categories
 NEWS_COLORS = {
-    "Graphics": "#3182bd",     # Blue
-    "Space": "#31a354",        # Green
-    "Baseball": "#e6550d",     # Orange
-    "Mideast": "#756bb1"       # Purple
+    "Turismo": "#3182bd",      # Blue
+    "Esportes": "#31a354",     # Green
+    "Policia": "#e6550d",      # Orange
+    "Economia": "#756bb1",     # Purple
+    "Politica": "#e7ba52",     # Yellow
+    "Variedades": "#d6616b"    # Red
 }
 
 def load_news_data():
-    """Loads a subset of 20 Newsgroups with 4 distinct categories."""
-    print("Fetching 20 Newsgroups subset...")
-    categories = [
-        'comp.graphics',
-        'sci.space',
-        'rec.sport.baseball',
-        'talk.politics.mideast'
-    ]
+    """Loads the 6-class Excel text dataset from the specified local path."""
+    print("Loading 6-class Excel text dataset...")
+    file_path = r"C:\Users\Cauã V\Downloads\drive-download-20260627T220035Z-3-001\9. 3ª Unidade\Base_dados_textos_6_classes.xlsx"
+    df = pd.read_excel(file_path)
     
-    # Fetch train subset, shuffle, and limit to 100 samples per class to keep it fast
-    newsgroups = fetch_20newsgroups(subset='train', categories=categories, remove=('headers', 'footers', 'quotes'), random_state=42)
-    
-    # Filter to get 100 samples per class
-    docs = []
-    labels = []
-    class_map = {
-        'comp.graphics': 'Graphics',
-        'sci.space': 'Space',
-        'rec.sport.baseball': 'Baseball',
-        'talk.politics.mideast': 'Mideast'
-    }
-    
-    counts = {cat: 0 for cat in categories}
-    for text, label_idx in zip(newsgroups.data, newsgroups.target):
-        cat_name = newsgroups.target_names[label_idx]
-        if counts[cat_name] < 100 and len(text.strip()) > 50:
-            docs.append(text)
-            labels.append(class_map[cat_name])
-            counts[cat_name] += 1
+    clean_categories = []
+    for cat in df['Categoria']:
+        c = str(cat).replace("Polcia", "Policia").replace("Pol\u00edcia", "Policia").replace("Pol\u00e9cia", "Policia")
+        c = c.replace("Pol\u00edcia", "Policia")
+        c = c.replace("Pol\u00edtica", "Politica").replace("Poltica", "Politica")
+        c = c.replace("Polícia e Direitos", "Policia").replace("Política", "Politica")
+        c = c.split(" e ")[0] # simplify
+        
+        if "Turismo" in c:
+            clean_categories.append("Turismo")
+        elif "Esporte" in c:
+            clean_categories.append("Esportes")
+        elif "Polici" in c or "Policia" in c:
+            clean_categories.append("Policia")
+        elif "Economia" in c:
+            clean_categories.append("Economia")
+        elif "Politic" in c or "Politica" in c:
+            clean_categories.append("Politica")
+        elif "Variedades" in c or "Sociedade" in c:
+            clean_categories.append("Variedades")
+        else:
+            clean_categories.append(c)
             
-    print(f"Loaded {len(docs)} documents. Distribution: {pd.Series(labels).value_counts().to_dict()}")
-    return docs, np.array(labels)
+    df['CleanCategory'] = clean_categories
+    docs = df['Texto Original'].fillna('').astype(str).tolist()
+    labels = np.array(df['CleanCategory'].tolist())
+    
+    print(f"Loaded {len(docs)} documents from local Excel. Distribution: {pd.Series(labels).value_counts().to_dict()}")
+    return docs, labels
 
 def train_and_plot_text_som(X_embeddings, labels, representation_name, mapsize=(10, 10)):
     """Trains a SOM on text embeddings and plots dominant classes."""
@@ -114,7 +117,7 @@ def train_and_plot_text_som(X_embeddings, labels, representation_name, mapsize=(
         
         if bmu_idx in totals.index and totals[bmu_idx] > 0:
             cname = dominant_class[bmu_idx]
-            face_color = NEWS_COLORS[cname]
+            face_color = NEWS_COLORS.get(cname, "#aaaaaa")
             pur = purity[bmu_idx]
             num_samples = totals[bmu_idx]
             label_text = f"N{bmu_idx}\n{cname}\n{num_samples}d ({pur*100:.0f}%)"
@@ -154,15 +157,14 @@ def train_and_plot_text_som(X_embeddings, labels, representation_name, mapsize=(
     # Move params/neurons parquet files to outputs/maps
     results_src_dir = os.path.join(os.getcwd(), "Results")
     if os.path.exists(results_src_dir):
-        for file_name in os.listdir(results_src_dir):
-            if representation_name in file_name or f"Text_{representation_name}" in file_name:
-                src_file = os.path.join(results_src_dir, file_name)
-                dest_file = os.path.join(workspace_dir, "outputs", "maps", file_name)
-                # If destination file exists, remove it first
-                if os.path.exists(dest_file):
-                    os.remove(dest_file)
-                shutil.move(src_file, dest_file)
-                
+         for file_name in os.listdir(results_src_dir):
+             if representation_name in file_name or f"Text_{representation_name}" in file_name:
+                 src_file = os.path.join(results_src_dir, file_name)
+                 dest_file = os.path.join(workspace_dir, "outputs", "maps", file_name)
+                 if os.path.exists(dest_file):
+                     os.remove(dest_file)
+                 shutil.move(src_file, dest_file)
+                 
     # Move generated plots if any in Plots/
     if os.path.exists("Plots"):
         for root, dirs, files in os.walk("Plots"):
@@ -184,7 +186,7 @@ def run_text_experiments():
     models_dir = os.path.join(workspace_dir, "outputs", "maps")
     os.makedirs(models_dir, exist_ok=True)
     import pickle
-
+ 
     # 1. TF-IDF + LSA Representation
     print("\n--- Extracting TF-IDF + LSA ---")
     vectorizer = TfidfVectorizer(max_features=1000, stop_words='english')
@@ -221,30 +223,28 @@ def run_text_experiments():
     
     res_sbert, som_sbert = train_and_plot_text_som(X_sbert_reduced, labels, "SBERT")
     
-    # Calculate Cluster quality of winner neurons for both
-    # We map BMU to 4 clusters (since we have 4 categories)
+    # Calculate Cluster quality of winner neurons for both (k=6)
     from intrasom.clustering import ClusterFactory
     
     cf_tfidf = ClusterFactory(som_tfidf)
-    clusters_tfidf = cf_tfidf.kmeans(k=4)
+    clusters_tfidf = cf_tfidf.kmeans(k=6)
     res_c_tfidf = cf_tfidf.results_cluster(clusters_tfidf, save=False)
-    ari_tfidf = adjusted_rand_score(labels, res_c_tfidf["4_clusters"].values)
-    nmi_tfidf = normalized_mutual_info_score(labels, res_c_tfidf["4_clusters"].values)
+    ari_tfidf = adjusted_rand_score(labels, res_c_tfidf["6_clusters"].values)
+    nmi_tfidf = normalized_mutual_info_score(labels, res_c_tfidf["6_clusters"].values)
     
     cf_sbert = ClusterFactory(som_sbert)
-    clusters_sbert = cf_sbert.kmeans(k=4)
+    clusters_sbert = cf_sbert.kmeans(k=6)
     res_c_sbert = cf_sbert.results_cluster(clusters_sbert, save=False)
-    ari_sbert = adjusted_rand_score(labels, res_c_sbert["4_clusters"].values)
-    nmi_sbert = normalized_mutual_info_score(labels, res_c_sbert["4_clusters"].values)
+    ari_sbert = adjusted_rand_score(labels, res_c_sbert["6_clusters"].values)
+    nmi_sbert = normalized_mutual_info_score(labels, res_c_sbert["6_clusters"].values)
     
     print("\n=======================================================")
-    print("COMPARATIVO DE CLUSTERIZAÇÃO TEXTUAL:")
+    print("COMPARATIVO DE CLUSTERIZAÇÃO TEXTUAL (6 CLASSES):")
     print("=======================================================")
     print(f"TF-IDF + LSA SOM: ARI = {ari_tfidf:.4f}, NMI = {nmi_tfidf:.4f}")
     print(f"Sentence-BERT SOM: ARI = {ari_sbert:.4f}, NMI = {nmi_sbert:.4f}")
     
     # Save text results comparison
-    workspace_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     with open(os.path.join(workspace_dir, "outputs", "metrics", "text_clustering_comparison.json"), "w") as f:
         json.dump({
             "TF_IDF": {"ARI": ari_tfidf, "NMI": nmi_tfidf},

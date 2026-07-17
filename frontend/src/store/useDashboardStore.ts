@@ -373,27 +373,33 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     let purity = 0;
     let bmu = 0;
 
-    const spaceKeywords = ["space", "nasa", "moon", "orbit", "rocket", "launch", "sky", "star", "planet", "astronomy", "shuttle", "satellite", "mission", "mars", "earth", "solar", "telescope", "astronaut"];
-    const baseballKeywords = ["baseball", "pitcher", "game", "run", "hit", "team", "player", "stadium", "bat", "glove", "inning", "league", "sox", "cubs", "red", "yankee", "series", "ball", "season", "batter"];
-    const mideastKeywords = ["israel", "turkish", "arab", "mideast", "peace", "war", "jew", "muslim", "christian", "palestinian", "syria", "turkey", "government", "military", "soldier", "weapons", "kill", "attack", "armenia"];
-    const graphicsKeywords = ["graphic", "render", "image", "polygon", "3d", "draw", "animation", "pixel", "texture", "vector", "format", "tiff", "jpeg", "raytracing", "computer", "screen", "color", "paint", "code", "library", "packages"];
+    const turismoKeywords = ["turismo", "viagem", "hotel", "voo", "praia", "turista", "passagem", "destino", "roteiro", "ferias", "pousada", "resort", "passeio", "agencia", "monumento", "atracoes", "viajar"];
+    const esportesKeywords = ["esporte", "jogo", "time", "jogador", "campeonato", "partida", "futebol", "atleta", "copa", "estadio", "quadra", "campo", "vitoria", "derrota", "gol", "treino", "olimpiada"];
+    const policiaKeywords = ["policia", "crime", "preso", "delegado", "prisao", "roubo", "furto", "assalto", "assassinato", "drogas", "investigacao", "acusado", "suspeito", "vitima", "violencia", "mandado", "policial"];
+    const economiaKeywords = ["economia", "inflacao", "pib", "juros", "mercado", "dolar", "bolsa", "empresa", "crescimento", "setor", "reforma", "imposto", "banco", "receita", "investimento", "financas"];
+    const politicaKeywords = ["politica", "governo", "presidente", "senado", "deputado", "eleicao", "voto", "partido", "ministro", "projeto", "lei", "brasilia", "congresso", "câmara", "prefeito", "candidato"];
+    const variedadesKeywords = ["variedades", "famosos", "novela", "filme", "cinema", "show", "musica", "artista", "celebridade", "teatro", "moda", "cultura", "evento", "estreia", "audiencia", "festival"];
 
-    let spaceHits = 0;
-    let baseballHits = 0;
-    let mideastHits = 0;
-    let graphicsHits = 0;
+    let turismoHits = 0;
+    let esportesHits = 0;
+    let policiaHits = 0;
+    let economiaHits = 0;
+    let politicaHits = 0;
+    let variedadesHits = 0;
 
     const words = queryLower.split(/\W+/);
     words.forEach(word => {
       if (word.length > 2) {
-        if (spaceKeywords.some(kw => word === kw || word.includes(kw))) spaceHits++;
-        if (baseballKeywords.some(kw => word === kw || word.includes(kw))) baseballHits++;
-        if (mideastKeywords.some(kw => word === kw || word.includes(kw))) mideastHits++;
-        if (graphicsKeywords.some(kw => word === kw || word.includes(kw))) graphicsHits++;
+        if (turismoKeywords.some(kw => word === kw || word.includes(kw))) turismoHits++;
+        if (esportesKeywords.some(kw => word === kw || word.includes(kw))) esportesHits++;
+        if (policiaKeywords.some(kw => word === kw || word.includes(kw))) policiaHits++;
+        if (economiaKeywords.some(kw => word === kw || word.includes(kw))) economiaHits++;
+        if (politicaKeywords.some(kw => word === kw || word.includes(kw))) politicaHits++;
+        if (variedadesKeywords.some(kw => word === kw || word.includes(kw))) variedadesHits++;
       }
     });
 
-    const totalHits = spaceHits + baseballHits + mideastHits + graphicsHits;
+    const totalHits = turismoHits + esportesHits + policiaHits + economiaHits + politicaHits + variedadesHits;
 
     if (maxOverlap > 0) {
       targetNeuron = model.neurons.find(n => n.doc_indices.includes(bestDocIdx));
@@ -404,12 +410,14 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         score = Math.min(85 + maxOverlap * 2.5, 99);
       }
     } else if (totalHits > 0) {
-      const maxHits = Math.max(spaceHits, baseballHits, mideastHits, graphicsHits);
-      let predictedCat = "Space";
-      if (maxHits === spaceHits) predictedCat = "Space";
-      else if (maxHits === baseballHits) predictedCat = "Baseball";
-      else if (maxHits === mideastHits) predictedCat = "Mideast";
-      else predictedCat = "Graphics";
+      const maxHits = Math.max(turismoHits, esportesHits, policiaHits, economiaHits, politicaHits, variedadesHits);
+      let predictedCat = "Turismo";
+      if (maxHits === turismoHits) predictedCat = "Turismo";
+      else if (maxHits === esportesHits) predictedCat = "Esportes";
+      else if (maxHits === policiaHits) predictedCat = "Policia";
+      else if (maxHits === economiaHits) predictedCat = "Economia";
+      else if (maxHits === politicaHits) predictedCat = "Politica";
+      else predictedCat = "Variedades";
 
       const categoryNeurons = model.neurons.filter(n => n.dominant_class === predictedCat);
       targetNeuron = categoryNeurons[Math.floor(Math.random() * categoryNeurons.length)] || model.neurons[0];

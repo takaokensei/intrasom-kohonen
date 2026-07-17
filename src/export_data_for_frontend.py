@@ -145,10 +145,11 @@ def export_all():
         
         from text_som_clustering import load_news_data
         docs, text_labels = load_news_data()
+        num_docs = len(docs)
         
-        dummy_data = pd.DataFrame(np.zeros((400, 20)))
+        dummy_data = pd.DataFrame(np.zeros((num_docs, 20)))
         dummy_data.columns = [f"Dim_{i+1}" for i in range(20)]
-        dummy_data.index = [f"Doc_{i+1}" for i in range(400)]
+        dummy_data.index = [f"Doc_{i+1}" for i in range(num_docs)]
         
         som = intrasom.SOMFactory.load_som(data=dummy_data, trained_neurons=neurons_df, params=params)
         cols, rows = som.mapsize
@@ -237,8 +238,8 @@ def export_all():
     from text_som_clustering import load_news_data
     docs, text_labels = load_news_data()
     news_samples = []
-    for cat in ["Graphics", "Space", "Baseball", "Mideast"]:
-        indices = np.where(text_labels == cat)[0][:15]
+    for cat in ["Turismo", "Esportes", "Policia", "Economia", "Politica", "Variedades"]:
+        indices = np.where(text_labels == cat)[0][:10]
         for idx in indices:
             news_samples.append({
                 "id": int(idx),

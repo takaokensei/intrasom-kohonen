@@ -7,7 +7,17 @@ import { getHexPoints } from '../lib/geometry';
 import { FullscreenPanel } from './FullscreenPanel';
 
 export const TextHexGrid = memo(function TextHexGrid() {
-  const { selectedTextDataset, selectedTextRep, selectedDocId, setSelectedDocId, textModels, loadingText, classificationResult } = useDashboardStore();
+  const { 
+    selectedTextDataset, 
+    selectedTextRep, 
+    selectedDocId, 
+    setSelectedDocId, 
+    textModels, 
+    loadingText, 
+    classificationResult,
+    lattice,
+    topology 
+  } = useDashboardStore();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   
   const model = textModels[selectedTextDataset]?.[selectedTextRep];
@@ -98,13 +108,22 @@ export const TextHexGrid = memo(function TextHexGrid() {
 
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h3 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">
-            Organização Semântica de Notícias (10x10)
-          </h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">
+              Malha {lattice === 'HEX' ? 'Hexagonal (HEX)' : 'Retangular (RECT)'} - Notícias (10x10)
+            </h3>
+            <span className={`text-[9px] font-mono px-2 py-0.5 rounded border font-semibold ${
+              topology === 'toroid'
+                ? 'bg-tokyo-magenta bg-opacity-10 text-tokyo-magenta border-tokyo-magenta border-opacity-30'
+                : 'bg-tokyo-yellow bg-opacity-10 text-tokyo-yellow border-tokyo-yellow border-opacity-30'
+            }`}>
+              {topology === 'toroid' ? 'Toroide ON' : 'Plana (Sem Karnaugh)'}
+            </span>
+          </div>
           <p className="text-[10px] text-tokyo-muted font-mono mt-0.5">
             {selectedTextDataset === '20news' 
               ? '4 categorias do dataset 20 Newsgroups (400 documentos)'
-              : '6 categorias do dataset 6News (317 documentos)'}
+              : '6 categorias do dataset 6News com Texto Expandido (317 documentos)'}
           </p>
         </div>
         
@@ -177,18 +196,37 @@ export const TextHexGrid = memo(function TextHexGrid() {
                     animationDelay: `${delay}ms`
                   }}
                 >
-                  <polygon
-                    points={pointsStr}
-                    fill={fill}
-                    fillOpacity={neuron.total_samples === 0 ? 0.2 : 0.8}
-                    stroke={stroke}
-                    strokeWidth={strokeWidth}
-                    className="hex-polygon transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80 group-focus:stroke-white group-focus:stroke-opacity-100"
-                    style={{
-                      transformOrigin: `${cx}px ${cy}px`,
-                      animationDelay: `${delay}ms`
-                    }}
-                  />
+                  {lattice === 'RECT' ? (
+                    <rect
+                      x={cx - r * 0.85}
+                      y={cy - r * 0.85}
+                      width={r * 1.7}
+                      height={r * 1.7}
+                      rx={4}
+                      fill={fill}
+                      fillOpacity={neuron.total_samples === 0 ? 0.2 : 0.8}
+                      stroke={stroke}
+                      strokeWidth={strokeWidth}
+                      className="hex-polygon transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80 group-focus:stroke-white group-focus:stroke-opacity-100"
+                      style={{
+                        transformOrigin: `${cx}px ${cy}px`,
+                        animationDelay: `${delay}ms`
+                      }}
+                    />
+                  ) : (
+                    <polygon
+                      points={pointsStr}
+                      fill={fill}
+                      fillOpacity={neuron.total_samples === 0 ? 0.2 : 0.8}
+                      stroke={stroke}
+                      strokeWidth={strokeWidth}
+                      className="hex-polygon transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80 group-focus:stroke-white group-focus:stroke-opacity-100"
+                      style={{
+                        transformOrigin: `${cx}px ${cy}px`,
+                        animationDelay: `${delay}ms`
+                      }}
+                    />
+                  )}
                   
                   <text
                     x={cx}

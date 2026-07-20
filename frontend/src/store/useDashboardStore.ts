@@ -106,6 +106,23 @@ interface DashboardState {
   errorSynthetic: string | null;
   errorText: string | null;
   
+  // SOM Algorithm Parameters (Interactive Controls requested by Professor)
+  lattice: 'HEX' | 'RECT';
+  topology: 'toroid' | 'planar';
+  initialRadius: '80%' | '50%' | '100%';
+  finalRadius: '1' | '2';
+  epochs: 500 | 200 | 100;
+  trainingMode: 'batch' | 'online';
+  initialization: 'linear' | 'random';
+  
+  setLattice: (lattice: 'HEX' | 'RECT') => void;
+  setTopology: (topology: 'toroid' | 'planar') => void;
+  setInitialRadius: (radius: '80%' | '50%' | '100%') => void;
+  setFinalRadius: (radius: '1' | '2') => void;
+  setEpochs: (epochs: 500 | 200 | 100) => void;
+  setTrainingMode: (mode: 'batch' | 'online') => void;
+  setInitialization: (init: 'linear' | 'random') => void;
+
   // Actions
   setActiveTab: (tab: TabType) => void;
   loadSyntheticData: () => Promise<void>;
@@ -151,7 +168,23 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   pcaParams: null,
   errorSynthetic: null,
   errorText: null,
-  
+  // SOM Algorithm Parameter Defaults (Requested by Professor)
+  lattice: 'HEX',
+  topology: 'toroid',
+  initialRadius: '80%',
+  finalRadius: '1',
+  epochs: 500,
+  trainingMode: 'batch',
+  initialization: 'linear',
+
+  setLattice: (lattice) => set({ lattice }),
+  setTopology: (topology) => set({ topology }),
+  setInitialRadius: (initialRadius) => set({ initialRadius }),
+  setFinalRadius: (finalRadius) => set({ finalRadius }),
+  setEpochs: (epochs) => set({ epochs }),
+  setTrainingMode: (trainingMode) => set({ trainingMode }),
+  setInitialization: (initialization) => set({ initialization }),
+
   // Actions
   setSelectedTextDataset: (selectedTextDataset) => set({ 
     selectedTextDataset, 

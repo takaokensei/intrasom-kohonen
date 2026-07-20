@@ -103,7 +103,7 @@ def load_6class_data():
             clean_categories.append(c)
             
     df['CleanCategory'] = clean_categories
-    docs = df['Texto Original'].fillna('').astype(str).tolist()
+    docs = df['Texto Expandido'].fillna(df['Texto Original']).fillna('').astype(str).tolist()
     labels = np.array(df['CleanCategory'].tolist())
     return docs, labels
 

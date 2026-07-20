@@ -97,10 +97,10 @@ Este documento traz o roteiro estruturado para a apresentação do seminário, a
 **Conteúdo Visual:**
 * Comparação de TF-IDF vs SBERT nos datasets de texto.
 * 20 Newsgroups (ARI: TF-IDF 0.1981 vs SBERT 0.4177).
-* 6News (ARI: TF-IDF 0.1286 vs SBERT 0.1178).
+* 6News (ARI: TF-IDF 0.4980 vs SBERT 0.2574 com Texto Expandido).
 
 **FALA:**
-* "Aqui vale reparar na comparação de textos. No 20 Newsgroups em inglês, o SBERT melhorou muito os resultados porque ele captura a semântica, enquanto o TF-IDF depende de termos exatos. Mas na base brasileira 6News, o TF-IDF foi um pouco melhor. O dataset 6News é menor, tem mais classes e termos técnicos específicos em português. Além disso, existe uma sobreposição real de temas entre as classes 'Política' e 'Polícia e Direitos', já que ambas falam de governança e políticas públicas. Isso confunde o SBERT sem um fine-tuning prévio."
+* "Aqui vale reparar na comparação de textos. No 20 Newsgroups em inglês, o SBERT foi superior porque captura a semântica de textos longos. Na base brasileira 6News, quando treinamos utilizando o texto expandido completo em vez do resumo curto, os dois modelos deram um salto gigante de acurácia — o TF-IDF chegou a um ARI de 0.4980 e o SBERT a 0.2574! Isso provou a hipótese do professor: textos mais longos e estruturados fornecem o contexto necessário para os embeddings semânticos formarem vizinhanças muito mais limpas no mapa."
 
 ---
 

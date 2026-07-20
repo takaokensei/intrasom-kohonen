@@ -194,10 +194,10 @@
             \item \textbf{TF-IDF (ARI: 0.1981, NMI: 0.2245):} Limitação por termos exatos.
             \item \textbf{SBERT (ARI: 0.4177, NMI: 0.4828):} Embeddings contextuais densos melhoram vizinhança semântica na grade.
           \end{itemize}
-        \item \textbf{Dataset 6News (6 classes - Base Acadêmica):}
+        \item \textbf{Dataset 6News (6 classes - Base Acadêmica com Texto Expandido):}
           \begin{itemize}
-            \item \textbf{TF-IDF (ARI: 0.1286, NMI: 0.2120):} Overlap lexical de termos específicos é uma forte heurística.
-            \item \textbf{SBERT (ARI: 0.1178, NMI: 0.1822):} Ligeira queda devido a termos técnicos específicos em português.
+            \item \textbf{TF-IDF (ARI: 0.4980, NMI: 0.6528):} Termos específicos em textos completos geram separação léxica muito forte.
+            \item \textbf{SBERT (ARI: 0.2574, NMI: 0.3302):} Grande ganho de contexto semântico ao usar o texto expandido.
           \end{itemize}
       \end{itemize}
     \end{column}

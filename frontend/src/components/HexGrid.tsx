@@ -27,7 +27,7 @@ const getUMatrixColor = (val: number, max: number) => {
 // Main HexGrid component
 // ──────────────────────────────────────────────────────────
 export const HexGrid = memo(function HexGrid() {
-  const { selectedMapSize, selectedNeuronId, setSelectedNeuronId, somModels, loadingSynthetic, series } = useDashboardStore();
+  const { selectedMapSize, selectedNeuronId, setSelectedNeuronId, somModels, loadingSynthetic, lattice, topology, series } = useDashboardStore();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   const [colorMode, setColorMode] = useState<'class' | 'umatrix'>('class');
 
@@ -169,9 +169,18 @@ export const HexGrid = memo(function HexGrid() {
 
       {/* ── Header ── */}
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">
-          Malha Hexagonal Kohonen ({selectedMapSize})
-        </h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">
+            Malha {lattice === 'HEX' ? 'Hexagonal (HEX)' : 'Retangular (RECT)'} Kohonen ({selectedMapSize})
+          </h3>
+          <span className={`text-[9px] font-mono px-2 py-0.5 rounded border font-semibold ${
+            topology === 'toroid'
+              ? 'bg-tokyo-magenta bg-opacity-10 text-tokyo-magenta border-tokyo-magenta border-opacity-30'
+              : 'bg-tokyo-yellow bg-opacity-10 text-tokyo-yellow border-tokyo-yellow border-opacity-30'
+          }`}>
+            {topology === 'toroid' ? 'Toroide ON' : 'Plana (Sem Karnaugh)'}
+          </span>
+        </div>
 
         <div className="flex items-center space-x-2">
           {/* Toggle Mode */}
@@ -278,18 +287,37 @@ export const HexGrid = memo(function HexGrid() {
                         animationDelay: `${delay}ms`
                       }}
                     >
-                      <polygon
-                        points={pointsStr}
-                        fill={fill}
-                        fillOpacity={neuron.total_samples === 0 && colorMode === 'class' ? 0.2 : 0.8}
-                        stroke={stroke}
-                        strokeWidth={strokeWidth}
-                        className="hex-polygon transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80 group-focus:stroke-white group-focus:stroke-opacity-100"
-                        style={{
-                          transformOrigin: `${cx}px ${cy}px`,
-                          animationDelay: `${delay}ms`
-                        }}
-                      />
+                      {lattice === 'RECT' ? (
+                        <rect
+                          x={cx - r * 0.85}
+                          y={cy - r * 0.85}
+                          width={r * 1.7}
+                          height={r * 1.7}
+                          rx={4}
+                          fill={fill}
+                          fillOpacity={neuron.total_samples === 0 && colorMode === 'class' ? 0.2 : 0.8}
+                          stroke={stroke}
+                          strokeWidth={strokeWidth}
+                          className="hex-polygon transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80 group-focus:stroke-white group-focus:stroke-opacity-100"
+                          style={{
+                            transformOrigin: `${cx}px ${cy}px`,
+                            animationDelay: `${delay}ms`
+                          }}
+                        />
+                      ) : (
+                        <polygon
+                          points={pointsStr}
+                          fill={fill}
+                          fillOpacity={neuron.total_samples === 0 && colorMode === 'class' ? 0.2 : 0.8}
+                          stroke={stroke}
+                          strokeWidth={strokeWidth}
+                          className="hex-polygon transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80 group-focus:stroke-white group-focus:stroke-opacity-100"
+                          style={{
+                            transformOrigin: `${cx}px ${cy}px`,
+                            animationDelay: `${delay}ms`
+                          }}
+                        />
+                      )}
 
                       <text
                         x={cx}

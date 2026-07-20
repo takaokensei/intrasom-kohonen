@@ -5,6 +5,7 @@ import { ClassifierPanel } from '../components/ClassifierPanel';
 import { CheckCircle } from 'lucide-react';
 import { getComparisonNarrative } from '../lib/metrics';
 import { ErrorState } from '../components/ErrorState';
+import { SOMParamControls } from '../components/SOMParamControls';
 
 export function TextScreen() {
   const {
@@ -44,6 +45,7 @@ export function TextScreen() {
       {/* Right Side: Interactive classifier & explanations */}
       <aside className="lg:col-span-5 flex flex-col space-y-6 min-w-0">
         <ClassifierPanel />
+        <SOMParamControls />
         
         {/* Scientific Explanation Panel */}
         <div className="glass-panel rounded-2xl p-5 flex flex-col text-xs leading-relaxed text-tokyo-text">

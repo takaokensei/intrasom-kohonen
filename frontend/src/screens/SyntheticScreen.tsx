@@ -4,13 +4,13 @@ import { HexGrid } from '../components/HexGrid';
 import { TimeSeriesPlot } from '../components/TimeSeriesPlot';
 import { MetricTable } from '../components/MetricTable';
 import { RadarChart } from '../components/RadarChart';
-import { Settings, Cpu, Info } from 'lucide-react';
+import { Cpu, Info } from 'lucide-react';
 import { ErrorState } from '../components/ErrorState';
+import { SOMParamControls } from '../components/SOMParamControls';
 
 export function SyntheticScreen() {
   const {
     selectedMapSize,
-    setSelectedMapSize,
     selectedNeuronId,
     setSelectedNeuronId,
     somModels,
@@ -58,42 +58,7 @@ export function SyntheticScreen() {
       {/* Right Area - Config & Selection Details */}
       <aside className="lg:col-span-4 flex flex-col space-y-6 min-w-0 self-start">
         {/* SOM Model Configurations */}
-        <div className="glass-panel rounded-2xl p-5 flex flex-col">
-          <h3 className="text-sm font-bold text-tokyo-text mb-4 uppercase font-mono tracking-wider flex items-center gap-1.5">
-            <Settings size={15} className="text-tokyo-blue" />
-            Parâmetros do Mapa SOM
-          </h3>
-          
-          <div className="space-y-4">
-            {/* Size Selector */}
-            <div className="flex flex-col space-y-1.5">
-              <label className="text-[10px] text-[#9aa5ce] font-semibold uppercase font-mono tracking-wider">Dimensões da Grade (cols x rows)</label>
-              <div className="grid grid-cols-3 gap-2">
-                {(['10x10', '15x15', '20x20'] as const).map(size => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedMapSize(size)}
-                    className={`py-2 rounded-lg text-xs font-mono font-bold border transition ${
-                      selectedMapSize === size
-                        ? 'bg-tokyo-blue text-tokyo-bg border-tokyo-blue'
-                        : 'bg-tokyo-panel text-tokyo-text border-tokyo-border hover:bg-opacity-80'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Constant params display */}
-            <div className="grid grid-cols-2 gap-2 text-[10px] bg-tokyo-dark bg-opacity-40 p-3 rounded-lg border border-tokyo-border border-opacity-20 font-mono text-[#9aa5ce] leading-relaxed">
-              <div>Topologia: <span className="text-tokyo-text">Toroide (Hexa)</span></div>
-              <div>Vizinhaça: <span className="text-tokyo-text">Gaussiana</span></div>
-              <div>Inicialização: <span className="text-tokyo-text">Aleatória</span></div>
-              <div>Normalização: <span className="text-tokyo-text">Z-Score (var)</span></div>
-            </div>
-          </div>
-        </div>
+        <SOMParamControls />
 
         {/* Selection Details Panel */}
         <div className="glass-panel rounded-2xl p-5 flex flex-col">

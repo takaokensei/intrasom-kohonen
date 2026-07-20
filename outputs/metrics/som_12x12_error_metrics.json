@@ -4,6 +4,12 @@
         12,
         12
     ],
-    "quantization_error": 3.7511809309325987,
-    "topographic_error": 0.14833333333333334
+    "quantization_error": 3.7322941379336045,
+    "topographic_error": 0.10666666666666667,
+    "initialization": "pca",
+    "total_epochs": 500,
+    "train_rough_len": 150,
+    "train_finetune_len": 350,
+    "train_rough_radiusin": 10,
+    "train_rough_radiusfin": 1
 }

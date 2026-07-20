@@ -1,0 +1,74 @@
+[
+    {
+        "key": "recommended",
+        "total_epochs": 500,
+        "rough_epochs": 150,
+        "finetune_epochs": 350,
+        "radius_initial": 8,
+        "radius_final": 1,
+        "radius_initial_pct": 80,
+        "quantization_error": 3.8988890781828243,
+        "topographic_error": 0.09333333333333334,
+        "label": "Recomendado (80%->1, 500ep)"
+    },
+    {
+        "key": "initial_50",
+        "total_epochs": 500,
+        "rough_epochs": 150,
+        "finetune_epochs": 350,
+        "radius_initial": 5,
+        "radius_final": 1,
+        "radius_initial_pct": 50,
+        "quantization_error": 3.905908717761215,
+        "topographic_error": 0.125,
+        "label": "Vizinhanca inicial 50% (->1, 500ep)"
+    },
+    {
+        "key": "initial_100",
+        "total_epochs": 500,
+        "rough_epochs": 150,
+        "finetune_epochs": 350,
+        "radius_initial": 10,
+        "radius_final": 1,
+        "radius_initial_pct": 100,
+        "quantization_error": 3.8957998152075364,
+        "topographic_error": 0.09,
+        "label": "Vizinhanca inicial 100% (->1, 500ep)"
+    },
+    {
+        "key": "final_2",
+        "total_epochs": 500,
+        "rough_epochs": 150,
+        "finetune_epochs": 350,
+        "radius_initial": 8,
+        "radius_final": 2,
+        "radius_initial_pct": 80,
+        "quantization_error": 4.745860511959427,
+        "topographic_error": 0.05333333333333334,
+        "label": "Vizinhanca final 2 (80%->2, 500ep)"
+    },
+    {
+        "key": "epochs_100",
+        "total_epochs": 100,
+        "rough_epochs": 30,
+        "finetune_epochs": 70,
+        "radius_initial": 8,
+        "radius_final": 1,
+        "radius_initial_pct": 80,
+        "quantization_error": 3.878093666610195,
+        "topographic_error": 0.12,
+        "label": "100 Epocas (80%->1)"
+    },
+    {
+        "key": "epochs_200",
+        "total_epochs": 200,
+        "rough_epochs": 60,
+        "finetune_epochs": 140,
+        "radius_initial": 8,
+        "radius_final": 1,
+        "radius_initial_pct": 80,
+        "quantization_error": 3.908226143847953,
+        "topographic_error": 0.10833333333333334,
+        "label": "200 Epocas (80%->1)"
+    }
+]

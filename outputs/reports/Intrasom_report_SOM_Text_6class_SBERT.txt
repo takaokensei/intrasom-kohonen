@@ -1,19 +1,19 @@
 IntraSOM Training Report
-Project: SOM_5x5
+Project: SOM_Text_6class_SBERT
 
 Input Data:
-Features: 60
-Samples: 600
-Cells: 36000
+Features: 20
+Samples: 317
+Cells: 6340
 
 --------------------------------------------------
 Initialization Parameters:
 
-Map Size: 5 columns and 6 lines
+Map Size: 10 columns and 10 lines
 Training Polygon: Toroid
 Lattice: Hexagonal
 Normalization: Variance
-Initialization: Randomic
+Initialization: None
 Neighborhood Function: Gaussian
 Number of Labels: 0
 
@@ -21,17 +21,17 @@ Number of Labels: 0
 Training Parameters:
 
 Rough Training:
-Size: 4
-Initial Ratio: 2.0
+Size: 150
+Initial Ratio: 8
 Final Ratio: 1
 
 Finetube Training:
-Size: 6
+Size: 350
 Initial Ratio: 1
 Final Ratio: 1
 
 --------------------------------------------------
 Training Evaluation:
 
-Quantization Error: 4.7348
-Topographic Error: 0.24
+Quantization Error: 3.3605
+Topographic Error: 0.1041

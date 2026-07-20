@@ -167,6 +167,41 @@ python src/api.py
 
 <br/>
 
+## `> como_re_treinar_os_modelos`
+
+Para reproduzir os treinos com os novos parâmetros científicos do professor (PCA, 500 épocas, raio inicial 80%→1) ou reconstruir os arquivos JSON estáticos do frontend:
+
+```bash
+# 1. Garanta que as dependências do Python estejam instaladas
+pip install -r requirements.txt
+
+# 2. Treine todos os modelos base do Synthetic Control (6 tamanhos de mapa)
+python src/train_som.py
+
+# 3. Treine a variante planar do mapa 10x10 (Toroid OFF)
+python src/train_som_variants.py
+
+# 4. Execute o estudo de sensibilidade multivariado de parâmetros
+python src/train_parameter_study.py
+
+# 5. Treine os 4 modelos semânticos textuais (20news e 6class, TF-IDF e SBERT)
+python src/text_som_clustering.py
+
+# 6. Exporte todos os arquivos estruturados (.parquet -> .json) para o React
+python src/export_data_for_frontend.py
+```
+
+<br/>
+
+## `> limitações_da_biblioteca`
+
+* **Grade Retangular (`lattice='rect'`):**
+  Identificamos que o cálculo interno da U-Matrix na versão instalada do `intrasom` é restrito à geometria hexagonal (a linha 1928 de `intrasom.py` lança uma exceção de não implementação). Por isso, o seletor **RECT** no dashboard é apenas um recurso cosmético que renderiza a geometria visual como quadrados sobre dados hexagonais pré-treinados, exibindo um aviso laranja transparente de limitação técnica da lib.
+* **Topologia Planar (`mapshape='planar'`):**
+  A biblioteca suporta perfeitamente a topologia planar. No entanto, por razões de performance e escalabilidade, pré-treinamos a variante planar apenas para o mapa **10x10**. Seleções planares em outros tamanhos exibem dados toroidais sob aviso de fallback no dashboard.
+
+<br/>
+
 ## `> acessibilidade_e_detalhes_especiais`
 
 <table align="center">

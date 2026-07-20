@@ -1,5 +1,5 @@
 IntraSOM Training Report
-Project: SOM_Text_20news_SBERT
+Project: SOM_Text_20news_TF-IDF
 
 Input Data:
 Features: 20
@@ -13,7 +13,7 @@ Map Size: 10 columns and 10 lines
 Training Polygon: Toroid
 Lattice: Hexagonal
 Normalization: Variance
-Initialization: Randomic
+Initialization: None
 Neighborhood Function: Gaussian
 Number of Labels: 0
 
@@ -21,17 +21,17 @@ Number of Labels: 0
 Training Parameters:
 
 Rough Training:
-Size: 16
-Initial Ratio: 4.0
+Size: 150
+Initial Ratio: 8
 Final Ratio: 1
 
 Finetube Training:
-Size: 26
-Initial Ratio: 1.25
+Size: 350
+Initial Ratio: 1
 Final Ratio: 1
 
 --------------------------------------------------
 Training Evaluation:
 
-Quantization Error: 3.3632
-Topographic Error: 0.1
+Quantization Error: 3.1377
+Topographic Error: 0.095

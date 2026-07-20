@@ -37,55 +37,40 @@ def export_all():
         json.dump(series_data, f, ensure_ascii=False)
     print("Exported series.json")
         
-    # 2. SOM models data (10x10, 15x15, 20x20)
+    # 2. SOM models data
+    # ─ 10x10: exportado com sub-chaves de variante (HEX_toroid, HEX_planar)
+    # ─ 15x15, 20x20: estrutura flat para compatibilidade retroativa
     som_models = {}
-    for size_name in ["10x10", "15x15", "20x20"]:
-        print(f"Processing SOM {size_name}...")
-        neurons_file = os.path.join(maps_dir, f"SOM_{size_name}_neurons.parquet")
-        results_file = os.path.join(maps_dir, f"SOM_{size_name}_results.parquet")
-        params_file = os.path.join(maps_dir, f"params_SOM_{size_name}.json")
-        
-        if not (os.path.exists(neurons_file) and os.path.exists(results_file) and os.path.exists(params_file)):
-            print(f"SOM {size_name} files not found. Skipping.")
-            continue
-            
-        neurons_df = pd.read_parquet(neurons_file)
-        results_df = pd.read_parquet(results_file)
-        params = json.load(open(params_file))
-        
-        som = intrasom.SOMFactory.load_som(data=X, trained_neurons=neurons_df, params=params)
+    from intrasom.visualization import PlotFactory
+
+    def build_neurons_list(neurons_df, results_df_local, som, y_labels, is_time_series=True):
+        """Constroi a lista de neuronios para o JSON do frontend."""
         cols, rows = som.mapsize
-        
-        # Get coordinates
-        from intrasom.visualization import PlotFactory
-        plot_f = PlotFactory(som)
-        coords = plot_f.generate_hex_lattice(cols, rows)
-        umat = som.build_umatrix(expanded=False)
-        
-        results_df['Class'] = y
-        counts = results_df.groupby(['BMU', 'Class']).size().unstack(fill_value=0)
-        totals = counts.sum(axis=1)
+        plot_f     = PlotFactory(som)
+        coords     = plot_f.generate_hex_lattice(cols, rows)
+        umat       = som.build_umatrix(expanded=False)
+        results_df_local = results_df_local.copy()
+        results_df_local['Class'] = y_labels
+        counts        = results_df_local.groupby(['BMU', 'Class']).size().unstack(fill_value=0)
+        totals        = counts.sum(axis=1)
         dominant_class = counts.idxmax(axis=1)
-        purity = counts.max(axis=1) / totals
-        
+        purity        = counts.max(axis=1) / totals
         neurons_list = []
         for idx in range(cols * rows):
             bmu_idx = idx + 1
-            cx, cy = coords[idx]
-            
-            weight_cols = [c for c in neurons_df.columns if c.startswith("B_Time_")]
-            weight_cols = sorted(weight_cols, key=lambda c: int(c.split("_")[-1]))
-            codebook = neurons_df.loc[bmu_idx, weight_cols].values.tolist()
-            
-            bmu_totals = int(totals.get(bmu_idx, 0))
+            cx, cy  = coords[idx]
+            if is_time_series:
+                weight_cols = [c for c in neurons_df.columns if c.startswith("B_Time_")]
+                weight_cols = sorted(weight_cols, key=lambda c: int(c.split("_")[-1]))
+                codebook = neurons_df.loc[bmu_idx, weight_cols].values.tolist() if bmu_idx in neurons_df.index else []
+            else:
+                codebook = []
+            bmu_totals  = int(totals.get(bmu_idx, 0))
             bmu_dominant = dominant_class.get(bmu_idx, "Nenhum") if bmu_totals > 0 else "Vazio"
-            bmu_purity = float(purity.get(bmu_idx, 0))
-            
-            sample_ids = [int(idx.split("_")[1]) for idx in results_df[results_df['BMU'] == bmu_idx].index]
-            
+            bmu_purity   = float(purity.get(bmu_idx, 0))
+            sample_ids   = [int(i.split("_")[1]) for i in results_df_local[results_df_local['BMU'] == bmu_idx].index]
             r_idx = idx // cols
             c_idx = idx % cols
-            
             neurons_list.append({
                 "id": bmu_idx,
                 "x": float(cx),
@@ -97,15 +82,52 @@ def export_all():
                 "purity": bmu_purity,
                 "total_samples": bmu_totals,
                 "sample_ids": sample_ids,
-                "codebook": codebook
+                "codebook": codebook,
             })
-            
-        som_models[size_name] = {
-            "cols": cols,
-            "rows": rows,
-            "neurons": neurons_list
-        }
-        
+        return neurons_list, cols, rows
+
+    # ── 10x10: exportar variantes HEX_toroid e HEX_planar ────────────────────
+    print("Processing SOM 10x10 (with variants HEX_toroid + HEX_planar)...")
+    toroid_nf  = os.path.join(maps_dir, "SOM_10x10_neurons.parquet")
+    toroid_rf  = os.path.join(maps_dir, "SOM_10x10_results.parquet")
+    toroid_pf  = os.path.join(maps_dir, "params_SOM_10x10.json")
+    planar_nf  = os.path.join(maps_dir, "SOM_10x10_HEX_planar_neurons.parquet")
+    planar_rf  = os.path.join(maps_dir, "SOM_10x10_HEX_planar_results.parquet")
+    planar_pf  = os.path.join(maps_dir, "params_SOM_10x10_HEX_planar.json")
+
+    som_models["10x10"] = {"has_variants": True}
+
+    for vkey, nf, rf, pf in [
+        ("HEX_toroid", toroid_nf, toroid_rf, toroid_pf),
+        ("HEX_planar", planar_nf, planar_rf, planar_pf),
+    ]:
+        if not (os.path.exists(nf) and os.path.exists(rf) and os.path.exists(pf)):
+            print(f"  Variant {vkey} files not found. Skipping.")
+            continue
+        neurons_df = pd.read_parquet(nf)
+        results_df = pd.read_parquet(rf)
+        params     = json.load(open(pf))
+        som        = intrasom.SOMFactory.load_som(data=X, trained_neurons=neurons_df, params=params)
+        neurons_list, cols, rows = build_neurons_list(neurons_df, results_df, som, y)
+        som_models["10x10"][vkey] = {"cols": cols, "rows": rows, "neurons": neurons_list}
+        print(f"  Variant {vkey}: {cols}x{rows}, {len(neurons_list)} neurons")
+
+    # ── 15x15, 20x20: estrutura flat (compatibilidade retroativa) ─────────────
+    for size_name in ["15x15", "20x20"]:
+        print(f"Processing SOM {size_name}...")
+        neurons_file = os.path.join(maps_dir, f"SOM_{size_name}_neurons.parquet")
+        results_file = os.path.join(maps_dir, f"SOM_{size_name}_results.parquet")
+        params_file  = os.path.join(maps_dir, f"params_SOM_{size_name}.json")
+        if not (os.path.exists(neurons_file) and os.path.exists(results_file) and os.path.exists(params_file)):
+            print(f"SOM {size_name} files not found. Skipping.")
+            continue
+        neurons_df = pd.read_parquet(neurons_file)
+        results_df = pd.read_parquet(results_file)
+        params     = json.load(open(params_file))
+        som        = intrasom.SOMFactory.load_som(data=X, trained_neurons=neurons_df, params=params)
+        neurons_list, cols, rows = build_neurons_list(neurons_df, results_df, som, y)
+        som_models[size_name] = {"cols": cols, "rows": rows, "neurons": neurons_list}
+
     with open(os.path.join(public_data_dir, "som_models.json"), "w", encoding="utf-8") as f:
         json.dump(som_models, f, ensure_ascii=False)
     print("Exported som_models.json")
@@ -278,7 +300,18 @@ def export_all():
     with open(os.path.join(public_data_dir, "news_samples.json"), "w", encoding="utf-8") as f:
         json.dump(news_samples_combined, f, ensure_ascii=False)
     print("Exported news_samples.json")
-    
+
+    # 8. Parameter study results (for ParameterStudyPanel in dashboard)
+    param_study_file = os.path.join(metrics_dir, "parameter_study.json")
+    if os.path.exists(param_study_file):
+        param_study = json.load(open(param_study_file))
+    else:
+        param_study = []
+        print("WARNING: parameter_study.json not found. Run src/train_parameter_study.py first.")
+    with open(os.path.join(public_data_dir, "parameter_study.json"), "w", encoding="utf-8") as f:
+        json.dump(param_study, f, ensure_ascii=False)
+    print("Exported parameter_study.json")
+
     # Clean temporary files if any
     ts_file = os.path.join(workspace_dir, "frontend", "src", "data", "precomputed_data.ts")
     if os.path.exists(ts_file):

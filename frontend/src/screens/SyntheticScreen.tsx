@@ -7,22 +7,23 @@ import { RadarChart } from '../components/RadarChart';
 import { Cpu, Info } from 'lucide-react';
 import { ErrorState } from '../components/ErrorState';
 import { SOMParamControls } from '../components/SOMParamControls';
+import { ParameterStudyPanel } from '../components/ParameterStudyPanel';
 
 export function SyntheticScreen() {
   const {
-    selectedMapSize,
     selectedNeuronId,
     setSelectedNeuronId,
     somModels,
     loadingSynthetic,
     errorSynthetic,
     loadSyntheticData,
+    getActiveSOMModel,
   } = useDashboardStore();
 
   useEffect(() => {
     if (Object.keys(somModels).length === 0 && !loadingSynthetic && !errorSynthetic) {
       loadSyntheticData().catch(err => {
-        console.error("Mount loading of synthetic data failed:", err);
+        console.error('Mount loading of synthetic data failed:', err);
       });
     }
   }, [somModels, loadingSynthetic, errorSynthetic, loadSyntheticData]);
@@ -31,7 +32,7 @@ export function SyntheticScreen() {
     return <ErrorState message={errorSynthetic} onRetry={loadSyntheticData} />;
   }
 
-  const model = somModels[selectedMapSize];
+  const model = getActiveSOMModel();
   const selectedNeuron = selectedNeuronId && model
     ? model.neurons.find(n => n.id === selectedNeuronId)
     : null;
@@ -53,6 +54,9 @@ export function SyntheticScreen() {
             <RadarChart />
           </div>
         </div>
+
+        {/* Parameter Study Comparison Panel (Bloco 3) */}
+        <ParameterStudyPanel />
       </section>
 
       {/* Right Area - Config & Selection Details */}

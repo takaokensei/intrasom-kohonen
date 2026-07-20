@@ -14,7 +14,7 @@ const CLASS_COLORS: Record<string, string> = {
 };
 
 export const TimeSeriesPlot = memo(function TimeSeriesPlot() {
-  const { selectedMapSize, selectedNeuronId, highlightedClass, setHighlightedClass, series, somModels, loadingSynthetic } = useDashboardStore();
+  const { selectedNeuronId, highlightedClass, setHighlightedClass, series, loadingSynthetic, getActiveSOMModel } = useDashboardStore();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
 
   if (loadingSynthetic) {
@@ -50,7 +50,7 @@ export const TimeSeriesPlot = memo(function TimeSeriesPlot() {
   let selectedNeuronInfo = null;
   
   if (selectedNeuronId !== null) {
-    const model = somModels[selectedMapSize];
+    const model = getActiveSOMModel();
     const neuron = model?.neurons.find(n => n.id === selectedNeuronId);
     
     if (neuron) {

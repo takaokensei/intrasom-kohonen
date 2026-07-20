@@ -1,5 +1,5 @@
 IntraSOM Training Report
-Project: SOM_20x20
+Project: SOM_10x10_HEX_planar
 
 Input Data:
 Features: 60
@@ -9,11 +9,11 @@ Cells: 36000
 --------------------------------------------------
 Initialization Parameters:
 
-Map Size: 20 columns and 20 lines
-Training Polygon: Toroid
+Map Size: 10 columns and 10 lines
+Training Polygon: None
 Lattice: Hexagonal
 Normalization: Variance
-Initialization: Randomic
+Initialization: None
 Neighborhood Function: Gaussian
 Number of Labels: 0
 
@@ -21,17 +21,17 @@ Number of Labels: 0
 Training Parameters:
 
 Rough Training:
-Size: 40
-Initial Ratio: 7.0
-Final Ratio: 1.75
+Size: 150
+Initial Ratio: 8
+Final Ratio: 1
 
 Finetube Training:
-Size: 68
-Initial Ratio: 2.5
+Size: 350
+Initial Ratio: 1
 Final Ratio: 1
 
 --------------------------------------------------
 Training Evaluation:
 
-Quantization Error: 3.3347
-Topographic Error: 0.045
+Quantization Error: 3.7628
+Topographic Error: 0.0833

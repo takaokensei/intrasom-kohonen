@@ -22,6 +22,27 @@ import intrasom
 from intrasom.visualization import PlotFactory
 from reproducibility import set_global_seed
 
+# ── Parâmetros de treino recomendados pelo Prof. José Alfredo ──────────────
+TOTAL_EPOCHS     = 500   # total de épocas (rough + finetune)
+ROUGH_FRACTION   = 0.30  # 30% na fase rough
+RADIUS_INIT_FRAC = 0.80  # raio inicial = 80% do maior lado do mapa
+RADIUS_FINAL     = 1     # raio final = 1 neurônio
+
+
+def compute_train_params(mapsize: tuple) -> dict:
+    """Parâmetros explícitos de treino para som.train() a partir do tamanho."""
+    rough_len    = round(TOTAL_EPOCHS * ROUGH_FRACTION)
+    finetune_len = TOTAL_EPOCHS - rough_len
+    radius_in    = max(1, round(RADIUS_INIT_FRAC * max(mapsize)))
+    return {
+        "train_rough_len":          rough_len,
+        "train_rough_radiusin":     radius_in,
+        "train_rough_radiusfin":    RADIUS_FINAL,
+        "train_finetune_len":       finetune_len,
+        "train_finetune_radiusin":  RADIUS_FINAL,
+        "train_finetune_radiusfin": RADIUS_FINAL,
+    }
+
 # Color palette for news categories (combines both datasets)
 NEWS_COLORS = {
     # 20 Newsgroups (4 classes)
@@ -117,25 +138,30 @@ def train_and_plot_text_som(X_embeddings, labels, dataset_name, representation_n
     df_emb.columns = [f"Dim_{i+1}" for i in range(df_emb.shape[1])]
     df_emb.index = [f"Doc_{i+1}" for i in range(df_emb.shape[0])]
     
-    # Seed fixada imediatamente antes: intrasom usa np.random global sem
-    # aceitar seed própria (ver src/reproducibility.py para detalhes)
+    # Seed fixada imediatamente antes do build (intrasom usa np.random global)
     set_global_seed()
-    # Build SOM
+
+    train_params = compute_train_params(mapsize)
+    print(f"  init: pca | rough: {train_params['train_rough_len']} | "
+          f"finetune: {train_params['train_finetune_len']} | "
+          f"radius: {train_params['train_rough_radiusin']}->1")
+
+    # Build SOM — initialization='pca' conforme instrução do professor
     som = intrasom.SOMFactory.build(
         data=df_emb,
         mapsize=mapsize,
         mapshape='toroid',
         lattice='hexa',
         normalization='var',
-        initialization='random',
+        initialization='pca',     # era 'random' → PCA conforme instrução
         neighborhood='gaussian',
         training='batch',
         name=f"SOM_Text_{model_key}",
         sample_names=list(df_emb.index)
     )
-    
-    # Train SOM
-    som.train(train_len_factor=2, previous_epoch=True)
+
+    # Train SOM com parâmetros explícitos de época e raio
+    som.train(previous_epoch=True, **train_params)
     
     # Retrieve BMU assignments from results_dataframe
     results_df = som.results_dataframe

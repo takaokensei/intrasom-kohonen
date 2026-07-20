@@ -30,6 +30,26 @@ export interface SOMModel {
   neurons: NeuronItem[];
 }
 
+// 10x10 ships two real variants; others remain flat for now
+export interface SOMModelWithVariants {
+  has_variants: true;
+  HEX_toroid?: SOMModel;
+  HEX_planar?: SOMModel;
+}
+
+export interface ParameterStudyEntry {
+  key: string;
+  label: string;
+  total_epochs: number;
+  rough_epochs: number;
+  finetune_epochs: number;
+  radius_initial: number;
+  radius_final: number;
+  radius_initial_pct: number;
+  quantization_error: number;
+  topographic_error: number;
+}
+
 export interface MetricRow {
   Modelo: string;
   ARI: number;
@@ -70,16 +90,20 @@ export interface NewsSample {
 
 interface DashboardState {
   activeTab: TabType;
-  
+
   // Dynamic Data
   series: SeriesItem[];
-  somModels: Record<string, SOMModel>;
+  somModels: Record<string, SOMModel | SOMModelWithVariants>;
   metrics: MetricRow[];
   textModels: Record<string, Record<string, TextModel>>;
   textMetrics: Record<string, Record<string, { ARI: number; NMI: number }>>;
   newsSamples: Record<string, NewsSample[]>;
+  paramStudyResults: ParameterStudyEntry[];
   selectedTextDataset: '20news' | '6class';
   setSelectedTextDataset: (dataset: '20news' | '6class') => void;
+
+  // Derived selector: returns the correct SOMModel for the current map/topology
+  getActiveSOMModel: () => SOMModel | null;
   
   // Loading states
   loadingSynthetic: boolean;
@@ -148,6 +172,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   textModels: {},
   textMetrics: {},
   newsSamples: {},
+  paramStudyResults: [],
   
   // Loading initial states
   loadingSynthetic: false,
@@ -178,6 +203,8 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   initialization: 'linear',
 
   setLattice: (lattice) => set({ lattice }),
+  // setTopology now selects the real trained variant for 10x10;
+  // for other map sizes, only topology state is updated (no variant data yet)
   setTopology: (topology) => set({ topology }),
   setInitialRadius: (initialRadius) => set({ initialRadius }),
   setFinalRadius: (finalRadius) => set({ finalRadius }),
@@ -205,32 +232,51 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   
   loadSyntheticData: async () => {
     if (get().series.length > 0) return; // Already loaded
-    
+
     set({ loadingSynthetic: true, errorSynthetic: null });
     try {
-      const [seriesRes, modelsRes, metricsRes] = await Promise.all([
+      const [seriesRes, modelsRes, metricsRes, studyRes] = await Promise.all([
         fetch('/data/series.json'),
         fetch('/data/som_models.json'),
-        fetch('/data/metrics.json')
+        fetch('/data/metrics.json'),
+        fetch('/data/parameter_study.json').catch(() => null),
       ]);
-      
+
       if (!seriesRes.ok || !modelsRes.ok || !metricsRes.ok) {
-        throw new Error("HTTP status error loading synthetic control files");
+        throw new Error('HTTP status error loading synthetic control files');
       }
-      
+
       const series = await seriesRes.json();
       const somModels = await modelsRes.json();
       const metrics = await metricsRes.json();
-      
-      set({ series, somModels, metrics, loadingSynthetic: false });
+      const paramStudyResults: ParameterStudyEntry[] =
+        studyRes && studyRes.ok ? await studyRes.json() : [];
+
+      set({ series, somModels, metrics, paramStudyResults, loadingSynthetic: false });
     } catch (err) {
-      console.error("Error loading synthetic control data:", err);
-      set({ 
-        loadingSynthetic: false, 
-        errorSynthetic: "Falha ao carregar dados sintéticos do SOM. Verifique a existência dos arquivos JSON na pasta public/data/." 
+      console.error('Error loading synthetic control data:', err);
+      set({
+        loadingSynthetic: false,
+        errorSynthetic:
+          'Falha ao carregar dados sintéticos do SOM. Verifique a existência dos arquivos JSON na pasta public/data/.',
       });
     }
-  },  loadTextData: async () => {
+  },
+
+  // Returns the active SOMModel based on selected map size and topology.
+  // For 10x10: routes to the correct pre-trained variant (HEX_toroid or HEX_planar).
+  // For other sizes: returns the flat model (topology selector is informational only).
+  getActiveSOMModel: () => {
+    const { somModels, selectedMapSize, topology } = get();
+    const entry = somModels[selectedMapSize];
+    if (!entry) return null;
+    if ('has_variants' in entry) {
+      const variantKey = topology === 'planar' ? 'HEX_planar' : 'HEX_toroid';
+      return (entry as SOMModelWithVariants)[variantKey] ?? null;
+    }
+    return entry as SOMModel;
+  },
+  loadTextData: async () => {
     if (Object.keys(get().newsSamples).length > 0) {
       get().checkBackend();
       return; // Already loaded

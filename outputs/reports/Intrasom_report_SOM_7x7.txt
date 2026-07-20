@@ -1,19 +1,19 @@
 IntraSOM Training Report
-Project: SOM_Text_6class_TF-IDF
+Project: SOM_7x7
 
 Input Data:
-Features: 20
-Samples: 317
-Cells: 6340
+Features: 60
+Samples: 600
+Cells: 36000
 
 --------------------------------------------------
 Initialization Parameters:
 
-Map Size: 10 columns and 10 lines
+Map Size: 7 columns and 8 lines
 Training Polygon: Toroid
 Lattice: Hexagonal
 Normalization: Variance
-Initialization: Randomic
+Initialization: None
 Neighborhood Function: Gaussian
 Number of Labels: 0
 
@@ -21,17 +21,17 @@ Number of Labels: 0
 Training Parameters:
 
 Rough Training:
-Size: 20
-Initial Ratio: 4.0
+Size: 150
+Initial Ratio: 6
 Final Ratio: 1
 
 Finetube Training:
-Size: 32
-Initial Ratio: 1.25
+Size: 350
+Initial Ratio: 1
 Final Ratio: 1
 
 --------------------------------------------------
 Training Evaluation:
 
-Quantization Error: 3.0775
-Topographic Error: 0.0946
+Quantization Error: 4.2821
+Topographic Error: 0.225

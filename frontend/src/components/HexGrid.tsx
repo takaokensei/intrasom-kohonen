@@ -27,7 +27,7 @@ const getUMatrixColor = (val: number, max: number) => {
 // Main HexGrid component
 // ──────────────────────────────────────────────────────────
 export const HexGrid = memo(function HexGrid() {
-  const { selectedMapSize, selectedNeuronId, setSelectedNeuronId, somModels, loadingSynthetic, lattice, topology, series } = useDashboardStore();
+  const { selectedMapSize, selectedNeuronId, setSelectedNeuronId, loadingSynthetic, lattice, topology, series, getActiveSOMModel } = useDashboardStore();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   const [colorMode, setColorMode] = useState<'class' | 'umatrix'>('class');
 
@@ -35,7 +35,8 @@ export const HexGrid = memo(function HexGrid() {
   const [hoveredNeuron, setHoveredNeuron] = useState<NeuronItem | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  const model = somModels[selectedMapSize];
+  // Route to the correct pre-trained variant based on topology/mapSize
+  const model = getActiveSOMModel();
   const neurons = model?.neurons;
   const cols = model?.cols || 1;
   const rows = model?.rows || 1;
@@ -134,7 +135,7 @@ export const HexGrid = memo(function HexGrid() {
 
   // Derive selected neuron object for the side panel
   const selectedNeuron = selectedNeuronId !== null
-    ? neurons.find(n => n.id === selectedNeuronId) ?? null
+    ? (neurons ?? []).find(n => n.id === selectedNeuronId) ?? null
     : null;
 
   // Panel is open when: fullscreen + a neuron selected + it has samples

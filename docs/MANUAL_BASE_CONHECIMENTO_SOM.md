@@ -1,26 +1,29 @@
-# 📘 MANUAL DE REFERÊNCIA E BASE DE CONHECIMENTO: MAPAS AUTO-ORGANIZÁVEIS (SOM) & BIBLIOTECA INTRASOM
+# 📘 MANUAL DE REFERÊNCIA E BASE DE CONHECIMENTO COMPLETA: MAPAS AUTO-ORGANIZÁVEIS (SOM) & BIBLIOTECA INTRASOM
 
-**Autor do Documento:** Compilação Técnica e Acadêmica  
-**Área de Domínio:** Aprendizado Não-Supervisionado, Redes Neurais de Kohonen, Processamento de Linguagem Natural, Geociências e Visual Law  
-**Status:** Documento Oficial de Consulta e Referência Rápida (Base de Conhecimento)
+**Status:** Documento Oficial de Consulta Técnica e Livro Didático de Referência  
+**Compilação baseada em:**
+1. *Seminário IntraSOM (USP/UFRN):* Prof. Dr. Cleyton de Carvalho Carneiro (USP) & Dr. Rodrigo
+2. *Tutorial SBIC / UFRN:* Prof. Dr. José Alfredo Ferreira Costa (UFRN - Autor de referência em SOM e Watershed) & Prof. Dr. Guilherme Barreto (UFC)
+3. *Fundamentos Teóricos:* Teuvo Kohonen (1982, 2001), Alfred Ultsch (Matriz U), Juha Vesanto ($5\sqrt{N}$), Gustavo Rodovalho (PCA Init).
 
 ---
 
 ## 📋 SUMÁRIO EXECUTIVO
 
-1. [FUNDAMENTOS TEÓRICOS DE MAPAS AUTO-ORGANIZÁVEIS (SOM / KOHONEN)](#1-fundamentos-teóricos-de-mapas-auto-organizáveis-som--kohonen)
-   - 1.1. O Desafio da Alta Dimensionalidade e Limitações dos Métodos Tradicionais
-   - 1.2. Inspiração Biológica e Princípios de Auto-Organização (Entropia e Emergência)
-   - 1.3. Arquitetura da Rede e o Mecanismo Triplo (Competição, Cooperação e Adaptação)
-   - 1.4. Preservação Topológica e Medidas de Distância Dupla
-   - 1.5. Quantização Vetorial e Representação de Protótipos (BMU)
-2. [VISUALIZAÇÃO, MATRIZ U E SEGMENTAÇÃO DE CLUSTERS](#2-visualização-matriz-u-e-segmentação-de-clusters)
+1. [FUNDAMENTOS TEÓRICOS E HISTÓRICOS DO SOM](#1-fundamentos-teóricos-e-históricos-do-som)
+   - 1.1. O Desafio da Alta Dimensionalidade e Limitações dos Métodos Tradicionais (K-means, PCA, t-SNE, UMAP)
+   - 1.2. Inspiração Biológica e Princípios de Auto-Organização (Malsburg, Kohonen, Entropia e Emergência)
+   - 1.3. Arquitetura da Rede e o Mecanismo Triplo (Competição, Cooperação e Adaptação Sináptica)
+   - 1.4. Preservação Topológica e Medidas de Distância Dupla (Espaço de Entrada vs. Grade de Saída)
+   - 1.5. Quantização Vetorial e Representação por Protótipos (BMU)
+2. [VISUALIZAÇÃO, MATRIZ U, MATRIZ GC E SEGMENTAÇÃO DE CLUSTERS](#2-visualização-matriz-u-matriz-gc-e-segmentação-de-clusters)
    - 2.1. A Matriz U (Unified Distance Matrix) e Interpolação de Voronoi
-   - 2.2. Matriz de Gradiente (GC) e Análise de Fronteiras
-   - 2.3. Agrupamento Automático: Transgressão Watershed e Índice Davies-Bouldin
-   - 2.4. Estruturas Hierárquicas (Árvores de Mapas e Sub-mapas)
+   - 2.2. A Matriz de Gradiente (GC) — Contribuição do Prof. José Alfredo Costa
+   - 2.3. Agrupamento Automático via Morfologia Matemática (Transformada Watershed & Marcadores)
+   - 2.4. Validação de Clusters: 1º e 2º Mínimos Globais do Índice Davies-Bouldin (DB)
+   - 2.5. Estruturas Hierárquicas (Árvores de Mapas e Sub-mapas)
 3. [GUIA COMPLETO DE PARAMETRIZAÇÃO TÉCNICA (OS 7 PARÂMETROS CHAVE)](#3-guia-completo-de-parametrização-técnica-os-7-parâmetros-chave)
-   - 3.1. Dimensionamento do Mapa (Fórmula Empírica de Vesanto: $5\sqrt{N}$)
+   - 3.1. Dimensionamento do Mapa (Fórmula Empírica de Vesanto: $5\sqrt{N}$ e a Sweet Spot 10x10)
    - 3.2. Vizinhança Inicial (Raio Global ~80%) e Vizinhança Final (Raio Unitário)
    - 3.3. Épocas de Treinamento e Convergência (500 Épocas)
    - 3.4. Modo de Treinamento: Batch (Lote) vs. Online/Sequencial (Stochastic)
@@ -30,46 +33,65 @@
 4. [A BIBLIOTECA INTRASOM: ARQUITETURA, DIFERENCIAIS E IMPLEMENTAÇÃO](#4-a-biblioteca-intrasom-arquitetura-diferenciais-e-implementação)
    - 4.1. Visão Geral da Biblioteca Python (`intrasom`)
    - 4.2. Tratamento Exclusivo de Dados Faltantes (*Previous Epoch Method*)
-   - 4.3. Treinamento de Big Data com Bootstrap
-   - 4.4. Mapeamento Automático, Exportação JSON/Parquet e Relatórios de Qualidade
-5. [APLICAÇÕES PRÁTICAS E CASOS DE USO](#5-aplicações-práticas-e-casos-de-uso)
-   - 5.1. Geociências e Georrecursos (Perfuração, Perfis de Poços, Sísmica)
-   - 5.2. Análise Socioeconômica e Demográfica (O Estudo Mundial da Pobreza)
-   - 5.3. Processamento de Linguagem Natural e Semântica de Textos (20 Newsgroups & 6News)
-   - 5.4. Jurimetria, Visual Law e Administração Pública
-6. [MATRIZ COMPARATIVA E GLOSSÁRIO TÉCNICO](#6-matriz-comparativa-e-glossário-técnico)
+   - 4.3. Treinamento de Big Data com Bootstrap e Amostragem Parcial
+   - 4.4. Mapeamento Automático, Exportação JSON/Parquet e Relatórios de Qualidade (QE e TE)
+5. [APLICAÇÕES PRÁTICAS E ESTUDOS DE CASO](#5-aplicações-práticas-e-estudos-de-caso)
+   - 5.1. Geociências e Georrecursos (Litofaciologia, Perfis de Poços, Dados Sísmicos)
+   - 5.2. Análise Socioeconômica e Demográfica (O Estudo Mundial da Pobreza - 39 Indicadores)
+   - 5.3. Sensoriamento Remoto e Imagens de Satélite (Segmentação Rio Negro / Solimões em Manaus)
+   - 5.4. Otimização Combinatória (Caixeiro Viajante / TSP com SOM 1D)
+   - 5.5. Processamento de Linguagem Natural, Jurimetria e Visual Law (Textos Jurídicos, SBERT vs. TF-IDF)
+6. [MATRIZ COMPARATIVA E GLOSSÁRIO TÉCNICO DE CONSULTA RÁPIDA](#6-matriz-comparativa-e-glossário-técnico-de-consulta-rápida)
    - 6.1. Tabela Consolidada de Parâmetros e Impactos no Treinamento
-   - 6.2. Glossário de Siglas e Termos-Chave
+   - 6.2. Glossário de Siglas e Termos-Chave (BMU, QE, TE, U-Matrix, GC, Watershed, Toroid)
 
 ---
 
-# 1. FUNDAMENTOS TEÓRICOS DE MAPAS AUTO-ORGANIZÁVEIS (SOM / KOHONEN)
+# 1. FUNDAMENTOS TEÓRICOS E HISTÓRICOS DO SOM
 
 ### 1.1. O Desafio da Alta Dimensionalidade e Limitações dos Métodos Tradicionais
-Na ciência de dados moderna, sistemas reais são caracterizados por um elevado número de variáveis ($n$-dimensionalidade). Tentar visualizar e agrupar esses dados apresenta desafios estruturais severos quando utilizados algoritmos convencionais:
+Na ciência de dados moderna, sistemas reais são caracterizados pela alta dimensionalidade ($n$-dimensionalidade). Tentar visualizar e agrupar esses dados apresenta desafios estruturais severos quando utilizados algoritmos convencionais:
 
-* **K-means:** Exige a especificação prévia e rígida do número de agrupamentos ($k$). Representa os grupos através de um único ponto central (centroide médio), falhando drasticamente em conjuntos com distribuições não esféricas, contínuas ou de geometrias complexas.
-* **PCA (Análise de Componentes Principais):** Redução linear que busca projetar os dados na direção de máxima variância. Por ser estritamente linear, ignora correlações complexas e não-lineares inerentes a fenômenos biológicos, físicos e linguísticos.
-* **t-SNE / UMAP:** Ótimas ferramentas visuais para separação em 2D/3D. No entanto, são técnicas puramente gráficas não-paramétricas: não criam protótipos de classificação parametrizados que permitam inferir dados novos em tempo real e frequentemente destroem a noção de distância contínua global entre clusters distantes.
+```
+               PROBLEMA DA ALTA DIMENSIONALIDADE (n-D)
+                                  |
+    +-----------------------------+-----------------------------+
+    |                             |                             |
+[K-MEANS]                      [PCA]                    [t-SNE / UMAP]
+- Exige K fixo prévio;         - Redução linear;        - Ótima separação 2D;
+- Assume clusters              - Perde relações          - NÃO gera protótipos
+  esféricos/médios;              não-lineares             parametrizados;
+- Sensível a ruídos.             complexas.             - Destrói distâncias globais.
+                                  |
+                                  v
+                  [SOLUÇÃO: MAPAS DE KOHONEN (SOM)]
+                  Preserva a topologia contínua 2D;
+                  Gera neurônios-protótipo paramétricos;
+                  Permite inferência em tempo real.
+```
 
-O **Map de Kohonen (Self-Organizing Map - SOM)** resolve essa lacuna ao realizar um mapeamento não-linear, ordenado e contínuo de dados de alta dimensão em uma grade regular de baixa dimensão (geralmente 2D), preservando simultaneamente as relações de vizinhança topológica e criando neurônios-protótipo paramétricos.
+* **K-means:** Requer a especificação prévia do número de agrupamentos ($k$). Representa os grupos através de um único ponto central (centroide médio), falhando drasticamente em conjuntos com distribuições não esféricas, contínuas ou de geometrias complexas (como *cigarette clusters* ou anéis concentridos).
+* **PCA (Análise de Componentes Principais):** Projeção estritamente linear no sentido dos eixos de máxima variância. Ignora correlações não-lineares inerentes a fenômenos biológicos, físicos, geológicos e linguísticos.
+* **t-SNE / UMAP:** Excelentes para visualização estática em 2D/3D. No entanto, não geram protótipos de classificação parametrizados que permitam inferir dados novos em tempo real sem re-treinar a rede, e frequentemente distorcem a noção de distância contínua global entre clusters distantes.
+
+O **Mapa de Kohonen (Self-Organizing Map - SOM)** resolve essa lacuna ao realizar um mapeamento não-linear, ordenado e contínuo de dados de alta dimensão em uma grade regular de baixa dimensão (geralmente 2D), preservando simultaneamente as relações de vizinhança topológica e criando neurônios-protótipo paramétricos.
 
 ---
 
 ### 1.2. Inspiração Biológica e Princípios de Auto-Organização
-Os Mapas de Kohonen foram propostos na década de 1980 pelo físico e engenheiro finlandês **Teuvo Kohonen**, baseados nas primeiras ideias do físico alemão Christoph von der Malsburg (1973) sobre a neurofisiologia do córtex cerebral.
+Os Mapas de Kohonen foram propostos na década de 1980 pelo físico e engenheiro finlandês **Teuvo Kohonen** (com publicações marco em 1982, 1984 e 2001), inspirados nos trabalhos de neurofisiologia do alemão Christoph von der Malsburg (1973) sobre o córtex cerebral.
 
-#### Princípios de Auto-Organização e Entropia:
-* **Entropia (Boltzmann, 1872):** Medida da desordem ou do número de estados microscópicos possíveis de um sistema. Quanto mais informação é necessária para descrever um sistema, maior a sua entropia/desordem.
-* **Emergência:** Padrões globais organizados emergem espontaneamente de interações locais descentralizadas entre os neurônios, sem a necessidade de um supervisor ou rótulos prévios (*Aprendizado Não-Supervisionado*).
-* **Mapeamento Somatotópico:** No cérebro humano, estímulos motores ou sensoriais vizinhos (como os movimentos dos dedos da mão ou da língua) ativam regiões de neurônios contíguas no córtex. O SOM replica computacionalmente essa ordenação espacial.
+#### Princípios Fundamentais:
+* **Entropia e Desordem (Boltzmann, 1872):** A entropia mede a quantidade de desordem ou o número de estados microscópicos possíveis de um sistema. Quanto mais informação é necessária para descrever algo, maior a sua entropia. A auto-organização atua reduzindo a entropia de representação do espaço de entrada.
+* **Emergência em Sistemas Complexos:** Padrões globais organizados emergem espontaneamente a partir de interações locais descentralizadas entre os neurônios, sem a necessidade de um supervisor ou rótulos prévios (*Aprendizado Não-Supervisionado*).
+* **Mapeamento Somatotópico:** No cérebro humano (como demonstrado em tomografias funcionais de ressonância magnética por Miller et al., 2010), estímulos motores ou sensoriais vizinhos (como os movimentos dos dedos da mão ou da língua) ativam regiões de neurônios contíguas no córtex. O SOM replica computacionalmente essa ordenação espacial.
 
 ---
 
 ### 1.3. Arquitetura da Rede e o Mecanismo Triplo
 A rede SOM é constituída por uma arquitetura simples de duas camadas:
 1. **Camada de Entrada:** Recebe os vetores $n$-dimensionais das amostras $x = [x_1, x_2, \dots, x_n]$.
-2. **Camada de Saída (Mapa):** Grade bidimensional de neurônios. Cada neurônio $i$ possui um vetor de pesos sinápticos $w_i = [w_{i1}, w_{i2}, \dots, w_{in}]$ de mesma dimensão que o dado de entrada.
+2. **Camada de Saída (Mapa):** Grade bidimensional de neurônios. Cada neurônio $j$ possui um vetor de pesos sinápticos $w_j = [w_{j1}, w_{j2}, \dots, w_{jn}]$ de mesma dimensão que o dado de entrada.
 
 ```
        Espaço de Entrada (n-dimensional)
@@ -116,19 +138,19 @@ Onde $\alpha(t)$ é a taxa de aprendizado (*learning rate*), que também decai a
 
 ### 1.4. Preservação Topológica e Medidas de Distância Dupla
 Em um SOM treinado com sucesso, existem duas noções distintas de distância que devem ser compreendidas:
-* **Distância no Espaço de Atributos ($n$-dimensional):** Distância matemática entre os vetores de pesos dos neurônios.
-* **Distância na Grade de Saída (2D):** Distância física das coordenadas dos neurônios na grade geométrica.
+1. **Distância no Espaço de Atributos ($n$-dimensional):** Distância matemática entre os vetores de pesos dos neurônios.
+2. **Distância na Grade de Saída (2D):** Distância física das coordenadas dos neurônios na grade geométrica.
 
 A **Preservação Topológica** garante que se duas amostras estão próximas no espaço $n$-dimensional original, elas ativarão o mesmo neurônio ou neurônios vizinhos na grade 2D.
 
 ---
 
-### 1.5. Quantização Vetorial e Representação de Protótipos
-O SOM realiza **Quantização Vetorial (Vector Quantization)**: ele reduz o espaço contínuo de entrada a um número discreto de vetores de referência (os pesos dos neurônios). Cada neurônio atua como um **protótipo** da sub-região do espaço de atributos que ele representa.
+### 1.5. Quantização Vetorial e Representação por Protótipos
+O SOM realiza **Quantização Vetorial (Vector Quantization)**: ele reduz o espaço contínuo de entrada a um número discreto de vetores de referência (os pesos dos neurônios). Cada neurônio atua como um **protótipo** da sub-região do espaço deatributos que ele representa.
 
 ---
 
-# 2. VISUALIZAÇÃO, MATRIZ U E SEGMENTAÇÃO DE CLUSTERS
+# 2. VISUALIZAÇÃO, MATRIZ U, MATRIZ GC E SEGMENTAÇÃO DE CLUSTERS
 
 ### 2.1. A Matriz U (Unified Distance Matrix) e Interpolação de Voronoi
 Inventada por **Alfred Ultsch**, a Matriz U é a principal ferramenta de visualização de estruturas de clusters em um SOM:
@@ -141,13 +163,15 @@ Inventada por **Alfred Ultsch**, a Matriz U é a principal ferramenta de visuali
 
 ---
 
-### 2.2. Matriz de Gradiente (GC) e Análise de Fronteiras
-Para bases de dados altamente contínuas, a **Matriz de Gradiente (Gradient Matrix - GC)** calcula o vetor gradiente de alteração entre os pesos adjacentes, oferecendo maior nitidez visual nas linhas de separação em relação à Matriz U convencional.
+### 2.2. A Matriz de Gradiente (GC) — Contribuição do Prof. José Alfredo Costa
+Em seus trabalhos de pesquisa (Costa, 1999, 2010), o Prof. José Alfredo Costa desenvolveu a **Matriz de Gradiente (Gradient Matrix - GC)** como uma evolução da Matriz U tradicional para o processamento de imagens e bases contínuas:
+* Derivada dos operadores de gradiente de processamento digital de imagens, a Matriz GC calcula o vetor gradiente de alteração entre os pesos adjacentes.
+* **Vantagem:** Oferece maior nitidez visual nas linhas de separação em relação à Matriz U convencional, reduzindo o borramento em zonas de transição suave.
 
 ---
 
-### 2.3. Agrupamento Automático: Transgressão Watershed e Índice Davies-Bouldin
-Para evitar que o usuário precise delimitar visualmente e manualmente quais neurônios pertencem a qual grupo, utilizam-se técnicas automáticas sobre os neurônios já treinados:
+### 2.3. Agrupamento Automático via Morfologia Matemática (Transformada Watershed & Marcadores)
+Para evitar que o usuário precise delimitar visualmente e manualmente quais neurônios pertencem a qual grupo, utilizam-se técnicas automáticas sobre a Matriz U/GC proposta por Costa (1998, 1999):
 
 ```
         Visualização 3D da Matriz U (Vales e Cristas)
@@ -161,25 +185,31 @@ Para evitar que o usuário precise delimitar visualmente e manualmente quais neu
 ```
 
 1. **Transformada Watershed (Linha Divisória de Águas):** Tratando a Matriz U como um relevo topográfico 3D (onde vales são mínimos de distância e cristas são barreiras), a água "inunda" os vales a partir de marcadores locais. Onde as bacias de inundação se encontram, constroem-se as linhas de separação dos clusters automatizados.
-2. **Índice Davies-Bouldin (DB):** Métrica de validação de agrupamento usada para identificar o número ótimo de clusters ($k$). Avalia a razão entre a dispersão interna dos clusters e a separação entre eles.
-   * *Recomendação Prática:* Em dados com zonas de transição contínua (ex: geologia e sinais temporais), deve-se prestar atenção tanto no **primeiro** quanto no **segundo mínimo global** do índice DB, pois o segundo mínimo frequentemente captura divisões físicas mais representativas.
+2. **Uso de Marcadores (Filtering):** Para evitar a "sobressegmentação" (onde qualquer ruído cria um mini-cluster fictício), aplica-se uma filtragem de mínimos relevantes baseada em fatiamento de limiares (*thresholding*), identificando apenas as bacias de atração verdadeiramente estáveis.
 
 ---
 
-### 2.4. Estruturas Hierárquicas (Árvores de Mapas e Sub-mapas)
-Quando uma região do SOM exibe um cluster grande mas internamente ruidoso, é possível isolar apenas as amostras que ativaram os neurônios daquela região e treinar um **sub-mapa recursivo**. Isso gera uma estrutura hierárquica em árvore (*Tree-SOM*), permitindo explorar subclasses com alto grau de detalhamento sem re-treinar todo o mapa global.
+### 2.4. Validação de Clusters: 1º e 2º Mínimos Globais do Índice Davies-Bouldin (DB)
+Após treinar o SOM, é comum clusterizar os neurônios usando algoritmos como K-means ou Watershed. Para validar a qualidade do agrupamento e determinar o $k$ ideal:
+* **Índice Davies-Bouldin (DB):** Avalia a razão entre a dispersão interna dos clusters e a separação entre eles (quanto menor o valor de DB, melhor o agrupamento).
+* **Achado Acadêmico (Costa et al. / Gonçalves):** Em dados reais com transições contínuas (ex: geologia e sinais temporais), deve-se prestar atenção tanto no **primeiro** quanto no **segundo mínimo global** do índice DB. O segundo mínimo frequentemente captura divisões físicas mais representativas e realistas do que o corte matemático primário.
+
+---
+
+### 2.5. Estruturas Hierárquicas (Árvores de Mapas e Sub-mapas)
+Quando uma região do SOM exibe um cluster grande mas internamente ruidoso, isolam-se apenas as amostras que ativaram os neurônios daquela região e treina-se um **sub-mapa recursivo**. Isso gera uma estrutura hierárquica em árvore (*Tree-SOM*), permitindo explorar subclasses com alto grau de detalhamento sem re-treinar todo o mapa global.
 
 ---
 
 # 3. GUIA COMPLETO DE PARAMETRIZAÇÃO TÉCNICA (OS 7 PARÂMETROS CHAVE)
 
-Este capítulo consolida as diretrizes teóricas e práticas para a configuração ideal do SOM, respondendo diretamente aos requisitos de teste propostos.
+Este capítulo consolida as diretrizes teóricas e práticas para a configuração ideal do SOM, respondendo diretamente aos requisitos de teste solicitados pelo Prof. José Alfredo Costa.
 
 ```
 +-----------------------------------------------------------------------------------+
 |                  RESUMO DOS 7 PARÂMETROS CHAVE DE CONFIGURAÇÃO                    |
 +-----------------------------------------------------------------------------------+
-| 1. Tamanho do Mapa: Fórmula empírica de Vesanto: 5 * sqrt(N)                       |
+| 1. Tamanho do Mapa: Fórmula empírica de Vesanto: 5 * sqrt(N) (Doce ponto: 10x10)  |
 | 2. Vizinhança Inicial: ~80% do diâmetro total da grade (cooperação global)        |
 | 3. Vizinhança Final: Decaimento progressivo até 1 neurônio (ajuste fino local)    |
 | 4. Épocas de Treinamento: 500 épocas (garante estabilização da U-Matrix e QE)     |
@@ -191,7 +221,7 @@ Este capítulo consolida as diretrizes teóricas e práticas para a configuraç�
 
 ---
 
-### 3.1. Dimensionamento do Mapa (Fórmula Empírica de Vesanto)
+### 3.1. Dimensionamento do Mapa (Fórmula Empírica de Vesanto e a Sweet Spot 10x10)
 Para evitar que o mapa seja pequeno demais (incapaz de separar grupos) ou grande demais (causando *overfitting* onde cada dado vira um neurônio isolado), utiliza-se a **Equação Empírica de Juha Vesanto**:
 
 $$M_{total} = 5 \times \sqrt{N}$$
@@ -199,7 +229,7 @@ $$M_{total} = 5 \times \sqrt{N}$$
 Onde $N$ é a quantidade total de instâncias do dataset.
 * *Exemplo:* Para $N = 600$ amostras:
   $$M_{total} = 5 \times \sqrt{600} \approx 5 \times 24.49 = 122.45 \text{ neurônios}$$
-  Um mapa próximo de $10 \times 10$ (100 neurônios) ou $12 \times 10$ (120 neurônios) é o tamanho matematicamente ideal.
+* **Achado Experimental (Costa, 1999):** Em testes comparativos com a base *Wine* e bases contínuas, variando tamanhos de malha de 5x5 a 20x20, observou-se que a acurácia máxima de agrupamento atingiu o seu topo (ponto ótimo / *sweet spot*) no mapa **10x10** (100 neurônios). Malhas excessivamente maiores mostraram uma leve queda de acurácia devido à dispersão desnecessária de neurônios vazios.
 
 ---
 
@@ -249,7 +279,7 @@ $$w_j(t+1) = \frac{\sum_{k=1}^N h_{ij(k)}(t) \cdot x_k}{\sum_{k=1}^N h_{ij(k)}(t
 1. **Inicialização Aleatória:** Atribui valores aleatórios aos pesos iniciais dos neurônios. Pode levar o mapa a ficar preso em mínimos locais ou gerar torções topológicas ("nós") difíceis de desfazer.
 2. **Inicialização Linear (PCA) - *ALTAMENTE RECOMENDADA*:**
    * Calcula os dois primeiros Componentes Principais (PC1 e PC2) do conjunto de dados de entrada.
-   * Os vetores de pesos dos neurônios são dispostos ordenadamente ao longo do plano definido por esses dois eixos de maior variância.
+   * Os vetores de pesos dos neurônios são dispostos ordenadamente ao longo do plano definido por esses dois eixos de maior variância (desenvolvimento por Gustavo Rodovalho).
    * **Vantagens:** Acelera drasticamente a convergência do treino (exige menos épocas) e garante reprodutibilidade rigorosa.
 
 ---
@@ -273,7 +303,7 @@ A escolha da disposição geométrica dos neurônios afeta diretamente a simetri
 * **Grade Retangular (RECT):** Cada neurônio tem 4 vizinhos ortogonais (distância $d=1$) e 4 vizinhos diagonais (distância $d = \sqrt{2} \approx 1.414$). Essa assimetria introduz distorções anisotrópicas no aprendizado de vizinhança.
 * **Grade Hexagonal (HEX) - *PADRÃO ABSOLUTO E RECOMENDADO*:**
   * Cada neurônio possui **6 vizinhos adjacentes estritamente equidistantes** ($d=1$).
-  * *Fundamentação Biológica/Física:* Na natureza, a geometria hexagonal é a forma espacial mais estável para preenchimento de superfícies contínuas (ângulo mecânico de 120º em favos de abelhas, basaltos vulcânicos e bolhas de sabão). Oferece a melhor simetria espacial para a função de vizinhança Gaussiana.
+  * *Fundamentação Biológica/Física (Carneiro & Rodrigo):* Na natureza, a geometria hexagonal é a forma espacial mais estável para preenchimento de superfícies contínuas (ângulo mecânico de 120º em favos de abelhas, basaltos vulcânicos e bolhas de sabão). Oferece a melhor simetria espacial para a função de vizinhança Gaussiana.
 
 ---
 
@@ -331,7 +361,7 @@ A biblioteca IntraSOM implementa o método exclusivo da **Época Anterior (Previ
              Etapa 1: Ajuste Bruto (Ajuste Inicial)
              (Usa apenas os atributos presentes)
                           |
-            Identifica BMU da Época Anterior
+             Identifica BMU da Época Anterior
                           |
              Etapa 2: Ajuste Fino (Imputação)
              Imputa o NaN baseado no peso do BMU da época anterior,
@@ -345,10 +375,10 @@ A biblioteca IntraSOM implementa o método exclusivo da **Época Anterior (Previ
 
 ---
 
-### 4.3. Treinamento de Big Data com Bootstrap
+### 4.3. Treinamento de Big Data com Bootstrap e Amostragem Parcial
 Para conjuntos de dados massivos (como imagens de satélite, dados sísmicos ou logs com milhões de linhas), a IntraSOM introduz o modo **Bootstrap**:
 * A cada época, em vez de processar 100% da base, o algoritmo seleciona uma amostragem aleatória representativa (ex: 10% ou 20% do dataset).
-* Isso reduz o tempo de processamento computacional em ordens de grandeza sem comprometer a ordenação topológica global.
+* **Paralelização e GPU (Costa, 2020):** Como destacado pelo Prof. José Alfredo, a matriz de distâncias e a atualização de Voronoi do SOM Batch podem ser totalmente fragmentadas em *ensembles* paralelos ou processadas em GPUs, reduzindo o tempo de processamento computacional em ordens de grandeza sem comprometer a ordenação topológica global.
 
 ---
 
@@ -358,14 +388,14 @@ Ao finalizar o treino, a IntraSOM gera automaticamente:
 2. `SOM_*_neurons.parquet` e `results.parquet`: Matrizes de pesos e associações de BMU em formato binário comprimido Parquet de altíssima velocidade.
 3. `Intrasom_report_*.txt`: Relatório com as métricas de qualidade do mapa:
    * **Quantization Error (QE):** Média das distâncias entre as amostras e seus respectivos BMUs (mede o ajuste do mapa aos dados).
-   * **Topographic Error (TE):** Proporção de amostras cujo segundo BMU mais próximo não é vizinho físico do primeiro BMU na grade (mede a preservação da topologia; valores próximos de 0.0 indicam topologia perfeita).
+   * **Topographic Error (TE):** Proporção de amostras cujo segundo BMU mais próximo não é vizinho físico do primeiro BMU na grade (mede a preservação da continuidade topológica; valores próximos de 0.0 indicam topologia perfeita).
 
 ---
 
-# 5. APLICAÇÕES PRÁTICAS E CASOS DE USO
+# 5. APLICAÇÕES PRÁTICAS E ESTUDOS DE CASO
 
 ### 5.1. Geociências e Georrecursos
-* **Descrição:** Classificação automática de lithofacies (tipos de rochas) em poços de petróleo a partir de perfis geofísicos (gama-ray, densidade, porosidade).
+* **Descrição:** Classificação automática de litofácies (tipos de rochas) em poços de petróleo a partir de perfis geofísicos (gama-ray, densidade, porosidade) e dados sísmicos.
 * **Resultado:** O SOM mapeia as transições suaves entre folhelhos, arenitos e carbonatos sem impor cortes bruscos arbitrários.
 
 ---
@@ -376,9 +406,20 @@ Ao finalizar o treino, a IntraSOM gera automaticamente:
 
 ---
 
-### 5.3. Processamento de Linguagem Natural e Semântica de Textos
+### 5.3. Sensoriamento Remoto e Imagens de Satélite (Rio Negro / Solimões em Manaus)
+* **Estudo (Costa & Gonçalves):** Aplicação de SOM em imagens multiespectrais de satélite na confluência dos rios Rio Negro e Solimões em Manaus.
+* **Resultado:** O mapa segmentou automaticamente corpos d'água com diferentes cargas de sedimentos, vegetação de várzea, floresta densa e solo urbano exposto, superando o K-means em acurácia de bordas.
 
-#### Comparativo de Representações em Datasets de Notícias:
+---
+
+### 5.4. Otimização Combinatória (Caixeiro Viajante / TSP com SOM 1D)
+* **Trabalho (Costa, Carvalho & Ferraz, 2002 - Int. Journal of Neural Systems):** Uso de uma rede SOM unidimensional em anel fechado para resolver o Problema do Caixeiro Viajante (*Traveling Salesperson Problem - TSP*).
+* **Funcionamento:** O anel 1D de neurônios é inicializado no centro das cidades e se "expande" como uma banda elástica, atritando-se contra a posição das cidades até formar o percurso de menor distância total.
+
+---
+
+### 5.5. Processamento de Linguagem Natural, Jurimetria e Visual Law
+* **Área de Atuação Atual (Prof. José Alfredo Costa - Direito Digital / NLP):** Aplicação de SOM e Deep Learning na análise de grandes bases de dados jurídicos (processos, acórdãos, petições).
 
 ```
             Mapeamento Semântico de Textos na Grade SOM 10x10
@@ -399,12 +440,7 @@ Ao finalizar o treino, a IntraSOM gera automaticamente:
    * **TF-IDF + LSA (20D):** ARI = 0.1286 | NMI = 0.2120.
    * **Sentence-BERT + PCA (20D):** ARI = 0.1178 | NMI = 0.1822.
    * *Fenômeno Científico Notado:* Em datasets pequenos com vocabulário técnico extremamente específico em português, o TF-IDF pode atuar como uma heurística forte. Além disso, existe sobreposição semântica real entre as categorias "Política" e "Polícia e Direitos" (ambas tratam de governança e políticas públicas), o que exige um *fine-tuning* especializado do modelo de linguagem.
-
----
-
-### 5.4. Jurimetria, Visual Law e Administração Pública
-* **Triagem Inteligente de Processos:** Leitura e vetorização de petições iniciais e decisões judiciais. O SOM agrupa processos por similaridade tese-jurisprudencial em um mapa interativo, permitindo que magistrados identifiquem causas repetitivas instantaneamente.
-* **Mapeamento de Editais e Pareceres:** Agrupamento automático de documentos administrativos sem necessidade de rotulagem manual prévia.
+3. **Jurimetria e Visual Law:** Leitura e vetorização de petições iniciais e decisões judiciais. O SOM agrupa processos por similaridade tese-jurisprudencial em um mapa interativo, permitindo que magistrados identifiquem causas repetitivas instantaneamente.
 
 ---
 
@@ -431,5 +467,7 @@ Ao finalizar o treino, a IntraSOM gera automaticamente:
 * **QE (Quantization Error / Erro Quantizado):** Média das distâncias entre todas as amostras de entrada e seus respectivos BMUs. Mede o quão bem o mapa se ajustou aos dados.
 * **TE (Topographic Error / Erro Topográfico):** Porcentagem de amostras onde o primeiro e o segundo BMUs mais próximos não são vizinhos adjacentes na grade 2D. Mede a preservação da continuidade topológica (ideal: próximo de 0.0).
 * **U-Matrix (Unified Distance Matrix):** Matriz visual que exibe a distância Euclidiana entre os vetores de pesos de neurônios vizinhos. Vales (tons frios) representam clusters; cristas (tons quentes) representam fronteiras.
+* **Matriz GC (Gradient Matrix):** Variante proposta por Costa (1999) baseada em operadores de gradiente de imagens que melhora a nitidez visual de fronteiras contínuas.
 * **Batch Training:** Modo de treinamento onde os pesos dos neurônios são atualizados uma única vez por época a partir do somatório vetorial acumulado de todas as amostras.
 * **Topologia Toroidal:** Conectividade circular onde as bordas opostas da grade se unem (efeito rosca/Karnaugh), garantindo que todos os neurônios tenham o mesmo número de conexões de vizinhança.
+* **Previous Epoch Method:** Técnica exclusiva da biblioteca IntraSOM para imputar dados ausentes (`NaN`) dinamicamente durante a fase de ajuste fino.

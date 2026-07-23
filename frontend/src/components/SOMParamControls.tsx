@@ -75,10 +75,10 @@ export function SOMParamControls() {
             Hexagonal (HEX)
           </button>
 
-          {/* RECT button — limitation documented: intrasom build_umatrix requires hexa */}
+          {/* RECT button — Real Rectangular Grid via MiniSom engine */}
           <button
             onClick={() => setLattice('RECT')}
-            title="Limitação da biblioteca intrasom: build_umatrix suporta apenas lattice hexagonal (linha 1928 de intrasom.py). O seletor muda a representação visual, mas os dados exibidos permanecem do modelo hexagonal."
+            title="Geometria Retangular Real: Modelo treinado com o motor MiniSom (Kohonen 2013, algoritmo batch síncrono)."
             className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold border transition flex items-center justify-center gap-1.5 active-press-scale ${
               lattice === 'RECT'
                 ? 'bg-tokyo-orange text-tokyo-bg border-tokyo-orange shadow-[0_0_10px_rgba(249,115,22,0.3)]'
@@ -89,12 +89,10 @@ export function SOMParamControls() {
             Retangular (RECT)
           </button>
         </div>
-        {/* Limitation notice shown when RECT is selected */}
+        {/* Notice shown when RECT is selected */}
         {lattice === 'RECT' && (
-          <div className="mt-1.5 px-2.5 py-1.5 rounded-lg bg-orange-900/30 border border-orange-500/40 text-[10px] text-orange-300 leading-tight">
-            ⚠️ <strong>Limitação da lib intrasom:</strong> U-Matrix requer grade hexagonal.
-            Os dados exibidos são do modelo HEX treinado — apenas a geometria SVG muda.
-            Para treino retangular real, seria necessária uma versão futura da biblioteca.
+          <div className="mt-1.5 px-2.5 py-1.5 rounded-lg bg-orange-900/30 border border-orange-500/40 text-[10px] text-orange-300 leading-tight flex items-center justify-between">
+            <span>⚙️ <strong>Engine: MiniSom</strong> · Grade Retangular Real (Plana)</span>
           </div>
         )}
       </div>
@@ -107,11 +105,15 @@ export function SOMParamControls() {
         </label>
         <div className="grid grid-cols-2 gap-2">
           <button
-            onClick={() => setTopology('toroid')}
-            className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold border transition flex items-center justify-center gap-1.5 active-press-scale ${
-              topology === 'toroid'
-                ? 'bg-tokyo-magenta text-tokyo-bg border-tokyo-magenta shadow-[0_0_10px_rgba(217,70,239,0.3)]'
-                : 'bg-tokyo-dark text-tokyo-text border-tokyo-border hover:border-tokyo-magenta'
+            onClick={() => lattice === 'HEX' && setTopology('toroid')}
+            disabled={lattice === 'RECT'}
+            title={lattice === 'RECT' ? 'Motor MiniSom opera exclusivamente em topologia plana' : 'Topologia toroidal (Rosca - bordas conectadas)'}
+            className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold border transition flex items-center justify-center gap-1.5 ${
+              lattice === 'RECT'
+                ? 'opacity-40 cursor-not-allowed bg-tokyo-dark text-tokyo-muted border-tokyo-border'
+                : topology === 'toroid'
+                ? 'bg-tokyo-magenta text-tokyo-bg border-tokyo-magenta shadow-[0_0_10px_rgba(217,70,239,0.3)] active-press-scale'
+                : 'bg-tokyo-dark text-tokyo-text border-tokyo-border hover:border-tokyo-magenta active-press-scale'
             }`}
           >
             Toroide (Rosca)
@@ -119,11 +121,9 @@ export function SOMParamControls() {
 
           <button
             onClick={() => setTopology('planar')}
-            title={selectedMapSize === '10x10'
-              ? 'Topologia planar: bordas desconectadas (sem efeito toroidal). Modelo 10x10 treinado com HEX+planar real.'
-              : 'Topologia planar disponível apenas para o mapa 10x10 (dados pré-treinados). Para outros tamanhos, a seleção é informativa.'}
+            title="Topologia plana (Bordas desconectadas - sem efeito Karnaugh)"
             className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold border transition flex items-center justify-center gap-1.5 active-press-scale ${
-              topology === 'planar'
+              topology === 'planar' || lattice === 'RECT'
                 ? 'bg-tokyo-yellow text-tokyo-bg border-tokyo-yellow shadow-[0_0_10px_rgba(234,179,8,0.3)]'
                 : 'bg-tokyo-dark text-tokyo-text border-tokyo-border hover:border-tokyo-yellow'
             }`}
@@ -131,13 +131,6 @@ export function SOMParamControls() {
             Plana (Sem Karnaugh)
           </button>
         </div>
-        {/* Show info when planar selected on non-10x10 map */}
-        {topology === 'planar' && selectedMapSize !== '10x10' && (
-          <div className="mt-1.5 px-2.5 py-1.5 rounded-lg bg-yellow-900/30 border border-yellow-500/40 text-[10px] text-yellow-300 leading-tight">
-            ℹ️ Variante planar pré-treinada disponível apenas para <strong>10×10</strong>.
-            Para {selectedMapSize}, exibindo dados do modelo toroidal como fallback.
-          </div>
-        )}
       </div>
 
       {/* Neighborhood & Training Parameters Grid */}
@@ -213,25 +206,23 @@ export function SOMParamControls() {
       {/* Active Settings Summary Footer */}
       <div className="bg-tokyo-dark bg-opacity-60 p-2.5 rounded-xl border border-tokyo-border border-opacity-30 text-[10px] font-mono leading-relaxed space-y-1 text-tokyo-muted">
         <div className="flex justify-between">
-          <span>Malha Ativa:</span>
+          <span>Motor / Malha:</span>
           <span className={`font-bold ${lattice === 'RECT' ? 'text-tokyo-orange' : 'text-tokyo-text'}`}>
-            {lattice === 'HEX' ? 'Hexagonal (HEX)' : 'Retangular (RECT) ⚠️ visual only'}
+            {lattice === 'HEX' ? 'IntraSOM (Hexagonal)' : 'MiniSom (Retangular Real)'}
           </span>
         </div>
         <div className="flex justify-between">
           <span>Topologia Ativa:</span>
           <span className={`font-bold ${
-            topology === 'planar' && selectedMapSize === '10x10'
+            lattice === 'RECT' || topology === 'planar'
               ? 'text-tokyo-yellow'
-              : topology === 'planar'
-              ? 'text-yellow-500'
               : 'text-tokyo-text'
           }`}>
-            {topology === 'toroid'
+            {lattice === 'RECT'
+              ? 'Plana ✓ MiniSom RECT'
+              : topology === 'toroid'
               ? 'Toroide (Rosca)'
-              : selectedMapSize === '10x10'
-              ? 'Plana ✓ dados reais 10×10'
-              : 'Plana (fallback → dados toroid)'}
+              : 'Plana ✓ IntraSOM HEX'}
           </span>
         </div>
         <div className="flex justify-between">
@@ -239,6 +230,7 @@ export function SOMParamControls() {
           <span className="text-tokyo-green font-bold">80% → 1n, 500 épocas, Batch, PCA</span>
         </div>
       </div>
+
     </div>
   );
 }

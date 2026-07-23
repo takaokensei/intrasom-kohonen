@@ -1,0 +1,37 @@
+IntraSOM Training Report
+Project: SOM_12x12_HEX_planar
+
+Input Data:
+Features: 60
+Samples: 600
+Cells: 36000
+
+--------------------------------------------------
+Initialization Parameters:
+
+Map Size: 12 columns and 12 lines
+Training Polygon: None
+Lattice: Hexagonal
+Normalization: Variance
+Initialization: None
+Neighborhood Function: Gaussian
+Number of Labels: 0
+
+--------------------------------------------------
+Training Parameters:
+
+Rough Training:
+Size: 150
+Initial Ratio: 10
+Final Ratio: 1
+
+Finetube Training:
+Size: 350
+Initial Ratio: 1
+Final Ratio: 1
+
+--------------------------------------------------
+Training Evaluation:
+
+Quantization Error: 3.6128
+Topographic Error: 0.0317

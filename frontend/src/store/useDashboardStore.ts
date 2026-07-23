@@ -30,12 +30,14 @@ export interface SOMModel {
   neurons: NeuronItem[];
 }
 
-// 10x10 ships two real variants; others remain flat for now
+// All 6 map sizes ship 3 real variants: HEX_toroid, HEX_planar, RECT_planar
 export interface SOMModelWithVariants {
   has_variants: true;
   HEX_toroid?: SOMModel;
   HEX_planar?: SOMModel;
+  RECT_planar?: SOMModel;
 }
+
 
 export interface ParameterStudyEntry {
   key: string;
@@ -263,19 +265,24 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     }
   },
 
-  // Returns the active SOMModel based on selected map size and topology.
-  // For 10x10: routes to the correct pre-trained variant (HEX_toroid or HEX_planar).
-  // For other sizes: returns the flat model (topology selector is informational only).
+  // Returns the active SOMModel based on selected map size, lattice and topology.
+  // Routes to real pre-trained variants across all 6 map sizes:
+  // - RECT lattice -> RECT_planar (MiniSom)
+  // - HEX lattice + planar topology -> HEX_planar (IntraSOM)
+  // - HEX lattice + toroid topology -> HEX_toroid (IntraSOM)
   getActiveSOMModel: () => {
-    const { somModels, selectedMapSize, topology } = get();
+    const { somModels, selectedMapSize, lattice, topology } = get();
     const entry = somModels[selectedMapSize];
     if (!entry) return null;
     if ('has_variants' in entry) {
-      const variantKey = topology === 'planar' ? 'HEX_planar' : 'HEX_toroid';
+      const variantKey = lattice === 'RECT'
+        ? 'RECT_planar'
+        : (topology === 'planar' ? 'HEX_planar' : 'HEX_toroid');
       return (entry as SOMModelWithVariants)[variantKey] ?? null;
     }
     return entry as SOMModel;
   },
+
   loadTextData: async () => {
     if (Object.keys(get().newsSamples).length > 0) {
       get().checkBackend();

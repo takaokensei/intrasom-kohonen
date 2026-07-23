@@ -38,8 +38,7 @@ def export_all():
     print("Exported series.json")
         
     # 2. SOM models data
-    # ─ 10x10: exportado com sub-chaves de variante (HEX_toroid, HEX_planar)
-    # ─ 15x15, 20x20: estrutura flat para compatibilidade retroativa
+    # ─ Exporta sub-chaves de variante (HEX_toroid, HEX_planar, RECT_planar) para TODOS os 6 tamanhos
     som_models = {}
     from intrasom.visualization import PlotFactory
 
@@ -86,51 +85,47 @@ def export_all():
             })
         return neurons_list, cols, rows
 
-    # ── 10x10: exportar variantes HEX_toroid e HEX_planar ────────────────────
-    print("Processing SOM 10x10 (with variants HEX_toroid + HEX_planar)...")
-    toroid_nf  = os.path.join(maps_dir, "SOM_10x10_neurons.parquet")
-    toroid_rf  = os.path.join(maps_dir, "SOM_10x10_results.parquet")
-    toroid_pf  = os.path.join(maps_dir, "params_SOM_10x10.json")
-    planar_nf  = os.path.join(maps_dir, "SOM_10x10_HEX_planar_neurons.parquet")
-    planar_rf  = os.path.join(maps_dir, "SOM_10x10_HEX_planar_results.parquet")
-    planar_pf  = os.path.join(maps_dir, "params_SOM_10x10_HEX_planar.json")
+    # Carregar modelos MiniSom RECT pré-gerados
+    rect_models_path = os.path.join(maps_dir, "som_rect_models.json")
+    rect_models_data = json.load(open(rect_models_path, "r", encoding="utf-8")) if os.path.exists(rect_models_path) else {}
 
-    som_models["10x10"] = {"has_variants": True}
+    all_sizes = ["5x5", "7x7", "10x10", "12x12", "15x15", "20x20"]
+    for size_name in all_sizes:
+        print(f"Processing SOM {size_name} (HEX_toroid, HEX_planar, RECT_planar)...")
+        som_models[size_name] = {"has_variants": True}
 
-    for vkey, nf, rf, pf in [
-        ("HEX_toroid", toroid_nf, toroid_rf, toroid_pf),
-        ("HEX_planar", planar_nf, planar_rf, planar_pf),
-    ]:
-        if not (os.path.exists(nf) and os.path.exists(rf) and os.path.exists(pf)):
-            print(f"  Variant {vkey} files not found. Skipping.")
-            continue
-        neurons_df = pd.read_parquet(nf)
-        results_df = pd.read_parquet(rf)
-        params     = json.load(open(pf))
-        som        = intrasom.SOMFactory.load_som(data=X, trained_neurons=neurons_df, params=params)
-        neurons_list, cols, rows = build_neurons_list(neurons_df, results_df, som, y)
-        som_models["10x10"][vkey] = {"cols": cols, "rows": rows, "neurons": neurons_list}
-        print(f"  Variant {vkey}: {cols}x{rows}, {len(neurons_list)} neurons")
+        # 1. HEX_toroid
+        toroid_nf = os.path.join(maps_dir, f"SOM_{size_name}_neurons.parquet")
+        toroid_rf = os.path.join(maps_dir, f"SOM_{size_name}_results.parquet")
+        toroid_pf = os.path.join(maps_dir, f"params_SOM_{size_name}.json")
+        if os.path.exists(toroid_nf) and os.path.exists(toroid_rf) and os.path.exists(toroid_pf):
+            neurons_df = pd.read_parquet(toroid_nf)
+            results_df = pd.read_parquet(toroid_rf)
+            params     = json.load(open(toroid_pf))
+            som        = intrasom.SOMFactory.load_som(data=X, trained_neurons=neurons_df, params=params)
+            neurons_list, cols, rows = build_neurons_list(neurons_df, results_df, som, y)
+            som_models[size_name]["HEX_toroid"] = {"cols": cols, "rows": rows, "neurons": neurons_list}
 
-    # ── 15x15, 20x20: estrutura flat (compatibilidade retroativa) ─────────────
-    for size_name in ["15x15", "20x20"]:
-        print(f"Processing SOM {size_name}...")
-        neurons_file = os.path.join(maps_dir, f"SOM_{size_name}_neurons.parquet")
-        results_file = os.path.join(maps_dir, f"SOM_{size_name}_results.parquet")
-        params_file  = os.path.join(maps_dir, f"params_SOM_{size_name}.json")
-        if not (os.path.exists(neurons_file) and os.path.exists(results_file) and os.path.exists(params_file)):
-            print(f"SOM {size_name} files not found. Skipping.")
-            continue
-        neurons_df = pd.read_parquet(neurons_file)
-        results_df = pd.read_parquet(results_file)
-        params     = json.load(open(params_file))
-        som        = intrasom.SOMFactory.load_som(data=X, trained_neurons=neurons_df, params=params)
-        neurons_list, cols, rows = build_neurons_list(neurons_df, results_df, som, y)
-        som_models[size_name] = {"cols": cols, "rows": rows, "neurons": neurons_list}
+        # 2. HEX_planar
+        planar_nf = os.path.join(maps_dir, f"SOM_{size_name}_HEX_planar_neurons.parquet")
+        planar_rf = os.path.join(maps_dir, f"SOM_{size_name}_HEX_planar_results.parquet")
+        planar_pf = os.path.join(maps_dir, f"params_SOM_{size_name}_HEX_planar.json")
+        if os.path.exists(planar_nf) and os.path.exists(planar_rf) and os.path.exists(planar_pf):
+            neurons_df = pd.read_parquet(planar_nf)
+            results_df = pd.read_parquet(planar_rf)
+            params     = json.load(open(planar_pf))
+            som        = intrasom.SOMFactory.load_som(data=X, trained_neurons=neurons_df, params=params)
+            neurons_list, cols, rows = build_neurons_list(neurons_df, results_df, som, y)
+            som_models[size_name]["HEX_planar"] = {"cols": cols, "rows": rows, "neurons": neurons_list}
+
+        # 3. RECT_planar (MiniSom)
+        if size_name in rect_models_data:
+            som_models[size_name]["RECT_planar"] = rect_models_data[size_name]
 
     with open(os.path.join(public_data_dir, "som_models.json"), "w", encoding="utf-8") as f:
         json.dump(som_models, f, ensure_ascii=False)
     print("Exported som_models.json")
+
         
     # 3. Model Comparison Metrics
     print("Loading metrics comparison...")

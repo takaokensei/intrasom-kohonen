@@ -1,110 +1,116 @@
 [
     {
         "size_name": "5x5",
-        "variant_key": "HEX_planar",
+        "variant_key": "RECT_planar",
         "mapsize": [
             5,
             5
         ],
-        "lattice": "hexa",
+        "lattice": "rect",
         "mapshape": "planar",
+        "engine": "minisom",
         "initialization": "pca",
         "total_epochs": 500,
         "train_rough_len": 150,
         "train_finetune_len": 350,
         "train_rough_radiusin": 4,
         "train_rough_radiusfin": 1,
-        "quantization_error": 4.335419768422348,
-        "topographic_error": 0.335
+        "quantization_error": 36.17692210866404,
+        "topographic_error": 0.023333333333333334
     },
     {
         "size_name": "7x7",
-        "variant_key": "HEX_planar",
+        "variant_key": "RECT_planar",
         "mapsize": [
             7,
             7
         ],
-        "lattice": "hexa",
+        "lattice": "rect",
         "mapshape": "planar",
+        "engine": "minisom",
         "initialization": "pca",
         "total_epochs": 500,
         "train_rough_len": 150,
         "train_finetune_len": 350,
         "train_rough_radiusin": 6,
         "train_rough_radiusfin": 1,
-        "quantization_error": 4.017378004174886,
-        "topographic_error": 0.045
+        "quantization_error": 32.649392909239126,
+        "topographic_error": 0.013333333333333334
     },
     {
         "size_name": "10x10",
-        "variant_key": "HEX_planar",
+        "variant_key": "RECT_planar",
         "mapsize": [
             10,
             10
         ],
-        "lattice": "hexa",
+        "lattice": "rect",
         "mapshape": "planar",
+        "engine": "minisom",
         "initialization": "pca",
         "total_epochs": 500,
         "train_rough_len": 150,
         "train_finetune_len": 350,
         "train_rough_radiusin": 8,
         "train_rough_radiusfin": 1,
-        "quantization_error": 3.7627819650064303,
-        "topographic_error": 0.08333333333333333
+        "quantization_error": 29.63632644646199,
+        "topographic_error": 0.016666666666666666
     },
     {
         "size_name": "12x12",
-        "variant_key": "HEX_planar",
+        "variant_key": "RECT_planar",
         "mapsize": [
             12,
             12
         ],
-        "lattice": "hexa",
+        "lattice": "rect",
         "mapshape": "planar",
+        "engine": "minisom",
         "initialization": "pca",
         "total_epochs": 500,
         "train_rough_len": 150,
         "train_finetune_len": 350,
         "train_rough_radiusin": 10,
         "train_rough_radiusfin": 1,
-        "quantization_error": 3.6127775847622714,
-        "topographic_error": 0.03166666666666667
+        "quantization_error": 28.32532151746995,
+        "topographic_error": 0.006666666666666667
     },
     {
         "size_name": "15x15",
-        "variant_key": "HEX_planar",
+        "variant_key": "RECT_planar",
         "mapsize": [
             15,
             15
         ],
-        "lattice": "hexa",
+        "lattice": "rect",
         "mapshape": "planar",
+        "engine": "minisom",
         "initialization": "pca",
         "total_epochs": 500,
         "train_rough_len": 150,
         "train_finetune_len": 350,
         "train_rough_radiusin": 12,
         "train_rough_radiusfin": 1,
-        "quantization_error": 3.425026187840467,
-        "topographic_error": 0.03666666666666667
+        "quantization_error": 27.055681530705396,
+        "topographic_error": 0.015
     },
     {
         "size_name": "20x20",
-        "variant_key": "HEX_planar",
+        "variant_key": "RECT_planar",
         "mapsize": [
             20,
             20
         ],
-        "lattice": "hexa",
+        "lattice": "rect",
         "mapshape": "planar",
+        "engine": "minisom",
         "initialization": "pca",
         "total_epochs": 500,
         "train_rough_len": 150,
         "train_finetune_len": 350,
         "train_rough_radiusin": 16,
         "train_rough_radiusfin": 1,
-        "quantization_error": 3.23572805368197,
-        "topographic_error": 0.06166666666666667
+        "quantization_error": 25.350516894414476,
+        "topographic_error": 0.0033333333333333335
     }
 ]

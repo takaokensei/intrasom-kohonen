@@ -175,32 +175,36 @@ Para reproduzir os treinos com os novos parâmetros científicos do professor (P
 # 1. Garanta que as dependências do Python estejam instaladas
 pip install -r requirements.txt
 
-# 2. Treine todos os modelos base do Synthetic Control (6 tamanhos de mapa)
+# 2. Treine todos os modelos base do Synthetic Control (6 tamanhos de mapa: HEX_toroid)
 python src/train_som.py
 
-# 3. Treine a variante planar do mapa 10x10 (Toroid OFF)
+# 3. Treine as variantes planares para TODOS os 6 tamanhos (HEX_planar / Toroid OFF)
 python src/train_som_variants.py
 
-# 4. Execute o estudo de sensibilidade multivariado de parâmetros
+# 4. Treine as variantes retangulares para TODOS os 6 tamanhos via MiniSom (RECT_planar)
+python src/train_som_rect.py
+
+# 5. Execute o estudo de sensibilidade multivariado de parâmetros
 python src/train_parameter_study.py
 
-# 5. Treine os 4 modelos semânticos textuais (20news e 6class, TF-IDF e SBERT)
+# 6. Treine os 4 modelos semânticos textuais (20news e 6class, TF-IDF e SBERT)
 python src/text_som_clustering.py
 
-# 6. Exporte todos os arquivos estruturados (.parquet -> .json) para o React
+# 7. Exporte todos os arquivos estruturados (.parquet + JSONs) para o React
 python src/export_data_for_frontend.py
 ```
 
 <br/>
 
-## `> limitações_da_biblioteca`
+## `> arquitetura_de_motores`
 
-* **Grade Retangular (`lattice='rect'`):**
-  Identificamos que o cálculo interno da U-Matrix na versão instalada do `intrasom` é restrito à geometria hexagonal (a linha 1928 de `intrasom.py` lança uma exceção de não implementação). Por isso, o seletor **RECT** no dashboard é apenas um recurso cosmético que renderiza a geometria visual como quadrados sobre dados hexagonais pré-treinados, exibindo um aviso laranja transparente de limitação técnica da lib.
-* **Topologia Planar (`mapshape='planar'`):**
-  A biblioteca suporta perfeitamente a topologia planar. No entanto, por razões de performance e escalabilidade, pré-treinamos a variante planar apenas para o mapa **10x10**. Seleções planares em outros tamanhos exibem dados toroidais sob aviso de fallback no dashboard.
+* **Grade Hexagonal (`IntraSOM`):**
+  Todos os mapas hexagonais (tanto em topologia toroidal quanto em topologia plana) para os 6 tamanhos de mapa (5x5 a 20x20) são treinados com o motor principal `intrasom`.
+* **Grade Retangular (`MiniSom`):**
+  Devido à restrição nativa de `build_umatrix` em malhas retangulares na biblioteca `intrasom`, utilizamos o motor complementar **MiniSom** (`minisom==2.3.6`) para treinar a variante **RECT_planar** real em todas as 6 dimensões com o algoritmo batch síncrono `train_batch_offline`, garantindo 100% de dados reais e eliminando qualquer fallback decorativo.
 
 <br/>
+
 
 ## `> acessibilidade_e_detalhes_especiais`
 

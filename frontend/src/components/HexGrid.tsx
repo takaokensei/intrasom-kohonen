@@ -7,12 +7,14 @@ import { NeuronDetailPanel } from './NeuronDetailPanel';
 import { getHexPoints } from '../lib/geometry';
 import { FullscreenPanel } from './FullscreenPanel';
 
-const getUMatrixColor = (val: number, max: number) => {
-  const norm = val / (max || 1);
+const getUMatrixColor = (val: number, min: number, max: number) => {
+  const range = max - min;
+  const norm = range > 0 ? (val - min) / range : 0.5;
   if (norm < 0.5) {
-    const r = Math.floor(26 + (187 - 26) * (norm * 2));
-    const g = Math.floor(27 + (154 - 27) * (norm * 2));
-    const b = Math.floor(38 + (247 - 38) * (norm * 2));
+    const factor = norm * 2;
+    const r = Math.floor(26 + (187 - 26) * factor);
+    const g = Math.floor(27 + (154 - 27) * factor);
+    const b = Math.floor(38 + (247 - 38) * factor);
     return `rgb(${r}, ${g}, ${b})`;
   } else {
     const factor = (norm - 0.5) * 2;
@@ -45,9 +47,9 @@ export const HexGrid = memo(function HexGrid() {
   const svgWidth = isFullscreen ? 800 : 540;
   const svgHeight = isFullscreen ? 550 : 360;
 
-  const { r, maxUMatrixVal, neuronLayouts } = useMemo(() => {
+  const { r, minUMatrixVal, maxUMatrixVal, neuronLayouts } = useMemo(() => {
     if (!neurons || neurons.length === 0) {
-      return { r: 0, maxUMatrixVal: 0, neuronLayouts: [] };
+      return { r: 0, minUMatrixVal: 0, maxUMatrixVal: 0, neuronLayouts: [] };
     }
 
     const xCoords = neurons.map(n => n.x);
@@ -65,7 +67,9 @@ export const HexGrid = memo(function HexGrid() {
       (svgHeight - 2 * padding) / (rows * 1.45)
     ) * 0.95;
 
-    const maxUVal = Math.max(...neurons.map(n => n.umatrix_value));
+    const uMatrixVals = neurons.map(n => n.umatrix_value);
+    const minUVal = Math.min(...uMatrixVals);
+    const maxUVal = Math.max(...uMatrixVals);
 
     const layouts = neurons.map(neuron => {
       const cx = scaleX(neuron.x);
@@ -79,7 +83,7 @@ export const HexGrid = memo(function HexGrid() {
       };
     });
 
-    return { r: radius, maxUMatrixVal: maxUVal, neuronLayouts: layouts };
+    return { r: radius, minUMatrixVal: minUVal, maxUMatrixVal: maxUVal, neuronLayouts: layouts };
   }, [neurons, cols, rows, svgWidth, svgHeight]);
 
   if (loadingSynthetic) {
@@ -250,7 +254,7 @@ export const HexGrid = memo(function HexGrid() {
                       fill = CLASS_COLORS[neuron.dominant_class] || '#1f2335';
                     }
                   } else {
-                    fill = getUMatrixColor(neuron.umatrix_value, maxUMatrixVal);
+                    fill = getUMatrixColor(neuron.umatrix_value, minUMatrixVal, maxUMatrixVal);
                   }
 
                   if (isSelected) {

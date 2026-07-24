@@ -201,10 +201,10 @@ python src/export_data_for_frontend.py
 * **Grade Hexagonal (`IntraSOM`):**
   Todos os mapas hexagonais (tanto em topologia toroidal quanto em topologia plana) para os 6 tamanhos de mapa (5x5 a 20x20) são treinados com o motor principal `intrasom`.
 * **Grade Retangular (`MiniSom`):**
-  A biblioteca `intrasom` possui duas limitações estruturais que impedem o uso nativo para malhas retangulares:
-  1. O método `build_umatrix()` lança explicitamente `Exception("build_umatrix error: non hexagonal lattice not implemented!")`.
-  2. O cálculo de distâncias retangulares em `Codebook._rect_dist_plan` possui um bug de implementação (passa um gerador para `np.array()`, gerando um objeto 0-d em vez de um array de distâncias).
-  Por essas razões (e não por escolha estilística arbitrária), utilizamos o motor complementar **MiniSom** (`minisom==2.3.6`) para treinar a variante **RECT_planar** real em todas as dimensões com o algoritmo batch síncrono `train_batch_offline`, garantindo 100% de dados reais e eliminando qualquer fallback decorativo.
+  O uso do motor complementar **MiniSom** (`minisom==2.3.6`) para a variante **RECT_planar** decorre de uma limitação técnica real da biblioteca `intrasom`:
+  1. **Bloqueador Principal (Não Resolvido):** O método `build_umatrix()` lança explicitamente `Exception("build_umatrix error: non hexagonal lattice not implemented!")`, o que exigiria reescrever a construção da Matriz U para malhas retangulares dentro da biblioteca (fora de escopo).
+  2. **Bug de Sintaxe (Corrigido Localmente):** O erro em `Codebook._rect_dist_plan` (gerador passado para `np.array()`) foi corrigido via monkey-patch em `src/reproducibility.py` (`_patch_intrasom_rect_dist_plan`), porém este ajuste sozinho não remove o bloqueio da Matriz U.
+  Por essa razão estrutural (e não por escolha estilística arbitrária), utilizamos o **MiniSom** com o algoritmo batch síncrono `train_batch_offline`, garantindo 100% de dados reais e eliminando qualquer fallback decorativo.
 
 <br/>
 

@@ -8,7 +8,9 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import RegularPolygon
 import json
 import shutil
-from sklearn.datasets import fetch_20newsgroups
+# TODO: compute_train_params / TOTAL_EPOCHS / ROUGH_FRACTION / RADIUS_INIT_FRAC / RADIUS_FINAL
+# are duplicated here and in train_som.py. Consolidate by importing from train_som.py.
+# Kept as-is to avoid risky refactor in this task.
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import TruncatedSVD, PCA
 from sklearn.preprocessing import StandardScaler
@@ -21,6 +23,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import intrasom
 from intrasom.visualization import PlotFactory
 from reproducibility import set_global_seed
+from text_data import load_20news_data, load_6class_data
 
 # ── Parâmetros de treino recomendados pelo Prof. José Alfredo ──────────────
 TOTAL_EPOCHS     = 500   # total de épocas (rough + finetune)
@@ -59,74 +62,7 @@ NEWS_COLORS = {
     "Variedades": "#d6616b"    # Red
 }
 
-def load_20news_data():
-    """Loads a subset of 20 Newsgroups with 4 distinct categories (400 docs)."""
-    print("Fetching 20 Newsgroups subset...")
-    categories = [
-        'comp.graphics',
-        'sci.space',
-        'rec.sport.baseball',
-        'talk.politics.mideast'
-    ]
-    newsgroups = fetch_20newsgroups(subset='train', categories=categories, remove=('headers', 'footers', 'quotes'), random_state=42)
-    docs = []
-    labels = []
-    class_map = {
-        'comp.graphics': 'Graphics',
-        'sci.space': 'Space',
-        'rec.sport.baseball': 'Baseball',
-        'talk.politics.mideast': 'Mideast'
-    }
-    counts = {cat: 0 for cat in categories}
-    for text, label_idx in zip(newsgroups.data, newsgroups.target):
-        cat_name = newsgroups.target_names[label_idx]
-        if counts[cat_name] < 100 and len(text.strip()) > 50:
-            docs.append(text)
-            labels.append(class_map[cat_name])
-            counts[cat_name] += 1
-    return docs, np.array(labels)
-
-def load_6class_data():
-    """Loads the 6-class Brazilian Portuguese news dataset (317 docs, 6 categories)."""
-    print("Loading 6-class Excel text dataset...")
-    workspace_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    file_path = os.path.join(workspace_dir, "data", "text", "base_dados_textos_6_classes.xlsx")
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(
-            f"Dataset não encontrado em: {file_path}\n"
-            "Copie o arquivo 'Base_dados_textos_6_classes.xlsx' para a pasta "
-            "'data/text/' na raiz do projeto.\n"
-            "Renomeie para: base_dados_textos_6_classes.xlsx (sem espaços/acentos)."
-        )
-    df = pd.read_excel(file_path)
-    
-    clean_categories = []
-    for cat in df['Categoria']:
-        c = str(cat).replace("Polcia", "Policia").replace("Pol\u00edcia", "Policia").replace("Pol\u00e9cia", "Policia")
-        c = c.replace("Pol\u00edcia", "Policia")
-        c = c.replace("Pol\u00edtica", "Politica").replace("Poltica", "Politica")
-        c = c.replace("Polícia e Direitos", "Policia").replace("Política", "Politica")
-        c = c.split(" e ")[0]
-        
-        if "Turismo" in c:
-            clean_categories.append("Turismo")
-        elif "Esporte" in c:
-            clean_categories.append("Esportes")
-        elif "Polici" in c or "Policia" in c:
-            clean_categories.append("Policia")
-        elif "Economia" in c:
-            clean_categories.append("Economia")
-        elif "Politic" in c or "Politica" in c:
-            clean_categories.append("Politica")
-        elif "Variedades" in c or "Sociedade" in c:
-            clean_categories.append("Variedades")
-        else:
-            clean_categories.append(c)
-            
-    df['CleanCategory'] = clean_categories
-    docs = df['Texto Expandido'].fillna(df['Texto Original']).fillna('').astype(str).tolist()
-    labels = np.array(df['CleanCategory'].tolist())
-    return docs, labels
+# load_20news_data and load_6class_data are now imported from text_data.py above.
 
 def train_and_plot_text_som(X_embeddings, labels, dataset_name, representation_name, mapsize=(10, 10)):
     """Trains a SOM on text embeddings and plots dominant classes."""

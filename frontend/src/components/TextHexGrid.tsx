@@ -9,18 +9,20 @@ import { FullscreenPanel } from './FullscreenPanel';
 export const TextHexGrid = memo(function TextHexGrid() {
   const { 
     selectedTextDataset, 
-    selectedTextRep, 
     selectedDocId, 
     setSelectedDocId, 
-    textModels, 
     loadingText, 
     classificationResult,
     lattice,
-    topology 
+    topology,
+    getActiveTextModel
   } = useDashboardStore();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   
-  const model = textModels[selectedTextDataset]?.[selectedTextRep];
+  // Data routing: when lattice==='RECT', returns RECT_planar (pure rectangular grid
+  // coords x=col, y=row); when HEX, returns HEX_toroid. No rendering-logic change
+  // needed — cx/cy are already scaled dynamically from neuron.x/neuron.y.
+  const model = getActiveTextModel();
   const neurons = model?.neurons;
   const cols = model?.cols || 1;
   const rows = model?.rows || 1;

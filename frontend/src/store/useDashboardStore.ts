@@ -38,6 +38,13 @@ export interface SOMModelWithVariants {
   RECT_planar?: SOMModel;
 }
 
+// Text models ship 2 variants: HEX_toroid and RECT_planar (no planar variant for text)
+export interface TextModelWithVariants {
+  has_variants: true;
+  HEX_toroid?: TextModel;
+  RECT_planar?: TextModel;
+}
+
 
 export interface ParameterStudyEntry {
   key: string;
@@ -97,15 +104,17 @@ interface DashboardState {
   series: SeriesItem[];
   somModels: Record<string, SOMModel | SOMModelWithVariants>;
   metrics: MetricRow[];
-  textModels: Record<string, Record<string, TextModel>>;
+  textModels: Record<string, Record<string, TextModel | TextModelWithVariants>>;
   textMetrics: Record<string, Record<string, { ARI: number; NMI: number }>>;
   newsSamples: Record<string, NewsSample[]>;
   paramStudyResults: ParameterStudyEntry[];
   selectedTextDataset: '20news' | '6class';
   setSelectedTextDataset: (dataset: '20news' | '6class') => void;
 
-  // Derived selector: returns the correct SOMModel for the current map/topology
+  // Derived selectors: return the correct model for the current lattice/topology
   getActiveSOMModel: () => SOMModel | null;
+  // Routes to HEX_toroid or RECT_planar based on global lattice state
+  getActiveTextModel: () => TextModel | null;
   
   // Loading states
   loadingSynthetic: boolean;
@@ -283,7 +292,24 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     return entry as SOMModel;
   },
 
+  // Returns the active TextModel based on the global lattice state.
+  // Routes to real pre-trained variants:
+  // - RECT lattice -> RECT_planar (MiniSom, Z-score normalized, pure rect grid coords)
+  // - HEX lattice  -> HEX_toroid  (IntraSOM, normalization='var')
+  // Mirrors getActiveSOMModel() pattern. No HEX_planar variant exists for text models.
+  getActiveTextModel: () => {
+    const { textModels, selectedTextDataset, selectedTextRep, lattice } = get();
+    const entry = textModels[selectedTextDataset]?.[selectedTextRep];
+    if (!entry) return null;
+    if ('has_variants' in entry) {
+      const variantKey = lattice === 'RECT' ? 'RECT_planar' : 'HEX_toroid';
+      return (entry as TextModelWithVariants)[variantKey] ?? null;
+    }
+    return entry as TextModel;
+  },
+
   loadTextData: async () => {
+
     if (Object.keys(get().newsSamples).length > 0) {
       get().checkBackend();
       return; // Already loaded
@@ -339,7 +365,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       const response = await fetch('http://127.0.0.1:8000/classify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, representation: rep, dataset })
+        body: JSON.stringify({ text, representation: rep, dataset, lattice: get().lattice })
       });
       
       if (response.ok) {
@@ -385,10 +411,10 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
           const emb = await hfResponse.json(); // Array of 384 floats
           const pcaParamsObj = get().pcaParams;
           const pca = pcaParamsObj ? pcaParamsObj[dataset] : null;
-          const model = get().textModels[dataset] ? get().textModels[dataset][rep] : null;
+          const model = get().getActiveTextModel();
           
           if (Array.isArray(emb) && emb.length === 384 && pca && model) {
-            const bmuResult = projectAndFindBMU(emb, pca, model);
+            const bmuResult = projectAndFindBMU(emb, pca, model, get().lattice === 'RECT');
             set({
               classificationResult: {
                 bmu: bmuResult.bestNeuronId,
@@ -408,7 +434,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     }
     
     // 3. Client-side fallback matching (Heuristics)
-    const model = get().textModels[dataset] ? get().textModels[dataset][rep] : null;
+    const model = get().getActiveTextModel();
     if (!model) return;
     
     const samples = get().newsSamples[dataset] || [];

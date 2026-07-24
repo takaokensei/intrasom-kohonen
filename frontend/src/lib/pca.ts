@@ -9,11 +9,24 @@ export interface BMUResult {
 
 /**
  * Projects a 384D SBERT embedding to 20D using PCA parameters and finds the best matching unit (BMU) on the SOM.
+ * Works for both HEX_toroid (IntraSOM, normalization='var') and RECT_planar (MiniSom, StandardScaler Z-score)
+ * models — the caller resolves the correct model via getActiveTextModel() in the store.
+ *
+ * NOTE on maxExpectedDist calibration:
+ *   - HEX_toroid (IntraSOM, normalization='var'): calibrated at 6.0 (empirical baseline).
+ *   - RECT_planar (MiniSom, StandardScaler): calibrated at 4.0 — lower because Z-score
+ *     normalization compresses the feature space variance relative to IntraSOM's var norm.
+ *
+ * ESPELHADO: A lógica de confiança do api.py usa avg_dist como denominador (escala relativa,
+ * auto-adaptável), enquanto este arquivo usa maxExpectedDist (escala absoluta). São abordagens
+ * distintas — api.py não precisou de segundo valor, mas as constantes abaixo devem ser
+ * mantidas em sincronia se a calibração for revisada após mais testes manuais.
  */
 export function projectAndFindBMU(
   embedding: number[],
   pcaParams: { mean: number[]; components: number[][] },
-  model: TextModel
+  model: TextModel,
+  isRectModel: boolean = false
 ): BMUResult {
   // Apply PCA projection: Q_20 = (emb - mean) * components
   const vec_20 = new Array(20).fill(0);
@@ -46,8 +59,9 @@ export function projectAndFindBMU(
     }
   });
   
-  // Calculate score (confidence)
-  const maxExpectedDist = 6.0;
+  // Calculate score (confidence) using calibrated maxExpectedDist per model type.
+  // RECT_planar uses StandardScaler Z-score; HEX_toroid uses IntraSOM normalization='var'.
+  const maxExpectedDist = isRectModel ? 4.0 : 6.0;
   const confidence = Math.max(0, Math.min(100, Math.round((1.0 - (minDistance / maxExpectedDist)) * 100)));
   
   // ESPELHADO: Esta fórmula de confiança está espelhada no api.py do backend.

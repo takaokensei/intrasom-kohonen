@@ -144,7 +144,7 @@ def export_all():
     # 4. Text SOM models (TF-IDF vs SBERT) for both datasets
     print("Loading text SOM results for both datasets...")
     text_models = {}
-    from text_som_clustering import load_20news_data, load_6class_data
+    from text_data import load_20news_data, load_6class_data
     
     datasets_info = {
         "20news": {
@@ -159,6 +159,12 @@ def export_all():
         }
     }
     
+    # Carregar modelos MiniSom RECT de texto pré-gerados por train_text_som_rect.py
+    text_rect_path = os.path.join(maps_dir, "text_rect_models.json")
+    text_rect_data = json.load(open(text_rect_path, "r", encoding="utf-8")) if os.path.exists(text_rect_path) else {}
+    if not text_rect_data:
+        print("WARNING: text_rect_models.json not found. Run src/train_text_som_rect.py first.")
+
     for dname, dinfo in datasets_info.items():
         text_models[dname] = {}
         docs, text_labels = dinfo["load_fn"]()
@@ -227,11 +233,23 @@ def export_all():
                     "codebook": codebook
                 })
                 
-            text_models[dname][rep] = {
+            # Wrap per-rep model in has_variants structure (mirrors SCM pattern)
+            # HEX_toroid is always present; RECT_planar is merged from text_rect_models.json if available
+            hex_model = {
                 "cols": cols,
                 "rows": rows,
                 "neurons": neurons_list
             }
+            rect_model = text_rect_data.get(dname, {}).get(rep, {}).get("RECT_planar", None)
+            if rect_model:
+                text_models[dname][rep] = {
+                    "has_variants": True,
+                    "HEX_toroid":   hex_model,
+                    "RECT_planar":  rect_model,
+                }
+            else:
+                # Fallback to flat structure (RECT not yet generated)
+                text_models[dname][rep] = hex_model
             
     with open(os.path.join(public_data_dir, "text_models.json"), "w", encoding="utf-8") as f:
         json.dump(text_models, f, ensure_ascii=False)

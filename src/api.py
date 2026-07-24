@@ -25,13 +25,8 @@ PUBLIC_DATA_DIR = os.path.join(BASE_DIR, "frontend", "public", "data")
 
 # Global variables for models
 sbert_model = None
-sbert_pca = None
-tfidf_vectorizer = None
-lsa_svd = None
 
-# Codebooks and metadata loaded from files
-sbert_neurons_df = None
-tfidf_neurons_df = None
+# Text metadata loaded from text_models.json (has_variants structure after v9)
 text_metadata = None
 
 @app.on_event("startup")
@@ -47,7 +42,7 @@ def startup_event():
     except Exception as e:
         print(f"Error loading SentenceTransformer: {e}")
         
-    # 2. Load metadata from text_models.json
+    # 2. Load metadata from text_models.json (now has has_variants structure)
     try:
         with open(os.path.join(PUBLIC_DATA_DIR, "text_models.json"), "r", encoding="utf-8") as f:
             text_metadata = json.load(f)
@@ -57,8 +52,9 @@ def startup_event():
 
 class QueryRequest(BaseModel):
     text: str
-    representation: str # 'SBERT' or 'TF-IDF'
-    dataset: str = '20news' # '20news' or '6class'
+    representation: str  # 'SBERT' or 'TF-IDF'
+    dataset: str = '20news'   # '20news' or '6class'
+    lattice: str = 'HEX'     # 'HEX' or 'RECT' — selects model variant
 
 @app.get("/health")
 def health():
@@ -66,8 +62,7 @@ def health():
 
 @app.post("/classify")
 def classify(req: QueryRequest):
-    global sbert_model, sbert_pca, tfidf_vectorizer, lsa_svd
-    global sbert_neurons_df, tfidf_neurons_df, text_metadata
+    global sbert_model, text_metadata
     
     if not req.text.strip():
         raise HTTPException(status_code=400, detail="Text cannot be empty")
@@ -82,28 +77,28 @@ def classify(req: QueryRequest):
     dname = req.dataset
     if dname not in ['20news', '6class']:
         dname = '20news'
+
+    use_rect = req.lattice.upper() == 'RECT'
         
     try:
-        # Load correct models/neurons depending on dataset
-        neurons_file = os.path.join(MAPS_DIR, f"SOM_Text_{dname}_{rep}_neurons.parquet")
-        if not os.path.exists(neurons_file):
-            raise HTTPException(status_code=404, detail=f"Model for dataset {dname} {rep} not found")
-            
-        neurons_df = pd.read_parquet(neurons_file)
-        
-        # Load SBERT model or TF-IDF models
+        # --- 1. Compute 20D embedding vector vec_20 ---
         if rep == 'SBERT':
             if sbert_model is None:
                 raise HTTPException(status_code=500, detail="SBERT model not loaded")
                 
-            # Load specific PCA for dataset
             with open(os.path.join(MAPS_DIR, f"{dname}_sbert_pca.pkl"), "rb") as f:
                 pca = pickle.load(f)
                 
             emb = sbert_model.encode([req.text])[0]
             vec_20 = pca.transform([emb])[0]
+
+            # Apply RECT Z-score scaler if lattice='RECT'
+            if use_rect:
+                scaler_path = os.path.join(MAPS_DIR, f"{dname}_SBERT_rect_scaler.pkl")
+                with open(scaler_path, "rb") as f:
+                    scaler = pickle.load(f)
+                vec_20 = scaler.transform([vec_20])[0]
         else:
-            # Load specific TF-IDF vectorizer and SVD for dataset
             with open(os.path.join(MAPS_DIR, f"{dname}_tfidf_vectorizer.pkl"), "rb") as f:
                 vectorizer = pickle.load(f)
             with open(os.path.join(MAPS_DIR, f"{dname}_lsa_svd.pkl"), "rb") as f:
@@ -111,38 +106,71 @@ def classify(req: QueryRequest):
                 
             tfidf_vec = vectorizer.transform([req.text])
             vec_20 = svd.transform(tfidf_vec)[0]
-            
-        # Get dimensions B_Dim_1 to B_Dim_20
-        dim_cols = [f"B_Dim_{i}" for i in range(1, 21)]
-        codebooks = neurons_df[dim_cols].values # shape (100, 20)
-        
-        # Calculate Euclidean distances
+
+            # Apply RECT Z-score scaler if lattice='RECT'
+            if use_rect:
+                scaler_path = os.path.join(MAPS_DIR, f"{dname}_TF-IDF_rect_scaler.pkl")
+                with open(scaler_path, "rb") as f:
+                    scaler = pickle.load(f)
+                vec_20 = scaler.transform([vec_20])[0]
+
+        # --- 2. Load codebook for BMU distance search ---
+        if use_rect:
+            # RECT_planar: codebooks from text_rect_models.json
+            rect_path = os.path.join(MAPS_DIR, "text_rect_models.json")
+            with open(rect_path, "r", encoding="utf-8") as f:
+                rect_data = json.load(f)
+            neurons_json = rect_data.get(dname, {}).get(rep, {}).get("RECT_planar", {}).get("neurons", [])
+            if not neurons_json:
+                raise HTTPException(status_code=404, detail=f"RECT model for {dname}/{rep} not found")
+            codebooks = np.array([n["codebook"] for n in neurons_json])   # shape (100, 20)
+            bmu_ids   = [n["id"] for n in neurons_json]
+        else:
+            # HEX_toroid: codebooks from pre-trained .parquet (original path)
+            neurons_file = os.path.join(MAPS_DIR, f"SOM_Text_{dname}_{rep}_neurons.parquet")
+            if not os.path.exists(neurons_file):
+                raise HTTPException(status_code=404, detail=f"HEX model for {dname}/{rep} not found")
+            neurons_df = pd.read_parquet(neurons_file)
+            dim_cols   = [f"B_Dim_{i}" for i in range(1, 21)]
+            codebooks  = neurons_df[dim_cols].values   # shape (100, 20)
+            bmu_ids    = neurons_df["BMU"].tolist()
+
+        # --- 3. BMU search via Euclidean distance ---
         diffs = codebooks - vec_20
-        dists = np.linalg.norm(diffs, axis=1) # shape (100,)
-        
-        # Best Matching Unit (BMU)
-        min_idx = np.argmin(dists)
-        bmu_row = neurons_df.iloc[min_idx]
-        bmu_id = int(bmu_row['BMU'])
+        dists = np.linalg.norm(diffs, axis=1)   # shape (100,)
+        min_idx  = int(np.argmin(dists))
+        bmu_id   = bmu_ids[min_idx]
         bmu_dist = float(dists[min_idx])
         
-        # Find dominant class and purity from metadata
+        # --- 4. Metadata (dominant class, purity) from text_models.json ---
         dominant_class = "Desconhecido"
         purity = 0.0
         
-        meta_neurons = text_metadata.get(dname, {}).get(rep, {}).get("neurons", [])
+        # Navigate has_variants structure introduced in export_data_for_frontend.py v9
+        rep_entry = text_metadata.get(dname, {}).get(rep, {}) if text_metadata else {}
+        if "has_variants" in rep_entry:
+            variant_key = "RECT_planar" if use_rect else "HEX_toroid"
+            meta_neurons = rep_entry.get(variant_key, {}).get("neurons", [])
+        else:
+            # Backward-compatible: pre-v9 flat structure
+            meta_neurons = rep_entry.get("neurons", [])
+
         meta_neuron = next((n for n in meta_neurons if n["id"] == bmu_id), None)
         if meta_neuron:
             dominant_class = meta_neuron["dominant_class"]
             purity = meta_neuron["purity"]
             
-        # Compute a confidence score (inverse of distance relative to average distance)
+        # --- 5. Confidence score ---
         avg_dist = np.mean(dists)
         confidence = max(0, min(100, int((1.0 - (bmu_dist / (avg_dist or 1.0))) * 100)))
         
-        # ESPELHADO: Esta lógica de escala/ajuste de confiança está espelhada no frontend (lib/pca.ts).
-        # Qualquer alteração nesta lógica de ajuste de pontuação deve ser replicada manualmente nos dois arquivos.
-        # Adjust confidence scale to look natural (e.g. at least 50% for good matches, scaling up)
+        # ESPELHADO: Esta lógica de escala/ajuste de confiança está espelhada no frontend
+        # (lib/pca.ts). Qualquer alteração nesta lógica de ajuste de pontuação deve ser
+        # replicada manualmente nos dois arquivos.
+        # NOTE: api.py usa avg_dist como denominador (escala relativa), enquanto pca.ts usa
+        # maxExpectedDist=6.0 (escala absoluta, calibrada para o HEX). São abordagens
+        # distintas — api.py não precisou de recalibração para RECT porque a escala relativa
+        # (bmu_dist / avg_dist) se adapta automaticamente à escala da normalização.
         confidence = int(50 + (confidence / 2.0)) if confidence > 0 else 0
         if bmu_dist < 1.0:
             confidence = max(confidence, 95)

@@ -1,0 +1,86 @@
+[
+    {
+        "dataset_name": "20news",
+        "representation_name": "TF-IDF",
+        "variant_key": "RECT_planar",
+        "mapsize": [
+            10,
+            10
+        ],
+        "lattice": "rect",
+        "mapshape": "planar",
+        "engine": "minisom",
+        "initialization": "pca",
+        "normalization": "standard_scaler_z-score",
+        "total_epochs": 500,
+        "train_rough_len": 150,
+        "train_finetune_len": 350,
+        "train_rough_radiusin": 8,
+        "train_rough_radiusfin": 1,
+        "quantization_error": 3.0162214273077064,
+        "topographic_error": 0.03
+    },
+    {
+        "dataset_name": "20news",
+        "representation_name": "SBERT",
+        "variant_key": "RECT_planar",
+        "mapsize": [
+            10,
+            10
+        ],
+        "lattice": "rect",
+        "mapshape": "planar",
+        "engine": "minisom",
+        "initialization": "pca",
+        "normalization": "standard_scaler_z-score",
+        "total_epochs": 500,
+        "train_rough_len": 150,
+        "train_finetune_len": 350,
+        "train_rough_radiusin": 8,
+        "train_rough_radiusfin": 1,
+        "quantization_error": 3.2178861414486026,
+        "topographic_error": 0.0125
+    },
+    {
+        "dataset_name": "6class",
+        "representation_name": "TF-IDF",
+        "variant_key": "RECT_planar",
+        "mapsize": [
+            10,
+            10
+        ],
+        "lattice": "rect",
+        "mapshape": "planar",
+        "engine": "minisom",
+        "initialization": "pca",
+        "normalization": "standard_scaler_z-score",
+        "total_epochs": 500,
+        "train_rough_len": 150,
+        "train_finetune_len": 350,
+        "train_rough_radiusin": 8,
+        "train_rough_radiusfin": 1,
+        "quantization_error": 2.868845352396118,
+        "topographic_error": 0.0031545741324921135
+    },
+    {
+        "dataset_name": "6class",
+        "representation_name": "SBERT",
+        "variant_key": "RECT_planar",
+        "mapsize": [
+            10,
+            10
+        ],
+        "lattice": "rect",
+        "mapshape": "planar",
+        "engine": "minisom",
+        "initialization": "pca",
+        "normalization": "standard_scaler_z-score",
+        "total_epochs": 500,
+        "train_rough_len": 150,
+        "train_finetune_len": 350,
+        "train_rough_radiusin": 8,
+        "train_rough_radiusfin": 1,
+        "quantization_error": 3.2277068542271237,
+        "topographic_error": 0.006309148264984227
+    }
+]

@@ -10,6 +10,7 @@ Why this module is needed:
 """
 
 import random
+import warnings
 import numpy as np
 
 GLOBAL_SEED: int = 42
@@ -25,8 +26,11 @@ def _patch_intrasom_rect_dist_plan() -> None:
             return np.array([abs(coordinates[ind] - coordinates[node_ind]).sum()
                 for ind in range(len(coordinates))])
         intrasom.codebook.Codebook._rect_dist_plan = _rect_dist_plan_fixed
-    except Exception:
-        pass
+    except Exception as exc:
+        warnings.warn(
+            f"Failed to monkey-patch intrasom.codebook.Codebook._rect_dist_plan: {exc}",
+            UserWarning
+        )
 
 
 # Apply monkey patch on import

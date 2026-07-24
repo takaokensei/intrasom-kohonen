@@ -377,7 +377,7 @@ A topologia define as conexões de borda da grade de saída:
    * **Benefício:** **Eliminação total das bordas.** Todos os neurônios sem exceção possuem exatamente a mesma quantidade de vizinhos conexos.
 
 > ℹ️ **Nota Técnica de Implementação do Projeto (Cobertura Total de Variantes Planares):**
-> A topologia **Plana (Toroid OFF)** é treinada nativamente a partir do zero via `intrasom` (`mapshape='planar'`) para **todos os mapas** do projeto (séries temporais em `src/train_som_variants.py` e textos em `src/train_text_som_variants.py`). A alternância Toroid ON / OFF no dashboard exibe os dados matemáticos reais do mapa treinado sem efeito toroidal.
+> A topologia **Plana (Toroid OFF)** é treinada nativamente a partir do zero via `intrasom` (`mapshape='planar'`) para **todos os mapas** do projeto (séries temporais em `src/train_som_variants.py` e textos em `src/train_text_som_variants.py`).
 
 #### 💡 A Conexão Conceitual com o "Efeito Mapa de Karnaugh":
 Na eletrônica digital, o **Mapa de Karnaugh** simplifica expressões booleanas conectando as extremidades opostas da tabela (a primeira coluna é vizinha direta da última coluna; a primeira linha é vizinha da última). 

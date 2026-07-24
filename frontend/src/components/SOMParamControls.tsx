@@ -17,9 +17,12 @@ export function SOMParamControls() {
     setEpochs,
     setTrainingMode,
     setInitialization,
+    activeTab,
     selectedMapSize,
     setSelectedMapSize
   } = useDashboardStore();
+
+  const isTextTab = activeTab === 'text';
 
   return (
     <div className="glass-panel rounded-2xl p-5 flex flex-col space-y-4 text-tokyo-text">
@@ -40,20 +43,32 @@ export function SOMParamControls() {
           Dimensões da Grade (cols x rows)
         </label>
         <div className="grid grid-cols-3 gap-2">
-          {(['10x10', '15x15', '20x20'] as const).map((size) => (
-            <button
-              key={size}
-              onClick={() => setSelectedMapSize(size)}
-              className={`py-1.5 rounded-lg text-xs font-mono font-bold border transition active-press-scale ${
-                selectedMapSize === size
-                  ? 'bg-tokyo-blue text-tokyo-bg border-tokyo-blue shadow-[0_0_12px_rgba(59,130,246,0.3)]'
-                  : 'bg-tokyo-dark text-tokyo-text border-tokyo-border hover:border-tokyo-blue hover:bg-opacity-80'
-              }`}
-            >
-              {size}
-            </button>
-          ))}
+          {(['10x10', '15x15', '20x20'] as const).map((size) => {
+            const isDisabled = isTextTab && size !== '10x10';
+            return (
+              <button
+                key={size}
+                disabled={isDisabled}
+                onClick={() => setSelectedMapSize(size)}
+                title={isDisabled ? 'Modelos de texto são treinados exclusivamente no tamanho 10x10' : undefined}
+                className={`py-1.5 rounded-lg text-xs font-mono font-bold border transition ${
+                  isDisabled
+                    ? 'opacity-40 cursor-not-allowed bg-tokyo-dark text-tokyo-muted border-tokyo-border'
+                    : selectedMapSize === size
+                    ? 'bg-tokyo-blue text-tokyo-bg border-tokyo-blue shadow-[0_0_12px_rgba(59,130,246,0.3)] active-press-scale'
+                    : 'bg-tokyo-dark text-tokyo-text border-tokyo-border hover:border-tokyo-blue hover:bg-opacity-80 active-press-scale'
+                }`}
+              >
+                {size}
+              </button>
+            );
+          })}
         </div>
+        {isTextTab && (
+          <span className="text-[10px] font-mono text-tokyo-muted italic">
+            ℹ️ Modelos textuais são treinados exclusivamente na dimensão 10x10.
+          </span>
+        )}
       </div>
 
       {/* Geometry / Lattice Selector (HEX vs RECT) */}

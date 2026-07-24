@@ -349,7 +349,7 @@ A escolha da disposição geométrica dos neurônios afeta diretamente a simetri
   * *Fundamentação Biológica/Física (Carneiro & Rodrigo):* Na natureza, a geometria hexagonal é a forma espacial mais estável para preenchimento de superfícies contínuas (ângulo mecânico de 120º em favos de abelhas, basaltos vulcânicos e bolhas de sabão). Oferece a melhor simetria espacial para a função de vizinhança Gaussiana.
 
 > ℹ️ **Nota Técnica de Implementação do Projeto (Motor Complementar MiniSom):**
-> Devido à restrição nativa do método `build_umatrix` da biblioteca `intrasom` (que exige grade hexagonal), a variante **RECT** deste projeto é treinada através da biblioteca **MiniSom** (`minisom==2.3.6`, https://github.com/JustGlowing/minisom). O treinamento realiza a quantização retangular pura ($x = \text{col}$, $y = \text{row}$) em topologia plana com o algoritmo batch síncrono `train_batch_offline`, PCA na inicialização de pesos e curva de decaimento do raio de vizinhança de 80% do mapa até 1 neurônio ao longo de 500 épocas.
+> Devido a duas limitações estruturais da biblioteca `intrasom` — o método `build_umatrix()` lança explicitamente `Exception("build_umatrix error: non hexagonal lattice not implemented!")` e `Codebook._rect_dist_plan` possui um erro onde um gerador é passado a `np.array()` —, a variante **RECT** deste projeto é treinada através da biblioteca **MiniSom** (`minisom==2.3.6`, https://github.com/JustGlowing/minisom). O treinamento realiza a quantização retangular pura ($x = \text{col}$, $y = \text{row}$) em topologia plana com o algoritmo batch síncrono `train_batch_offline`, PCA na inicialização de pesos e curva de decaimento do raio de vizinhança de 80% do mapa até 1 neurônio ao longo de 500 épocas.
 
 ---
 
@@ -376,14 +376,14 @@ A topologia define as conexões de borda da grade de saída:
    * Conecta a borda superior com a inferior e a borda esquerda com a direita. O mapa bidimensional se fecha na forma espacial de um **toroide** (formato de "rosca").
    * **Benefício:** **Eliminação total das bordas.** Todos os neurônios sem exceção possuem exatamente a mesma quantidade de vizinhos conexos.
 
-> ℹ️ **Nota Técnica de Implementação do Projeto (Cobertura Total das 6 Dimensões):**
-> A topologia **Plana (Toroid OFF)** é treinada nativamente via `intrasom` (`mapshape='planar'`) para **todos os 6 tamanhos de mapa** (5×5, 7×7, 10×10, 12×12, 15×15 e 20×20) via `src/train_som_variants.py`. A alternância Toroid ON / OFF no dashboard exibe os dados matemáticos reais do mapa treinado sem efeito toroidal para cada tamanho.
+> ℹ️ **Nota Técnica de Implementação do Projeto (Cobertura Total de Variantes Planares):**
+> A topologia **Plana (Toroid OFF)** é treinada nativamente a partir do zero via `intrasom` (`mapshape='planar'`) para **todos os mapas** do projeto (séries temporais em `src/train_som_variants.py` e textos em `src/train_text_som_variants.py`). A alternância Toroid ON / OFF no dashboard exibe os dados matemáticos reais do mapa treinado sem efeito toroidal.
 
 #### 💡 A Conexão Conceitual com o "Efeito Mapa de Karnaugh":
 Na eletrônica digital, o **Mapa de Karnaugh** simplifica expressões booleanas conectando as extremidades opostas da tabela (a primeira coluna é vizinha direta da última coluna; a primeira linha é vizinha da última). 
 
 A topologia toroidal do SOM aplica a exata mesma regra de **adjacência circular**: um neurônio na extrema direita ($x=M$) é vizinho direto do neurônio na extrema esquerda ($x=1$).
-* *Observação de Exibição:* Para exibição em telas 2D normais sem parecer um mapa "dobrado/confuso" estilo Karnaugh para leigos, desativa-se o Toroid no momento da plotagem final (Toroid OFF no display), mantendo o Toroid ON durante a fase matemática do treinamento.
+* *Treinamento Nativo da Variante Plana:* Para analisar a organização do mapa sem a adjacência circular de bordas estilo Karnaugh, o sistema oferece a variante plana (`mapshape='planar'`), treinada nativamente do zero via `SOMFactory.build(..., mapshape='planar')` tanto para dados sintéticos quanto textuais.
 
 
 ---

@@ -201,7 +201,10 @@ python src/export_data_for_frontend.py
 * **Grade Hexagonal (`IntraSOM`):**
   Todos os mapas hexagonais (tanto em topologia toroidal quanto em topologia plana) para os 6 tamanhos de mapa (5x5 a 20x20) são treinados com o motor principal `intrasom`.
 * **Grade Retangular (`MiniSom`):**
-  Devido à restrição nativa de `build_umatrix` em malhas retangulares na biblioteca `intrasom`, utilizamos o motor complementar **MiniSom** (`minisom==2.3.6`) para treinar a variante **RECT_planar** real em todas as 6 dimensões com o algoritmo batch síncrono `train_batch_offline`, garantindo 100% de dados reais e eliminando qualquer fallback decorativo.
+  A biblioteca `intrasom` possui duas limitações estruturais que impedem o uso nativo para malhas retangulares:
+  1. O método `build_umatrix()` lança explicitamente `Exception("build_umatrix error: non hexagonal lattice not implemented!")`.
+  2. O cálculo de distâncias retangulares em `Codebook._rect_dist_plan` possui um bug de implementação (passa um gerador para `np.array()`, gerando um objeto 0-d em vez de um array de distâncias).
+  Por essas razões (e não por escolha estilística arbitrária), utilizamos o motor complementar **MiniSom** (`minisom==2.3.6`) para treinar a variante **RECT_planar** real em todas as dimensões com o algoritmo batch síncrono `train_batch_offline`, garantindo 100% de dados reais e eliminando qualquer fallback decorativo.
 
 <br/>
 

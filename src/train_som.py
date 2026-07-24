@@ -26,8 +26,7 @@ def compute_train_params(mapsize: tuple) -> dict:
     """Calcula os parâmetros de treino explícitos a partir do tamanho do mapa.
 
     Garante que a soma rough + finetune seja sempre TOTAL_EPOCHS e que o
-    raio inicial seja exatamente 80% do maior lado do mapa, conforme
-    instrução do professor.
+    raio inicial seja exatamente 80% do maior lado do mapa.
     """
     rough_len    = round(TOTAL_EPOCHS * ROUGH_FRACTION)         # 150
     finetune_len = TOTAL_EPOCHS - rough_len                     # 350
@@ -80,14 +79,14 @@ def train_all_soms():
         # Seed fixada imediatamente antes do build (intrasom usa np.random global)
         set_global_seed()
 
-        # Build SOM — initialization='pca' conforme instrução do professor
+        # Build SOM — initialization='pca' (inicialização linear via PCA)
         som = intrasom.SOMFactory.build(
             data=X,
             mapsize=mapsize,
             mapshape='toroid',
             lattice='hexa',
             normalization='var',
-            initialization='pca',     # era 'random' → PCA conforme instrução
+            initialization='pca',     # inicialização linear via PCA
             neighborhood='gaussian',
             training='batch',
             name=f"SOM_{size_name}",

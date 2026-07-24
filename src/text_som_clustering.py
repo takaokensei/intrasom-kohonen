@@ -82,14 +82,14 @@ def train_and_plot_text_som(X_embeddings, labels, dataset_name, representation_n
           f"finetune: {train_params['train_finetune_len']} | "
           f"radius: {train_params['train_rough_radiusin']}->1")
 
-    # Build SOM — initialization='pca' conforme instrução do professor
+    # Build SOM — initialization='pca' (inicialização linear via PCA)
     som = intrasom.SOMFactory.build(
         data=df_emb,
         mapsize=mapsize,
         mapshape='toroid',
         lattice='hexa',
         normalization='var',
-        initialization='pca',     # era 'random' → PCA conforme instrução
+        initialization='pca',     # inicialização linear via PCA
         neighborhood='gaussian',
         training='batch',
         name=f"SOM_Text_{model_key}",

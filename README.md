@@ -169,7 +169,7 @@ python src/api.py
 
 ## `> como_re_treinar_os_modelos`
 
-Para reproduzir os treinos com os novos parâmetros científicos do professor (PCA, 500 épocas, raio inicial 80%→1) ou reconstruir os arquivos JSON estáticos do frontend:
+To reproduce training with the project's core SOM parameters (PCA initialization, 500 epochs, 80%→1 neighborhood radius decay) or rebuild the frontend's static JSON files:
 
 ```bash
 # 1. Garanta que as dependências do Python estejam instaladas

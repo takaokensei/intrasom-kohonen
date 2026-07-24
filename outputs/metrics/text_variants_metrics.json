@@ -1,0 +1,86 @@
+[
+    {
+        "dataset_name": "20news",
+        "representation_name": "TF-IDF",
+        "variant_key": "HEX_planar",
+        "mapsize": [
+            10,
+            10
+        ],
+        "lattice": "hexa",
+        "mapshape": "planar",
+        "engine": "intrasom",
+        "initialization": "pca",
+        "normalization": "var",
+        "total_epochs": 500,
+        "train_rough_len": 150,
+        "train_finetune_len": 350,
+        "train_rough_radiusin": 8,
+        "train_rough_radiusfin": 1,
+        "quantization_error": 2.9884321703880055,
+        "topographic_error": 0.045
+    },
+    {
+        "dataset_name": "20news",
+        "representation_name": "SBERT",
+        "variant_key": "HEX_planar",
+        "mapsize": [
+            10,
+            10
+        ],
+        "lattice": "hexa",
+        "mapshape": "planar",
+        "engine": "intrasom",
+        "initialization": "pca",
+        "normalization": "var",
+        "total_epochs": 500,
+        "train_rough_len": 150,
+        "train_finetune_len": 350,
+        "train_rough_radiusin": 8,
+        "train_rough_radiusfin": 1,
+        "quantization_error": 3.1978729988806127,
+        "topographic_error": 0.0675
+    },
+    {
+        "dataset_name": "6class",
+        "representation_name": "TF-IDF",
+        "variant_key": "HEX_planar",
+        "mapsize": [
+            10,
+            10
+        ],
+        "lattice": "hexa",
+        "mapshape": "planar",
+        "engine": "intrasom",
+        "initialization": "pca",
+        "normalization": "var",
+        "total_epochs": 500,
+        "train_rough_len": 150,
+        "train_finetune_len": 350,
+        "train_rough_radiusin": 8,
+        "train_rough_radiusfin": 1,
+        "quantization_error": 2.85945361005313,
+        "topographic_error": 0.05362776025236593
+    },
+    {
+        "dataset_name": "6class",
+        "representation_name": "SBERT",
+        "variant_key": "HEX_planar",
+        "mapsize": [
+            10,
+            10
+        ],
+        "lattice": "hexa",
+        "mapshape": "planar",
+        "engine": "intrasom",
+        "initialization": "pca",
+        "normalization": "var",
+        "total_epochs": 500,
+        "train_rough_len": 150,
+        "train_finetune_len": 350,
+        "train_rough_radiusin": 8,
+        "train_rough_radiusfin": 1,
+        "quantization_error": 3.230636962270644,
+        "topographic_error": 0.04100946372239748
+    }
+]

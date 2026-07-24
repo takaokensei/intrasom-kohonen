@@ -41,3 +41,8 @@ Thumbs.db
 *.snm
 *.toc
 *.synctex.gz
+
+# IntraSOM temporary build outputs
+Results/
+Intrasom_report_*.txt
+

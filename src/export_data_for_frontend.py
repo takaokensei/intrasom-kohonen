@@ -170,86 +170,108 @@ def export_all():
         docs, text_labels = dinfo["load_fn"]()
         num_docs = len(docs)
         
+    def build_text_som_model_from_files(neurons_file, results_file, params_file, text_labels, num_docs):
+        if not (os.path.exists(neurons_file) and os.path.exists(results_file) and os.path.exists(params_file)):
+            return None
+            
+        neurons_df = pd.read_parquet(neurons_file)
+        results_df = pd.read_parquet(results_file)
+        params = json.load(open(params_file))
+        
+        dummy_data = pd.DataFrame(np.zeros((num_docs, 20)))
+        dummy_data.columns = [f"Dim_{i+1}" for i in range(20)]
+        dummy_data.index = [f"Doc_{i+1}" for i in range(num_docs)]
+        
+        som = intrasom.SOMFactory.load_som(data=dummy_data, trained_neurons=neurons_df, params=params)
+        cols, rows = som.mapsize
+        
+        from intrasom.visualization import PlotFactory
+        plot_f = PlotFactory(som)
+        coords = plot_f.generate_hex_lattice(cols, rows)
+        umat = som.build_umatrix(expanded=False)
+        
+        results_df_copy = results_df.copy()
+        results_df_copy['Class'] = text_labels
+        counts = results_df_copy.groupby(['BMU', 'Class']).size().unstack(fill_value=0)
+        totals = counts.sum(axis=1)
+        dominant_class = counts.idxmax(axis=1)
+        purity = counts.max(axis=1) / totals
+        
+        neurons_list = []
+        for idx in range(cols * rows):
+            bmu_idx = idx + 1
+            cx, cy = coords[idx]
+            
+            bmu_totals = int(totals.get(bmu_idx, 0))
+            bmu_dominant = dominant_class.get(bmu_idx, "Nenhum") if bmu_totals > 0 else "Vazio"
+            bmu_purity = float(purity.get(bmu_idx, 0))
+            
+            doc_indices = [int(i.split("_")[1]) - 1 for i in results_df_copy[results_df_copy['BMU'] == bmu_idx].index]
+            
+            r_idx = idx // cols
+            c_idx = idx % cols
+            
+            neuron_row = neurons_df[neurons_df['BMU'] == bmu_idx]
+            dim_cols = [f"B_Dim_{i}" for i in range(1, 21)]
+            codebook = neuron_row[dim_cols].values[0].tolist() if not neuron_row.empty else []
+            
+            neurons_list.append({
+                "id": bmu_idx,
+                "x": float(cx),
+                "y": float(cy),
+                "row": int(r_idx),
+                "col": int(c_idx),
+                "umatrix_value": float(umat[r_idx][c_idx]),
+                "dominant_class": bmu_dominant,
+                "purity": bmu_purity,
+                "total_samples": bmu_totals,
+                "doc_indices": doc_indices,
+                "codebook": codebook
+            })
+            
+        return {
+            "cols": cols,
+            "rows": rows,
+            "neurons": neurons_list
+        }
+
+    for dname, dinfo in datasets_info.items():
+        text_models[dname] = {}
+        docs, text_labels = dinfo["load_fn"]()
+        num_docs = len(docs)
+        
         for rep in ["TF-IDF", "SBERT"]:
-            neurons_file = os.path.join(maps_dir, f"SOM_Text_{dname}_{rep}_neurons.parquet")
-            results_file = os.path.join(maps_dir, f"SOM_Text_{dname}_{rep}_results.parquet")
-            params_file = os.path.join(maps_dir, f"params_SOM_Text_{dname}_{rep}.json")
-            
-            if not (os.path.exists(neurons_file) and os.path.exists(results_file) and os.path.exists(params_file)):
-                print(f"Text SOM {dname} {rep} files not found. Skipping.")
+            # 1. HEX_toroid
+            toroid_nf = os.path.join(maps_dir, f"SOM_Text_{dname}_{rep}_neurons.parquet")
+            toroid_rf = os.path.join(maps_dir, f"SOM_Text_{dname}_{rep}_results.parquet")
+            toroid_pf = os.path.join(maps_dir, f"params_SOM_Text_{dname}_{rep}.json")
+            hex_toroid_model = build_text_som_model_from_files(toroid_nf, toroid_rf, toroid_pf, text_labels, num_docs)
+
+            if not hex_toroid_model:
+                print(f"Text SOM {dname} {rep} HEX_toroid files not found. Skipping.")
                 continue
-                
-            neurons_df = pd.read_parquet(neurons_file)
-            results_df = pd.read_parquet(results_file)
-            params = json.load(open(params_file))
-            
-            dummy_data = pd.DataFrame(np.zeros((num_docs, 20)))
-            dummy_data.columns = [f"Dim_{i+1}" for i in range(20)]
-            dummy_data.index = [f"Doc_{i+1}" for i in range(num_docs)]
-            
-            som = intrasom.SOMFactory.load_som(data=dummy_data, trained_neurons=neurons_df, params=params)
-            cols, rows = som.mapsize
-            
-            from intrasom.visualization import PlotFactory
-            plot_f = PlotFactory(som)
-            coords = plot_f.generate_hex_lattice(cols, rows)
-            umat = som.build_umatrix(expanded=False)
-            
-            results_df['Class'] = text_labels
-            counts = results_df.groupby(['BMU', 'Class']).size().unstack(fill_value=0)
-            totals = counts.sum(axis=1)
-            dominant_class = counts.idxmax(axis=1)
-            purity = counts.max(axis=1) / totals
-            
-            neurons_list = []
-            for idx in range(cols * rows):
-                bmu_idx = idx + 1
-                cx, cy = coords[idx]
-                
-                bmu_totals = int(totals.get(bmu_idx, 0))
-                bmu_dominant = dominant_class.get(bmu_idx, "Nenhum") if bmu_totals > 0 else "Vazio"
-                bmu_purity = float(purity.get(bmu_idx, 0))
-                
-                doc_indices = [int(idx.split("_")[1]) - 1 for idx in results_df[results_df['BMU'] == bmu_idx].index]
-                
-                r_idx = idx // cols
-                c_idx = idx % cols
-                
-                neuron_row = neurons_df[neurons_df['BMU'] == bmu_idx]
-                dim_cols = [f"B_Dim_{i}" for i in range(1, 21)]
-                codebook = neuron_row[dim_cols].values[0].tolist() if not neuron_row.empty else []
-                
-                neurons_list.append({
-                    "id": bmu_idx,
-                    "x": float(cx),
-                    "y": float(cy),
-                    "row": int(r_idx),
-                    "col": int(c_idx),
-                    "umatrix_value": float(umat[r_idx][c_idx]),
-                    "dominant_class": bmu_dominant,
-                    "purity": bmu_purity,
-                    "total_samples": bmu_totals,
-                    "doc_indices": doc_indices,
-                    "codebook": codebook
-                })
-                
-            # Wrap per-rep model in has_variants structure (mirrors SCM pattern)
-            # HEX_toroid is always present; RECT_planar is merged from text_rect_models.json if available
-            hex_model = {
-                "cols": cols,
-                "rows": rows,
-                "neurons": neurons_list
-            }
+
+            # 2. HEX_planar
+            planar_nf = os.path.join(maps_dir, f"SOM_Text_{dname}_{rep}_HEX_planar_neurons.parquet")
+            planar_rf = os.path.join(maps_dir, f"SOM_Text_{dname}_{rep}_HEX_planar_results.parquet")
+            planar_pf = os.path.join(maps_dir, f"params_SOM_Text_{dname}_{rep}_HEX_planar.json")
+            hex_planar_model = build_text_som_model_from_files(planar_nf, planar_rf, planar_pf, text_labels, num_docs)
+
+            # 3. RECT_planar
             rect_model = text_rect_data.get(dname, {}).get(rep, {}).get("RECT_planar", None)
+
+            # Assemble variants dict (mirrors SCM pattern)
+            variant_dict = {
+                "has_variants": True,
+                "HEX_toroid": hex_toroid_model
+            }
+            if hex_planar_model:
+                variant_dict["HEX_planar"] = hex_planar_model
             if rect_model:
-                text_models[dname][rep] = {
-                    "has_variants": True,
-                    "HEX_toroid":   hex_model,
-                    "RECT_planar":  rect_model,
-                }
-            else:
-                # Fallback to flat structure (RECT not yet generated)
-                text_models[dname][rep] = hex_model
+                variant_dict["RECT_planar"] = rect_model
+
+            text_models[dname][rep] = variant_dict
+
             
     with open(os.path.join(public_data_dir, "text_models.json"), "w", encoding="utf-8") as f:
         json.dump(text_models, f, ensure_ascii=False)

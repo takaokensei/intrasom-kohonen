@@ -38,10 +38,11 @@ export interface SOMModelWithVariants {
   RECT_planar?: SOMModel;
 }
 
-// Text models ship 2 variants: HEX_toroid and RECT_planar (no planar variant for text)
+// Text models ship 3 variants: HEX_toroid, HEX_planar, RECT_planar
 export interface TextModelWithVariants {
   has_variants: true;
   HEX_toroid?: TextModel;
+  HEX_planar?: TextModel;
   RECT_planar?: TextModel;
 }
 
@@ -292,17 +293,20 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     return entry as SOMModel;
   },
 
-  // Returns the active TextModel based on the global lattice state.
+  // Returns the active TextModel based on global lattice & topology state.
   // Routes to real pre-trained variants:
-  // - RECT lattice -> RECT_planar (MiniSom, Z-score normalized, pure rect grid coords)
-  // - HEX lattice  -> HEX_toroid  (IntraSOM, normalization='var')
-  // Mirrors getActiveSOMModel() pattern. No HEX_planar variant exists for text models.
+  // - RECT lattice                    -> RECT_planar (MiniSom, Z-score normalized)
+  // - HEX lattice + planar topology   -> HEX_planar  (IntraSOM, normalization='var')
+  // - HEX lattice + toroid topology   -> HEX_toroid  (IntraSOM, normalization='var')
+  // Mirrors getActiveSOMModel() pattern.
   getActiveTextModel: () => {
-    const { textModels, selectedTextDataset, selectedTextRep, lattice } = get();
+    const { textModels, selectedTextDataset, selectedTextRep, lattice, topology } = get();
     const entry = textModels[selectedTextDataset]?.[selectedTextRep];
     if (!entry) return null;
     if ('has_variants' in entry) {
-      const variantKey = lattice === 'RECT' ? 'RECT_planar' : 'HEX_toroid';
+      const variantKey = lattice === 'RECT'
+        ? 'RECT_planar'
+        : (topology === 'planar' ? 'HEX_planar' : 'HEX_toroid');
       return (entry as TextModelWithVariants)[variantKey] ?? null;
     }
     return entry as TextModel;

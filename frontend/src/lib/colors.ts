@@ -55,3 +55,23 @@ export function getBgStyle(dataset: string, className: string): React.CSSPropert
     borderColor: `${hex}4d`,     // ~30% opacity
   };
 }
+
+/** Shared Min-Max normalized U-Matrix color function for Ultsch U-Matrix visualization. */
+export const getUMatrixColor = (val: number, min: number, max: number) => {
+  const range = max - min;
+  const norm = range > 0 ? (val - min) / range : 0.5;
+  if (norm < 0.5) {
+    const factor = norm * 2;
+    const r = Math.floor(26 + (187 - 26) * factor);
+    const g = Math.floor(27 + (154 - 27) * factor);
+    const b = Math.floor(38 + (247 - 38) * factor);
+    return `rgb(${r}, ${g}, ${b})`;
+  } else {
+    const factor = (norm - 0.5) * 2;
+    const r = Math.floor(187 + (125 - 187) * factor);
+    const g = Math.floor(154 + (207 - 154) * factor);
+    const b = Math.floor(247 + (255 - 247) * factor);
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+};
+

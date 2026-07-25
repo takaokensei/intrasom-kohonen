@@ -42,12 +42,84 @@ def export_all():
     som_models = {}
     from intrasom.visualization import PlotFactory
 
+    def build_expanded_umatrix_grid(som, umat_expanded):
+        cols, rows = som.mapsize
+        ii = [[1, 1, 0, -1, 0, 1], [1, 0, -1, -1, -1, 0]]
+        jj = [[0, 1, 1, 0, -1, -1], [0, 1, 1, 0, -1, -1]]
+        edges = []
+        seen_pairs = set()
+        for r in range(rows):
+            for c in range(cols):
+                neuron_idx = r * cols + c
+                e = 0 if r % 2 == 0 else 1
+                for k in range(6):
+                    dist = umat_expanded[r, c, k]
+                    if np.isnan(dist):
+                        continue
+                    nr = r + jj[e][k]
+                    nc = c + ii[e][k]
+                    if 0 <= nr < rows and 0 <= nc < cols:
+                        neighbor_idx = nr * cols + nc
+                        p1 = min(neuron_idx, neighbor_idx)
+                        p2 = max(neuron_idx, neighbor_idx)
+                        pair = (p1, p2)
+                        if pair not in seen_pairs:
+                            seen_pairs.add(pair)
+                            edges.append({
+                                "from": p1 + 1,
+                                "to": p2 + 1,
+                                "distance": float(dist)
+                            })
+        edge_dists = [e["distance"] for e in edges]
+        min_dist = float(np.min(edge_dists)) if edge_dists else 0.0
+        max_dist = float(np.max(edge_dists)) if edge_dists else 1.0
+        return edges, min_dist, max_dist
+
+    def build_rect_umatrix_edges(neurons_list, cols, rows):
+        offsets = [(0, 1), (1, 1), (1, 0), (1, -1)]
+        codebooks = {}
+        for n in neurons_list:
+            if "codebook" in n and n["codebook"]:
+                codebooks[n["id"]] = np.array(n["codebook"])
+        edges = []
+        seen_pairs = set()
+        for r in range(rows):
+            for c in range(cols):
+                nid1 = r * cols + c + 1
+                cb1 = codebooks.get(nid1)
+                if cb1 is None:
+                    continue
+                for dr, dc in offsets:
+                    nr, nc = r + dr, c + dc
+                    if 0 <= nr < rows and 0 <= nc < cols:
+                        nid2 = nr * cols + nc + 1
+                        cb2 = codebooks.get(nid2)
+                        if cb2 is not None:
+                            p1 = min(nid1, nid2)
+                            p2 = max(nid1, nid2)
+                            pair = (p1, p2)
+                            if pair not in seen_pairs:
+                                seen_pairs.add(pair)
+                                dist = float(np.linalg.norm(cb1 - cb2))
+                                edges.append({
+                                    "from": p1,
+                                    "to": p2,
+                                    "distance": dist
+                                })
+        edge_dists = [e["distance"] for e in edges]
+        min_dist = float(np.min(edge_dists)) if edge_dists else 0.0
+        max_dist = float(np.max(edge_dists)) if edge_dists else 1.0
+        return edges, min_dist, max_dist
+
     def build_neurons_list(neurons_df, results_df_local, som, y_labels, is_time_series=True):
         """Constroi a lista de neuronios para o JSON do frontend."""
         cols, rows = som.mapsize
         plot_f     = PlotFactory(som)
         coords     = plot_f.generate_hex_lattice(cols, rows)
-        umat       = som.build_umatrix(expanded=False)
+        umat_expanded = som.build_umatrix(expanded=True)
+        umat          = som.build_umatrix(expanded=False)
+        edges, edge_min, edge_max = build_expanded_umatrix_grid(som, umat_expanded)
+
         results_df_local = results_df_local.copy()
         results_df_local['Class'] = y_labels
         counts        = results_df_local.groupby(['BMU', 'Class']).size().unstack(fill_value=0)
@@ -83,7 +155,14 @@ def export_all():
                 "sample_ids": sample_ids,
                 "codebook": codebook,
             })
-        return neurons_list, cols, rows
+        return {
+            "cols": cols,
+            "rows": rows,
+            "neurons": neurons_list,
+            "umatrix_edges": edges,
+            "umatrix_edge_min": edge_min,
+            "umatrix_edge_max": edge_max
+        }
 
     # Carregar modelos MiniSom RECT pré-gerados
     rect_models_path = os.path.join(maps_dir, "som_rect_models.json")
@@ -103,8 +182,7 @@ def export_all():
             results_df = pd.read_parquet(toroid_rf)
             params     = json.load(open(toroid_pf))
             som        = intrasom.SOMFactory.load_som(data=X, trained_neurons=neurons_df, params=params)
-            neurons_list, cols, rows = build_neurons_list(neurons_df, results_df, som, y)
-            som_models[size_name]["HEX_toroid"] = {"cols": cols, "rows": rows, "neurons": neurons_list}
+            som_models[size_name]["HEX_toroid"] = build_neurons_list(neurons_df, results_df, som, y)
 
         # 2. HEX_planar
         planar_nf = os.path.join(maps_dir, f"SOM_{size_name}_HEX_planar_neurons.parquet")
@@ -115,12 +193,17 @@ def export_all():
             results_df = pd.read_parquet(planar_rf)
             params     = json.load(open(planar_pf))
             som        = intrasom.SOMFactory.load_som(data=X, trained_neurons=neurons_df, params=params)
-            neurons_list, cols, rows = build_neurons_list(neurons_df, results_df, som, y)
-            som_models[size_name]["HEX_planar"] = {"cols": cols, "rows": rows, "neurons": neurons_list}
+            som_models[size_name]["HEX_planar"] = build_neurons_list(neurons_df, results_df, som, y)
 
         # 3. RECT_planar (MiniSom)
         if size_name in rect_models_data:
-            som_models[size_name]["RECT_planar"] = rect_models_data[size_name]
+            rect_m = dict(rect_models_data[size_name])
+            if "umatrix_edges" not in rect_m:
+                edges, emin, emax = build_rect_umatrix_edges(rect_m["neurons"], rect_m["cols"], rect_m["rows"])
+                rect_m["umatrix_edges"] = edges
+                rect_m["umatrix_edge_min"] = emin
+                rect_m["umatrix_edge_max"] = emax
+            som_models[size_name]["RECT_planar"] = rect_m
 
     with open(os.path.join(public_data_dir, "som_models.json"), "w", encoding="utf-8") as f:
         json.dump(som_models, f, ensure_ascii=False)
@@ -188,7 +271,9 @@ def export_all():
         from intrasom.visualization import PlotFactory
         plot_f = PlotFactory(som)
         coords = plot_f.generate_hex_lattice(cols, rows)
-        umat = som.build_umatrix(expanded=False)
+        umat_expanded = som.build_umatrix(expanded=True)
+        umat          = som.build_umatrix(expanded=False)
+        edges, edge_min, edge_max = build_expanded_umatrix_grid(som, umat_expanded)
         
         results_df_copy = results_df.copy()
         results_df_copy['Class'] = text_labels
@@ -232,7 +317,10 @@ def export_all():
         return {
             "cols": cols,
             "rows": rows,
-            "neurons": neurons_list
+            "neurons": neurons_list,
+            "umatrix_edges": edges,
+            "umatrix_edge_min": edge_min,
+            "umatrix_edge_max": edge_max
         }
 
     for dname, dinfo in datasets_info.items():
@@ -259,6 +347,14 @@ def export_all():
 
             # 3. RECT_planar
             rect_model = text_rect_data.get(dname, {}).get(rep, {}).get("RECT_planar", None)
+            if rect_model:
+                rect_m = dict(rect_model)
+                if "umatrix_edges" not in rect_m:
+                    edges, emin, emax = build_rect_umatrix_edges(rect_m["neurons"], rect_m["cols"], rect_m["rows"])
+                    rect_m["umatrix_edges"] = edges
+                    rect_m["umatrix_edge_min"] = emin
+                    rect_m["umatrix_edge_max"] = emax
+                rect_model = rect_m
 
             # Assemble variants dict (mirrors SCM pattern)
             variant_dict = {

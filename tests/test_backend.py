@@ -142,3 +142,37 @@ def test_bmu_determinism():
         f"BMU sequences differ between runs with the same seed.\n"
         f"Run 1: {bmu_run1}\nRun 2: {bmu_run2}"
     )
+
+
+def test_umatrix_edges_export():
+    """Validates that som_models.json contains umatrix_edges, umatrix_edge_min, and umatrix_edge_max."""
+    workspace = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    som_models_path = os.path.join(workspace, "frontend", "public", "data", "som_models.json")
+    if not os.path.exists(som_models_path):
+        import pytest
+        pytest.skip("som_models.json not found; run src/export_data_for_frontend.py first")
+
+    with open(som_models_path, encoding="utf-8") as f:
+        som_models = json.load(f)
+
+    assert "10x10" in som_models
+    model_data = som_models["10x10"]
+    assert model_data.get("has_variants") is True
+
+    for variant_name in ["HEX_toroid", "HEX_planar", "RECT_planar"]:
+        if variant_name in model_data:
+            variant = model_data[variant_name]
+            assert "umatrix_edges" in variant, f"{variant_name} missing umatrix_edges"
+            assert "umatrix_edge_min" in variant, f"{variant_name} missing umatrix_edge_min"
+            assert "umatrix_edge_max" in variant, f"{variant_name} missing umatrix_edge_max"
+            
+            edges = variant["umatrix_edges"]
+            assert len(edges) > 0, f"{variant_name} umatrix_edges should not be empty"
+            
+            num_neurons = variant["cols"] * variant["rows"]
+            for edge in edges[:10]:
+                assert "from" in edge and "to" in edge and "distance" in edge
+                assert 1 <= edge["from"] <= num_neurons
+                assert 1 <= edge["to"] <= num_neurons
+                assert isinstance(edge["distance"], (int, float))
+

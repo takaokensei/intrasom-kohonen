@@ -24,10 +24,19 @@ export interface NeuronItem {
   codebook: number[];
 }
 
+export interface UMatrixEdge {
+  from: number;
+  to: number;
+  distance: number;
+}
+
 export interface SOMModel {
   cols: number;
   rows: number;
   neurons: NeuronItem[];
+  umatrix_edges?: UMatrixEdge[];
+  umatrix_edge_min?: number;
+  umatrix_edge_max?: number;
 }
 
 // All 6 map sizes ship 3 real variants: HEX_toroid, HEX_planar, RECT_planar
@@ -90,6 +99,9 @@ export interface TextModel {
   cols: number;
   rows: number;
   neurons: TextNeuronItem[];
+  umatrix_edges?: UMatrixEdge[];
+  umatrix_edge_min?: number;
+  umatrix_edge_max?: number;
 }
 
 export interface NewsSample {

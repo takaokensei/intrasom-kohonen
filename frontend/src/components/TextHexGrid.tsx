@@ -1,8 +1,8 @@
-import { useMemo, memo } from 'react';
+import { useState, useMemo, memo } from 'react';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { Maximize2, Minimize2 } from 'lucide-react';
-import { getClassColor, TEXT_CLASS_COLORS } from '../lib/colors';
+import { getClassColor, TEXT_CLASS_COLORS, getUMatrixColor } from '../lib/colors';
 import { getHexPoints } from '../lib/geometry';
 import { FullscreenPanel } from './FullscreenPanel';
 
@@ -18,10 +18,8 @@ export const TextHexGrid = memo(function TextHexGrid() {
     getActiveTextModel
   } = useDashboardStore();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
+  const [colorMode, setColorMode] = useState<'class' | 'umatrix'>('class');
   
-  // Data routing: when lattice==='RECT', returns RECT_planar (pure rectangular grid
-  // coords x=col, y=row); when HEX, returns HEX_toroid. No rendering-logic change
-  // needed — cx/cy are already scaled dynamically from neuron.x/neuron.y.
   const model = getActiveTextModel();
   const neurons = model?.neurons;
   const cols = model?.cols || 1;
@@ -31,9 +29,9 @@ export const TextHexGrid = memo(function TextHexGrid() {
   const svgWidth = isFullscreen ? 800 : 500;
   const svgHeight = isFullscreen ? 550 : 360;
 
-  const { r, neuronLayouts } = useMemo(() => {
+  const { r, minUMatrixVal, maxUMatrixVal, neuronLayouts, interstitialCells } = useMemo(() => {
     if (!neurons || neurons.length === 0) {
-      return { r: 0, neuronLayouts: [] };
+      return { r: 0, minUMatrixVal: 0, maxUMatrixVal: 0, neuronLayouts: [], interstitialCells: [] };
     }
 
     const xCoords = neurons.map(n => n.x);
@@ -51,6 +49,10 @@ export const TextHexGrid = memo(function TextHexGrid() {
       (svgHeight - 2 * padding) / (rows * 1.45)
     ) * 0.95;
 
+    const uMatrixVals = neurons.map(n => n.umatrix_value);
+    const minUVal = Math.min(...uMatrixVals);
+    const maxUVal = Math.max(...uMatrixVals);
+
     const layouts = neurons.map(neuron => {
       const cx = scaleX(neuron.x);
       const cy = scaleY(neuron.y);
@@ -63,8 +65,37 @@ export const TextHexGrid = memo(function TextHexGrid() {
       };
     });
 
-    return { r: radius, neuronLayouts: layouts };
-  }, [neurons, cols, rows, svgWidth, svgHeight]);
+    const eMin = model?.umatrix_edge_min ?? minUVal;
+    const eMax = model?.umatrix_edge_max ?? maxUVal;
+    const edges = model?.umatrix_edges || [];
+    const neuronMap = new Map(layouts.map(n => [n.id, n]));
+
+    const interstitials = edges.map((edge, idx) => {
+      const n1 = neuronMap.get(edge.from);
+      const n2 = neuronMap.get(edge.to);
+      if (!n1 || !n2) return null;
+      const cx = (n1.cx + n2.cx) / 2;
+      const cy = (n1.cy + n2.cy) / 2;
+      const fill = getUMatrixColor(edge.distance, eMin, eMax);
+      return {
+        key: `edge-${edge.from}-${edge.to}-${idx}`,
+        cx,
+        cy,
+        fill,
+        distance: edge.distance,
+        from: edge.from,
+        to: edge.to
+      };
+    }).filter(Boolean) as Array<{ key: string; cx: number; cy: number; fill: string; distance: number; from: number; to: number }>;
+
+    return {
+      r: radius,
+      minUMatrixVal: minUVal,
+      maxUMatrixVal: maxUVal,
+      neuronLayouts: layouts,
+      interstitialCells: interstitials
+    };
+  }, [neurons, cols, rows, svgWidth, svgHeight, model]);
 
   if (loadingText) {
     return (
@@ -129,13 +160,31 @@ export const TextHexGrid = memo(function TextHexGrid() {
           </p>
         </div>
         
-        <button 
-          onClick={toggleFullscreen}
-          className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-tokyo-muted hover:text-tokyo-text active-press-scale"
-          title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"}
-        >
-          {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-        </button>
+        <div className="flex items-center space-x-2">
+          {/* Toggle Mode */}
+          <div className="flex rounded border border-tokyo-border overflow-hidden">
+            <button
+              onClick={() => setColorMode('class')}
+              className={`px-3 py-1 text-xs transition active-press-scale ${colorMode === 'class' ? 'bg-tokyo-blue text-tokyo-bg font-semibold' : 'bg-tokyo-panel text-tokyo-text hover:bg-opacity-80'}`}
+            >
+              Classes
+            </button>
+            <button
+              onClick={() => setColorMode('umatrix')}
+              className={`px-3 py-1 text-xs transition active-press-scale ${colorMode === 'umatrix' ? 'bg-tokyo-blue text-tokyo-bg font-semibold' : 'bg-tokyo-panel text-tokyo-text hover:bg-opacity-80'}`}
+            >
+              U-Matrix
+            </button>
+          </div>
+
+          <button 
+            onClick={toggleFullscreen}
+            className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-tokyo-muted hover:text-tokyo-text active-press-scale"
+            title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"}
+          >
+            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+          </button>
+        </div>
       </div>
       
       {/* Hex Grid SVG */}
@@ -145,6 +194,21 @@ export const TextHexGrid = memo(function TextHexGrid() {
           className="w-full h-full max-h-[460px]"
         >
           <g>
+            {colorMode === 'umatrix' && interstitialCells.map(cell => (
+              <circle
+                key={cell.key}
+                cx={cell.cx}
+                cy={cell.cy}
+                r={r * 0.45}
+                fill={cell.fill}
+                fillOpacity={0.9}
+                stroke="rgba(0,0,0,0.3)"
+                strokeWidth="0.5"
+                className="transition-all duration-200"
+              >
+                <title>{`Distância U-Matrix (N${cell.from} ↔ N${cell.to}): ${cell.distance.toFixed(3)}`}</title>
+              </circle>
+            ))}
             {neuronLayouts.map((neuron, index) => {
               const { cx, cy, pointsStr } = neuron;
               
@@ -161,9 +225,12 @@ export const TextHexGrid = memo(function TextHexGrid() {
               let stroke = 'rgba(122, 162, 247, 0.15)';
               let strokeWidth = '1';
               
-              if (neuron.total_samples > 0) {
-                // Use the color from the active dataset palette
-                fill = getClassColor(selectedTextDataset, neuron.dominant_class);
+              if (colorMode === 'class') {
+                if (neuron.total_samples > 0) {
+                  fill = getClassColor(selectedTextDataset, neuron.dominant_class);
+                }
+              } else {
+                fill = getUMatrixColor(neuron.umatrix_value, minUMatrixVal, maxUMatrixVal);
               }
               
               if (isHighlighted) {
@@ -206,7 +273,7 @@ export const TextHexGrid = memo(function TextHexGrid() {
                       height={r * 1.7}
                       rx={4}
                       fill={fill}
-                      fillOpacity={neuron.total_samples === 0 ? 0.2 : 0.8}
+                      fillOpacity={neuron.total_samples === 0 && colorMode === 'class' ? 0.2 : 0.8}
                       stroke={stroke}
                       strokeWidth={strokeWidth}
                       className="hex-polygon transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80 group-focus:stroke-white group-focus:stroke-opacity-100"
@@ -219,7 +286,7 @@ export const TextHexGrid = memo(function TextHexGrid() {
                     <polygon
                       points={pointsStr}
                       fill={fill}
-                      fillOpacity={neuron.total_samples === 0 ? 0.2 : 0.8}
+                      fillOpacity={neuron.total_samples === 0 && colorMode === 'class' ? 0.2 : 0.8}
                       stroke={stroke}
                       strokeWidth={strokeWidth}
                       className="hex-polygon transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80 group-focus:stroke-white group-focus:stroke-opacity-100"
@@ -234,7 +301,7 @@ export const TextHexGrid = memo(function TextHexGrid() {
                     x={cx}
                     y={cy + 3}
                     textAnchor="middle"
-                    fill={neuron.total_samples > 0 ? '#16161e' : '#565f89'}
+                    fill={colorMode === 'class' ? (neuron.total_samples > 0 ? '#16161e' : '#565f89') : '#ffffff'}
                     fontSize="7px"
                     fontWeight="bold"
                     className="select-none pointer-events-none group-hover:fill-white"
@@ -270,19 +337,27 @@ export const TextHexGrid = memo(function TextHexGrid() {
         </svg>
       </div>
       
-      {/* Legend — always reflects the active dataset's palette */}
-      <div className="grid grid-cols-5 gap-1.5 mt-4 text-[10px] bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
-        {Object.entries(activeColors).map(([name, color]) => (
-          <div key={name} className="flex items-center space-x-1 text-tokyo-text">
-            <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
-            <span className="truncate">{name}</span>
+      {/* Legend */}
+      {colorMode === 'class' ? (
+        <div className="grid grid-cols-5 gap-1.5 mt-4 text-[10px] bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
+          {Object.entries(activeColors).map(([name, color]) => (
+            <div key={name} className="flex items-center space-x-1 text-tokyo-text">
+              <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+              <span className="truncate">{name}</span>
+            </div>
+          ))}
+          <div className="flex items-center space-x-1 text-[#9aa5ce]">
+            <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-tokyo-panel border border-dashed border-tokyo-text border-opacity-40" />
+            <span>Vazio</span>
           </div>
-        ))}
-        <div className="flex items-center space-x-1 text-[#9aa5ce]">
-          <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-tokyo-panel border border-dashed border-tokyo-text border-opacity-40" />
-          <span>Vazio</span>
         </div>
-      </div>
+      ) : (
+        <div className="flex justify-between items-center mt-4 text-[10px] bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
+          <span className="text-[#9aa5ce] font-semibold uppercase font-mono">Mais Similar (Valores baixos)</span>
+          <div className="w-24 h-2 rounded bg-gradient-to-r from-[#1a1b26] via-[#bb9af7] to-[#7dcfff] border border-tokyo-border" />
+          <span className="text-[#9aa5ce] font-semibold uppercase font-mono">Menos Similar (Fronteiras)</span>
+        </div>
+      )}
     </FullscreenPanel>
   );
 });

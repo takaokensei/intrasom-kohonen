@@ -3,7 +3,7 @@ import { useDashboardStore } from '../store/useDashboardStore';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { Maximize2, Minimize2 } from 'lucide-react';
 import { getClassColor, TEXT_CLASS_COLORS, getUMatrixColor } from '../lib/colors';
-import { getHexPoints, getExpandedGridPosition, getInterstitialGridPosition } from '../lib/geometry';
+import { getHexPoints } from '../lib/geometry';
 import { FullscreenPanel } from './FullscreenPanel';
 
 export const TextHexGrid = memo(function TextHexGrid() {
@@ -34,22 +34,40 @@ export const TextHexGrid = memo(function TextHexGrid() {
       return { r: 0, minUMatrixVal: 0, maxUMatrixVal: 0, neuronLayouts: [], interstitialCells: [] };
     }
 
-    const gridCols = 2 * cols - 1;
-    const gridRows = 2 * rows - 1;
+    const getUnitPos = (row: number, col: number) => {
+      if (lattice === 'RECT') {
+        return { ux: col, uy: row };
+      }
+      return {
+        ux: col + (row % 2 === 1 ? 0.5 : 0),
+        uy: row * (Math.sqrt(3) / 2),
+      };
+    };
 
-    const cellW = (svgWidth - 2 * padding) / gridCols;
-    const cellH = (svgHeight - 2 * padding) / gridRows;
+    const unitPositions = neurons.map(n => ({ id: n.id, ...getUnitPos(n.row, n.col) }));
+    const minUx = Math.min(...unitPositions.map(p => p.ux));
+    const maxUx = Math.max(...unitPositions.map(p => p.ux));
+    const minUy = Math.min(...unitPositions.map(p => p.uy));
+    const maxUy = Math.max(...unitPositions.map(p => p.uy));
 
-    const radius = Math.min(cellW, cellH) * 0.95;
+    const scaleX = (ux: number) => padding + ((ux - minUx) / (maxUx - minUx || 1)) * (svgWidth - 2 * padding);
+    const scaleY = (uy: number) => padding + ((uy - minUy) / (maxUy - minUy || 1)) * (svgHeight - 2 * padding);
+
+    const radius = Math.min(
+      (svgWidth - 2 * padding) / (cols * 1.6),
+      (svgHeight - 2 * padding) / (rows * 1.45)
+    ) * 0.95;
 
     const uMatrixVals = neurons.map(n => n.umatrix_value);
     const minUVal = Math.min(...uMatrixVals);
     const maxUVal = Math.max(...uMatrixVals);
 
+    const unitMap = new Map(unitPositions.map(p => [p.id, p]));
+
     const layouts = neurons.map(neuron => {
-      const { gridRow, gridCol } = getExpandedGridPosition(neuron.row, neuron.col);
-      const cx = padding + gridCol * cellW + cellW / 2;
-      const cy = padding + gridRow * cellH + cellH / 2;
+      const u = unitMap.get(neuron.id)!;
+      const cx = scaleX(u.ux);
+      const cy = scaleY(u.uy);
       const pointsStr = getHexPoints(cx, cy, radius);
       return {
         ...neuron,
@@ -62,18 +80,13 @@ export const TextHexGrid = memo(function TextHexGrid() {
     const eMin = model?.umatrix_edge_min ?? minUVal;
     const eMax = model?.umatrix_edge_max ?? maxUVal;
     const edges = model?.umatrix_edges || [];
-    const neuronRowCol = new Map(neurons.map(n => [n.id, { row: n.row, col: n.col }]));
 
     const interstitials = edges.map((edge, idx) => {
-      const n1 = neuronRowCol.get(edge.from);
-      const n2 = neuronRowCol.get(edge.to);
-      if (!n1 || !n2) return null;
-      const { gridRow, gridCol } = getInterstitialGridPosition(
-        n1.row, n1.col,
-        n2.row, n2.col
-      );
-      const cx = padding + gridCol * cellW + cellW / 2;
-      const cy = padding + gridRow * cellH + cellH / 2;
+      const u1 = unitMap.get(edge.from);
+      const u2 = unitMap.get(edge.to);
+      if (!u1 || !u2) return null;
+      const cx = scaleX((u1.ux + u2.ux) / 2);
+      const cy = scaleY((u1.uy + u2.uy) / 2);
       const fill = getUMatrixColor(edge.distance, eMin, eMax);
       return {
         key: `edge-${edge.from}-${edge.to}-${idx}`,
@@ -93,7 +106,7 @@ export const TextHexGrid = memo(function TextHexGrid() {
       neuronLayouts: layouts,
       interstitialCells: interstitials
     };
-  }, [neurons, cols, rows, svgWidth, svgHeight, model]);
+  }, [neurons, cols, rows, svgWidth, svgHeight, model, lattice]);
 
   if (loadingText) {
     return (
@@ -195,10 +208,10 @@ export const TextHexGrid = memo(function TextHexGrid() {
             {colorMode === 'umatrix' && interstitialCells.map(cell => (
               <rect
                 key={cell.key}
-                x={cell.cx - r * 0.9}
-                y={cell.cy - r * 0.9}
-                width={r * 1.8}
-                height={r * 1.8}
+                x={cell.cx - r * 0.45}
+                y={cell.cy - r * 0.45}
+                width={r * 0.9}
+                height={r * 0.9}
                 rx={2}
                 fill={cell.fill}
                 fillOpacity={0.95}

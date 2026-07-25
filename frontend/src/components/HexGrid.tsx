@@ -4,7 +4,7 @@ import { useFullscreen } from '../hooks/useFullscreen';
 import { Maximize2, Minimize2, Download } from 'lucide-react';
 import { SYNTHETIC_CLASS_COLORS as CLASS_COLORS, getUMatrixColor } from '../lib/colors';
 import { NeuronDetailPanel } from './NeuronDetailPanel';
-import { getHexPoints } from '../lib/geometry';
+import { getHexPoints, getExpandedGridPosition, getInterstitialGridPosition } from '../lib/geometry';
 import { FullscreenPanel } from './FullscreenPanel';
 
 // ──────────────────────────────────────────────────────────
@@ -34,28 +34,22 @@ export const HexGrid = memo(function HexGrid() {
       return { r: 0, minUMatrixVal: 0, maxUMatrixVal: 0, neuronLayouts: [], interstitialCells: [] };
     }
 
-    const xCoords = neurons.map(n => n.x);
-    const yCoords = neurons.map(n => n.y);
-    const minX = Math.min(...xCoords);
-    const maxX = Math.max(...xCoords);
-    const minY = Math.min(...yCoords);
-    const maxY = Math.max(...yCoords);
+    const gridCols = 2 * cols - 1;
+    const gridRows = 2 * rows - 1;
 
-    const scaleX = (x: number) => padding + ((x - minX) / (maxX - minX || 1)) * (svgWidth - 2 * padding);
-    const scaleY = (y: number) => padding + ((y - minY) / (maxY - minY || 1)) * (svgHeight - 2 * padding);
+    const cellW = (svgWidth - 2 * padding) / gridCols;
+    const cellH = (svgHeight - 2 * padding) / gridRows;
 
-    const radius = Math.min(
-      (svgWidth - 2 * padding) / (cols * 1.6),
-      (svgHeight - 2 * padding) / (rows * 1.45)
-    ) * 0.95;
+    const radius = Math.min(cellW, cellH) * 0.95;
 
     const uMatrixVals = neurons.map(n => n.umatrix_value);
     const minUVal = Math.min(...uMatrixVals);
     const maxUVal = Math.max(...uMatrixVals);
 
     const layouts = neurons.map(neuron => {
-      const cx = scaleX(neuron.x);
-      const cy = scaleY(neuron.y);
+      const { gridRow, gridCol } = getExpandedGridPosition(neuron.row, neuron.col);
+      const cx = padding + gridCol * cellW + cellW / 2;
+      const cy = padding + gridRow * cellH + cellH / 2;
       const pointsStr = getHexPoints(cx, cy, radius);
       return {
         ...neuron,
@@ -68,14 +62,18 @@ export const HexGrid = memo(function HexGrid() {
     const eMin = model?.umatrix_edge_min ?? minUVal;
     const eMax = model?.umatrix_edge_max ?? maxUVal;
     const edges = model?.umatrix_edges || [];
-    const neuronMap = new Map(layouts.map(n => [n.id, n]));
+    const neuronRowCol = new Map(neurons.map(n => [n.id, { row: n.row, col: n.col }]));
 
     const interstitials = edges.map((edge, idx) => {
-      const n1 = neuronMap.get(edge.from);
-      const n2 = neuronMap.get(edge.to);
+      const n1 = neuronRowCol.get(edge.from);
+      const n2 = neuronRowCol.get(edge.to);
       if (!n1 || !n2) return null;
-      const cx = (n1.cx + n2.cx) / 2;
-      const cy = (n1.cy + n2.cy) / 2;
+      const { gridRow, gridCol } = getInterstitialGridPosition(
+        2 * n1.row, 2 * n1.col,
+        2 * n2.row, 2 * n2.col
+      );
+      const cx = padding + gridCol * cellW + cellW / 2;
+      const cy = padding + gridRow * cellH + cellH / 2;
       const fill = getUMatrixColor(edge.distance, eMin, eMax);
       return {
         key: `edge-${edge.from}-${edge.to}-${idx}`,
@@ -254,19 +252,21 @@ export const HexGrid = memo(function HexGrid() {
             >
               <g>
                 {colorMode === 'umatrix' && interstitialCells.map(cell => (
-                  <circle
+                  <rect
                     key={cell.key}
-                    cx={cell.cx}
-                    cy={cell.cy}
-                    r={r * 0.45}
+                    x={cell.cx - r * 0.9}
+                    y={cell.cy - r * 0.9}
+                    width={r * 1.8}
+                    height={r * 1.8}
+                    rx={2}
                     fill={cell.fill}
-                    fillOpacity={0.9}
-                    stroke="rgba(0,0,0,0.3)"
+                    fillOpacity={0.95}
+                    stroke="rgba(0,0,0,0.25)"
                     strokeWidth="0.5"
                     className="transition-all duration-200"
                   >
                     <title>{`Distância U-Matrix (N${cell.from} ↔ N${cell.to}): ${cell.distance.toFixed(3)}`}</title>
-                  </circle>
+                  </rect>
                 ))}
                 {neuronLayouts.map((neuron, index) => {
                   const { cx, cy, pointsStr } = neuron;

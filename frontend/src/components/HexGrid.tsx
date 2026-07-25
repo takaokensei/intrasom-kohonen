@@ -69,8 +69,8 @@ export const HexGrid = memo(function HexGrid() {
       const n2 = neuronRowCol.get(edge.to);
       if (!n1 || !n2) return null;
       const { gridRow, gridCol } = getInterstitialGridPosition(
-        2 * n1.row, 2 * n1.col,
-        2 * n2.row, 2 * n2.col
+        n1.row, n1.col,
+        n2.row, n2.col
       );
       const cx = padding + gridCol * cellW + cellW / 2;
       const cy = padding + gridRow * cellH + cellH / 2;

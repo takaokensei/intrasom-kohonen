@@ -64,11 +64,13 @@ export const HexGrid = memo(function HexGrid() {
 
     const unitMap = new Map(unitPositions.map(p => [p.id, p]));
 
+    const effectiveRadius = radius * 0.55;
+
     const layouts = neurons.map(neuron => {
       const u = unitMap.get(neuron.id)!;
       const cx = scaleX(u.ux);
       const cy = scaleY(u.uy);
-      const pointsStr = getHexPoints(cx, cy, radius);
+      const pointsStr = getHexPoints(cx, cy, effectiveRadius);
       return {
         ...neuron,
         cx,
@@ -100,7 +102,7 @@ export const HexGrid = memo(function HexGrid() {
     }).filter(Boolean) as Array<{ key: string; cx: number; cy: number; fill: string; distance: number; from: number; to: number }>;
 
     return {
-      r: radius,
+      r: effectiveRadius,
       minUMatrixVal: minUVal,
       maxUMatrixVal: maxUVal,
       neuronLayouts: layouts,

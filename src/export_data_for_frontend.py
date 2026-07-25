@@ -51,7 +51,7 @@ def export_all():
         for r in range(rows):
             for c in range(cols):
                 neuron_idx = r * cols + c
-                e = 0 if r % 2 == 0 else 1
+                e = 1 if r % 2 == 0 else 0
                 for k in range(6):
                     dist = umat_expanded[r, c, k]
                     if np.isnan(dist):

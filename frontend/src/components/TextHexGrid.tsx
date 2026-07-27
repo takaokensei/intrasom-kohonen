@@ -3,7 +3,7 @@ import { useDashboardStore } from '../store/useDashboardStore';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { Maximize2, Minimize2 } from 'lucide-react';
 import { getClassColor, TEXT_CLASS_COLORS, getUMatrixColor } from '../lib/colors';
-import { getHexPoints } from '../lib/geometry';
+import { getHexPoints, computeContiguousHexRadius, getHexCenter } from '../lib/geometry';
 import { FullscreenPanel } from './FullscreenPanel';
 
 export const TextHexGrid = memo(function TextHexGrid() {
@@ -34,43 +34,21 @@ export const TextHexGrid = memo(function TextHexGrid() {
       return { r: 0, minUMatrixVal: 0, maxUMatrixVal: 0, neuronLayouts: [], interstitialCells: [] };
     }
 
-    const getUnitPos = (row: number, col: number) => {
-      if (lattice === 'RECT') {
-        return { ux: col, uy: row };
-      }
-      return {
-        ux: col + (row % 2 === 1 ? 0.5 : 0),
-        uy: row * (Math.sqrt(3) / 2),
-      };
-    };
+    const isUMatrix = colorMode === 'umatrix';
+    const colsEff = isUMatrix ? 2 * cols - 1 : cols;
+    const rowsEff = isUMatrix ? 2 * rows - 1 : rows;
 
-    const unitPositions = neurons.map(n => ({ id: n.id, ...getUnitPos(n.row, n.col) }));
-    const minUx = Math.min(...unitPositions.map(p => p.ux));
-    const maxUx = Math.max(...unitPositions.map(p => p.ux));
-    const minUy = Math.min(...unitPositions.map(p => p.uy));
-    const maxUy = Math.max(...unitPositions.map(p => p.uy));
-
-    const scaleX = (ux: number) => padding + ((ux - minUx) / (maxUx - minUx || 1)) * (svgWidth - 2 * padding);
-    const scaleY = (uy: number) => padding + ((uy - minUy) / (maxUy - minUy || 1)) * (svgHeight - 2 * padding);
-
-    const radius = Math.min(
-      (svgWidth - 2 * padding) / (cols * 1.6),
-      (svgHeight - 2 * padding) / (rows * 1.45)
-    ) * 0.95;
+    const radius = computeContiguousHexRadius(colsEff, rowsEff, svgWidth, svgHeight, padding);
 
     const uMatrixVals = neurons.map(n => n.umatrix_value);
     const minUVal = Math.min(...uMatrixVals);
     const maxUVal = Math.max(...uMatrixVals);
 
-    const unitMap = new Map(unitPositions.map(p => [p.id, p]));
-
-    const effectiveRadius = radius * 0.55;
-
     const layouts = neurons.map(neuron => {
-      const u = unitMap.get(neuron.id)!;
-      const cx = scaleX(u.ux);
-      const cy = scaleY(u.uy);
-      const pointsStr = getHexPoints(cx, cy, effectiveRadius);
+      const rIndex = isUMatrix ? 2 * neuron.row : neuron.row;
+      const cIndex = isUMatrix ? 2 * neuron.col : neuron.col;
+      const { cx, cy } = getHexCenter(rIndex, cIndex, radius, padding, lattice);
+      const pointsStr = getHexPoints(cx, cy, radius);
       return {
         ...neuron,
         cx,
@@ -82,33 +60,37 @@ export const TextHexGrid = memo(function TextHexGrid() {
     const eMin = model?.umatrix_edge_min ?? minUVal;
     const eMax = model?.umatrix_edge_max ?? maxUVal;
     const edges = model?.umatrix_edges || [];
+    const neuronRowCol = new Map(neurons.map(n => [n.id, { row: n.row, col: n.col }]));
 
-    const interstitials = edges.map((edge, idx) => {
-      const u1 = unitMap.get(edge.from);
-      const u2 = unitMap.get(edge.to);
-      if (!u1 || !u2) return null;
-      const cx = scaleX((u1.ux + u2.ux) / 2);
-      const cy = scaleY((u1.uy + u2.uy) / 2);
+    const interstitials = isUMatrix ? edges.map((edge, idx) => {
+      const n1 = neuronRowCol.get(edge.from);
+      const n2 = neuronRowCol.get(edge.to);
+      if (!n1 || !n2) return null;
+      const rIndex = n1.row + n2.row;
+      const cIndex = n1.col + n2.col;
+      const { cx, cy } = getHexCenter(rIndex, cIndex, radius, padding, lattice);
+      const pointsStr = getHexPoints(cx, cy, radius);
       const fill = getUMatrixColor(edge.distance, eMin, eMax);
       return {
         key: `edge-${edge.from}-${edge.to}-${idx}`,
         cx,
         cy,
+        pointsStr,
         fill,
         distance: edge.distance,
         from: edge.from,
         to: edge.to
       };
-    }).filter(Boolean) as Array<{ key: string; cx: number; cy: number; fill: string; distance: number; from: number; to: number }>;
+    }).filter(Boolean) as Array<{ key: string; cx: number; cy: number; pointsStr: string; fill: string; distance: number; from: number; to: number }> : [];
 
     return {
-      r: effectiveRadius,
+      r: radius,
       minUMatrixVal: minUVal,
       maxUMatrixVal: maxUVal,
       neuronLayouts: layouts,
       interstitialCells: interstitials
     };
-  }, [neurons, cols, rows, svgWidth, svgHeight, model, lattice]);
+  }, [neurons, cols, rows, svgWidth, svgHeight, model, lattice, colorMode]);
 
   if (loadingText) {
     return (
@@ -208,21 +190,34 @@ export const TextHexGrid = memo(function TextHexGrid() {
         >
           <g>
             {colorMode === 'umatrix' && interstitialCells.map(cell => (
-              <rect
-                key={cell.key}
-                x={cell.cx - r * 0.45}
-                y={cell.cy - r * 0.45}
-                width={r * 0.9}
-                height={r * 0.9}
-                rx={2}
-                fill={cell.fill}
-                fillOpacity={0.95}
-                stroke="rgba(0,0,0,0.25)"
-                strokeWidth="0.5"
-                className="transition-all duration-200"
-              >
-                <title>{`Distância U-Matrix (N${cell.from} ↔ N${cell.to}): ${cell.distance.toFixed(3)}`}</title>
-              </rect>
+              lattice === 'RECT' ? (
+                <rect
+                  key={cell.key}
+                  x={cell.cx - r * Math.sqrt(3) / 2}
+                  y={cell.cy - r * Math.sqrt(3) / 2}
+                  width={r * Math.sqrt(3)}
+                  height={r * Math.sqrt(3)}
+                  fill={cell.fill}
+                  fillOpacity={0.95}
+                  stroke="rgba(0,0,0,0.15)"
+                  strokeWidth="0.3"
+                  className="transition-all duration-200"
+                >
+                  <title>{`Distância U-Matrix (N${cell.from} ↔ N${cell.to}): ${cell.distance.toFixed(3)}`}</title>
+                </rect>
+              ) : (
+                <polygon
+                  key={cell.key}
+                  points={cell.pointsStr}
+                  fill={cell.fill}
+                  fillOpacity={0.95}
+                  stroke="rgba(0,0,0,0.15)"
+                  strokeWidth="0.3"
+                  className="transition-all duration-200"
+                >
+                  <title>{`Distância U-Matrix (N${cell.from} ↔ N${cell.to}): ${cell.distance.toFixed(3)}`}</title>
+                </polygon>
+              )
             ))}
             {neuronLayouts.map((neuron, index) => {
               const { cx, cy, pointsStr } = neuron;

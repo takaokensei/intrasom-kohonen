@@ -15,7 +15,8 @@ export function getHexPoints(cx: number, cy: number, radius: number): string {
 }
 
 /**
- * Calculates the exact radius needed for hexagons to touch edge-to-edge seamlessly.
+ * Calculates the exact radius needed for hexagons to touch edge-to-edge seamlessly,
+ * along with horizontal and vertical offsets to center the grid within the SVG view.
  */
 export function computeContiguousHexRadius(
   cols: number,
@@ -23,11 +24,20 @@ export function computeContiguousHexRadius(
   width: number,
   height: number,
   padding: number = 25
-): number {
-  if (cols <= 0 || rows <= 0) return 10;
+): { radius: number; offsetX: number; offsetY: number } {
+  if (cols <= 0 || rows <= 0) return { radius: 10, offsetX: 0, offsetY: 0 };
   const maxRx = (width - 2 * padding) / ((cols + 0.5) * Math.sqrt(3));
   const maxRy = (height - 2 * padding) / (1.5 * rows + 0.5);
-  return Math.max(5, Math.min(maxRx, maxRy));
+  const radius = Math.max(5, Math.min(maxRx, maxRy));
+
+  const usedWidth  = radius * Math.sqrt(3) * (cols + 0.5) + 2 * padding;
+  const usedHeight = (1.5 * rows + 0.5) * radius + 2 * padding;
+
+  return {
+    radius,
+    offsetX: Math.max(0, (width  - usedWidth)  / 2),
+    offsetY: Math.max(0, (height - usedHeight) / 2),
+  };
 }
 
 /**

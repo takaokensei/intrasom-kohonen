@@ -5,6 +5,7 @@ import { Maximize2, Minimize2 } from 'lucide-react';
 import { getClassColor, TEXT_CLASS_COLORS, getUMatrixColor } from '../lib/colors';
 import { getHexPoints, computeContiguousHexRadius, getHexCenter } from '../lib/geometry';
 import { FullscreenPanel } from './FullscreenPanel';
+import { UMatrix3D } from './UMatrix3D';
 
 export const TextHexGrid = memo(function TextHexGrid() {
   const { 
@@ -19,6 +20,7 @@ export const TextHexGrid = memo(function TextHexGrid() {
   } = useDashboardStore();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   const [colorMode, setColorMode] = useState<'class' | 'umatrix'>('class');
+  const [viewDimension, setViewDimension] = useState<'2D' | '3D'>('2D');
   
   const model = getActiveTextModel();
   const neurons = model?.neurons;
@@ -29,16 +31,16 @@ export const TextHexGrid = memo(function TextHexGrid() {
   const svgWidth = isFullscreen ? 800 : 500;
   const svgHeight = isFullscreen ? 550 : 360;
 
-  const { r, minUMatrixVal, maxUMatrixVal, neuronLayouts, interstitialCells } = useMemo(() => {
+  const { r, minUMatrixVal, maxUMatrixVal, neuronLayouts, interstitialCells, offsetX, offsetY } = useMemo(() => {
     if (!neurons || neurons.length === 0) {
-      return { r: 0, minUMatrixVal: 0, maxUMatrixVal: 0, neuronLayouts: [], interstitialCells: [] };
+      return { r: 0, minUMatrixVal: 0, maxUMatrixVal: 0, neuronLayouts: [], interstitialCells: [], offsetX: 0, offsetY: 0 };
     }
 
     const isUMatrix = colorMode === 'umatrix';
     const colsEff = isUMatrix ? 2 * cols - 1 : cols;
     const rowsEff = isUMatrix ? 2 * rows - 1 : rows;
 
-    const radius = computeContiguousHexRadius(colsEff, rowsEff, svgWidth, svgHeight, padding);
+    const { radius, offsetX, offsetY } = computeContiguousHexRadius(colsEff, rowsEff, svgWidth, svgHeight, padding);
 
     const uMatrixVals = neurons.map(n => n.umatrix_value);
     const minUVal = Math.min(...uMatrixVals);
@@ -88,7 +90,9 @@ export const TextHexGrid = memo(function TextHexGrid() {
       minUMatrixVal: minUVal,
       maxUMatrixVal: maxUVal,
       neuronLayouts: layouts,
-      interstitialCells: interstitials
+      interstitialCells: interstitials,
+      offsetX,
+      offsetY
     };
   }, [neurons, cols, rows, svgWidth, svgHeight, model, lattice, colorMode]);
 
@@ -156,7 +160,6 @@ export const TextHexGrid = memo(function TextHexGrid() {
         </div>
         
         <div className="flex items-center space-x-2">
-          {/* Toggle Mode */}
           <div className="flex rounded border border-tokyo-border overflow-hidden">
             <button
               onClick={() => setColorMode('class')}
@@ -172,6 +175,24 @@ export const TextHexGrid = memo(function TextHexGrid() {
             </button>
           </div>
 
+          {/* Toggle 2D / 3D (visible only when colorMode === 'umatrix') */}
+          {colorMode === 'umatrix' && (
+            <div className="flex rounded border border-tokyo-border overflow-hidden">
+              <button
+                onClick={() => setViewDimension('2D')}
+                className={`px-2.5 py-1 text-xs font-mono transition active-press-scale ${viewDimension === '2D' ? 'bg-tokyo-purple text-tokyo-bg font-bold' : 'bg-tokyo-panel text-tokyo-text hover:bg-opacity-80'}`}
+              >
+                2D
+              </button>
+              <button
+                onClick={() => setViewDimension('3D')}
+                className={`px-2.5 py-1 text-xs font-mono transition active-press-scale ${viewDimension === '3D' ? 'bg-tokyo-purple text-tokyo-bg font-bold' : 'bg-tokyo-panel text-tokyo-text hover:bg-opacity-80'}`}
+              >
+                3D
+              </button>
+            </div>
+          )}
+
           <button 
             onClick={toggleFullscreen}
             className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-tokyo-muted hover:text-tokyo-text active-press-scale"
@@ -182,169 +203,153 @@ export const TextHexGrid = memo(function TextHexGrid() {
         </div>
       </div>
       
-      {/* Hex Grid SVG */}
+      {/* Hex Grid SVG or 3D U-Matrix */}
       <div className="flex-1 flex justify-center items-center relative overflow-hidden bg-tokyo-dark bg-opacity-40 rounded-xl border border-tokyo-border border-opacity-30 min-h-[220px]">
-        <svg 
-          viewBox={`0 0 ${svgWidth} ${svgHeight}`} 
-          className="w-full h-full max-h-[460px]"
-        >
-          <g>
-            {colorMode === 'umatrix' && interstitialCells.map(cell => (
-              lattice === 'RECT' ? (
-                <rect
-                  key={cell.key}
-                  x={cell.cx - r * Math.sqrt(3) / 2}
-                  y={cell.cy - r * Math.sqrt(3) / 2}
-                  width={r * Math.sqrt(3)}
-                  height={r * Math.sqrt(3)}
-                  fill={cell.fill}
-                  fillOpacity={0.95}
-                  stroke="rgba(0,0,0,0.15)"
-                  strokeWidth="0.3"
-                  className="transition-all duration-200"
-                >
-                  <title>{`Distância U-Matrix (N${cell.from} ↔ N${cell.to}): ${cell.distance.toFixed(3)}`}</title>
-                </rect>
-              ) : (
-                <polygon
-                  key={cell.key}
-                  points={cell.pointsStr}
-                  fill={cell.fill}
-                  fillOpacity={0.95}
-                  stroke="rgba(0,0,0,0.15)"
-                  strokeWidth="0.3"
-                  className="transition-all duration-200"
-                >
-                  <title>{`Distância U-Matrix (N${cell.from} ↔ N${cell.to}): ${cell.distance.toFixed(3)}`}</title>
-                </polygon>
-              )
-            ))}
-            {neuronLayouts.map((neuron, index) => {
-              const { cx, cy, pointsStr } = neuron;
-              
-              const isClassifiedBMU = classificationResult?.bmu === neuron.id;
-              
-              let isSelectedDocBMU = false;
-              if (selectedDocId !== null) {
-                isSelectedDocBMU = neuron.doc_indices.includes(selectedDocId);
-              }
-              
-              const isHighlighted = isClassifiedBMU || isSelectedDocBMU;
-              
-              let fill = '#1f2335';
-              let stroke = 'rgba(122, 162, 247, 0.15)';
-              let strokeWidth = '1';
-              
-              if (colorMode === 'class') {
-                if (neuron.total_samples > 0) {
-                  fill = getClassColor(selectedTextDataset, neuron.dominant_class);
+        {colorMode === 'umatrix' && viewDimension === '3D' && model ? (
+          <UMatrix3D
+            neurons={neurons || []}
+            cols={cols}
+            rows={rows}
+            umatrix_edges={model.umatrix_edges}
+            edgeMin={model.umatrix_edge_min}
+            edgeMax={model.umatrix_edge_max}
+            lattice={lattice}
+          />
+        ) : (
+          <svg 
+            viewBox={`0 0 ${svgWidth} ${svgHeight}`} 
+            className="w-full h-full max-h-[460px]"
+          >
+            <g transform={`translate(${offsetX}, ${offsetY})`}>
+              {colorMode === 'umatrix' && interstitialCells.map(cell => (
+                lattice === 'RECT' ? (
+                  <rect
+                    key={cell.key}
+                    x={cell.cx - r * Math.sqrt(3) / 2}
+                    y={cell.cy - r * Math.sqrt(3) / 2}
+                    width={r * Math.sqrt(3)}
+                    height={r * Math.sqrt(3)}
+                    fill={cell.fill}
+                    fillOpacity={0.95}
+                    stroke="rgba(0,0,0,0.15)"
+                    strokeWidth="0.3"
+                    className="transition-all duration-200"
+                  >
+                    <title>{`Distância U-Matrix (N${cell.from} ↔ N${cell.to}): ${cell.distance.toFixed(3)}`}</title>
+                  </rect>
+                ) : (
+                  <polygon
+                    key={cell.key}
+                    points={cell.pointsStr}
+                    fill={cell.fill}
+                    fillOpacity={0.95}
+                    stroke="rgba(0,0,0,0.15)"
+                    strokeWidth="0.3"
+                    className="transition-all duration-200"
+                  >
+                    <title>{`Distância U-Matrix (N${cell.from} ↔ N${cell.to}): ${cell.distance.toFixed(3)}`}</title>
+                  </polygon>
+                )
+              ))}
+              {neuronLayouts.map((neuron) => {
+                const { cx, cy, pointsStr } = neuron;
+                
+                const isClassifiedBMU = classificationResult?.bmu === neuron.id;
+                
+                let isSelectedDocBMU = false;
+                if (selectedDocId !== null) {
+                  isSelectedDocBMU = neuron.doc_indices.includes(selectedDocId);
                 }
-              } else {
-                fill = getUMatrixColor(neuron.umatrix_value, minUMatrixVal, maxUMatrixVal);
-              }
-              
-              if (isHighlighted) {
-                stroke = '#ffffff';
-                strokeWidth = '2.5';
-              }
-              
-              const delay = index * (500 / neuronLayouts.length);
-              
-              return (
-                <g 
-                  key={neuron.id}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`Neurônio N${neuron.id}, Classe Dominante: ${neuron.total_samples > 0 ? neuron.dominant_class : 'Vazio'}, Amostras: ${neuron.total_samples}, Pureza: ${(neuron.purity * 100).toFixed(0)}%`}
-                  className="cursor-pointer group focus:outline-none som-hex-group animate-hex-entrance"
-                  onClick={() => {
-                    if (neuron.doc_indices.length > 0) {
-                      setSelectedDocId(neuron.doc_indices[0]);
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
+                
+                const isHighlighted = isClassifiedBMU || isSelectedDocBMU;
+                
+                let fill = '#1f2335';
+                let stroke = 'rgba(122, 162, 247, 0.15)';
+                let strokeWidth = '1';
+                
+                if (colorMode === 'class') {
+                  if (neuron.total_samples > 0) {
+                    fill = getClassColor(selectedTextDataset, neuron.dominant_class);
+                  }
+                } else {
+                  fill = getUMatrixColor(neuron.umatrix_value, minUMatrixVal, maxUMatrixVal);
+                }
+                
+                if (isHighlighted) {
+                  stroke = isClassifiedBMU ? '#bb9af7' : '#7aa2f7';
+                  strokeWidth = '2.5';
+                }
+
+                return (
+                  <g
+                    key={neuron.id}
+                    onClick={() => {
                       if (neuron.doc_indices.length > 0) {
                         setSelectedDocId(neuron.doc_indices[0]);
                       }
-                    }
-                  }}
-                  style={{
-                    transformOrigin: `${cx}px ${cy}px`,
-                    animationDelay: `${delay}ms`
-                  }}
-                >
-                  {lattice === 'RECT' ? (
-                    <rect
-                      x={cx - r * 0.85}
-                      y={cy - r * 0.85}
-                      width={r * 1.7}
-                      height={r * 1.7}
-                      rx={4}
-                      fill={fill}
-                      fillOpacity={neuron.total_samples === 0 && colorMode === 'class' ? 0.2 : 0.8}
-                      stroke={stroke}
-                      strokeWidth={strokeWidth}
-                      className="hex-polygon transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80 group-focus:stroke-white group-focus:stroke-opacity-100"
-                      style={{
-                        transformOrigin: `${cx}px ${cy}px`,
-                        animationDelay: `${delay}ms`
-                      }}
-                    />
-                  ) : (
-                    <polygon
-                      points={pointsStr}
-                      fill={fill}
-                      fillOpacity={neuron.total_samples === 0 && colorMode === 'class' ? 0.2 : 0.8}
-                      stroke={stroke}
-                      strokeWidth={strokeWidth}
-                      className="hex-polygon transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80 group-focus:stroke-white group-focus:stroke-opacity-100"
-                      style={{
-                        transformOrigin: `${cx}px ${cy}px`,
-                        animationDelay: `${delay}ms`
-                      }}
-                    />
-                  )}
-                  
-                  <text
-                    x={cx}
-                    y={cy + 3}
-                    textAnchor="middle"
-                    fill={colorMode === 'class' ? (neuron.total_samples > 0 ? '#16161e' : '#565f89') : '#ffffff'}
-                    fontSize="7px"
-                    fontWeight="bold"
-                    className="select-none pointer-events-none group-hover:fill-white"
+                    }}
+                    className="cursor-pointer group font-mono"
                   >
-                    {neuron.id}
-                  </text>
-                  
-                  {isClassifiedBMU && (
-                    <circle
-                      cx={cx}
-                      cy={cy}
-                      r={r * 0.8}
-                      fill="none"
-                      stroke="#ffffff"
-                      strokeWidth="2"
-                      className="ripple-circle pointer-events-none"
-                      style={{
-                        transformOrigin: `${cx}px ${cy}px`
-                      }}
-                    />
-                  )}
-                  
-                  <title>
-                    {`Neurônio N${neuron.id} (${neuron.col}, ${neuron.row})\n` +
-                     `Classe Dominante: ${neuron.dominant_class}\n` +
-                     `Amostras: ${neuron.total_samples}\n` +
-                     `Pureza: ${(neuron.purity * 100).toFixed(0)}%`}
-                  </title>
-                </g>
-              );
-            })}
-          </g>
-        </svg>
+                    {lattice === 'RECT' ? (
+                      <rect
+                        x={cx - r * 0.85}
+                        y={cy - r * 0.85}
+                        width={r * 1.7}
+                        height={r * 1.7}
+                        rx={4}
+                        fill={fill}
+                        fillOpacity={neuron.total_samples === 0 && colorMode === 'class' ? 0.2 : 0.8}
+                        stroke={stroke}
+                        strokeWidth={strokeWidth}
+                        className="hex-polygon transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80"
+                      />
+                    ) : (
+                      <polygon
+                        points={pointsStr}
+                        fill={fill}
+                        fillOpacity={neuron.total_samples === 0 && colorMode === 'class' ? 0.2 : 0.8}
+                        stroke={stroke}
+                        strokeWidth={strokeWidth}
+                        className="hex-polygon transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80"
+                      />
+                    )}
+
+                    <text
+                      x={cx}
+                      y={cy + 3}
+                      textAnchor="middle"
+                      fill={colorMode === 'class' ? (neuron.total_samples > 0 ? '#16161e' : '#565f89') : '#ffffff'}
+                      fontSize={cols > 10 ? '7px' : '9px'}
+                      fontWeight="bold"
+                      className="select-none pointer-events-none group-hover:fill-white transition-colors"
+                    >
+                      {neuron.id}
+                    </text>
+
+                    {isHighlighted && (
+                      <circle
+                        cx={cx}
+                        cy={cy}
+                        r={r * 0.4}
+                        fill="none"
+                        stroke={isClassifiedBMU ? "#bb9af7" : "#7aa2f7"}
+                        strokeWidth="2"
+                        className="animate-ping"
+                      />
+                    )}
+
+                    <title>
+                      {`Neurônio N${neuron.id} (${neuron.col}, ${neuron.row})\n` +
+                       `Classe Dominante: ${neuron.dominant_class}\n` +
+                       `Amostras: ${neuron.total_samples}\n` +
+                       `Pureza: ${(neuron.purity * 100).toFixed(0)}%`}
+                    </title>
+                  </g>
+                );
+              })}
+            </g>
+          </svg>
+        )}
       </div>
       
       {/* Legend */}
@@ -364,7 +369,12 @@ export const TextHexGrid = memo(function TextHexGrid() {
       ) : (
         <div className="flex justify-between items-center mt-4 text-[10px] bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
           <span className="text-[#9aa5ce] font-semibold uppercase font-mono">Mais Similar (Valores baixos)</span>
-          <div className="w-24 h-2 rounded bg-gradient-to-r from-[#1a1b26] via-[#bb9af7] to-[#7dcfff] border border-tokyo-border" />
+          <div className="flex flex-col items-center space-y-1">
+            <div className="w-24 h-2 rounded bg-gradient-to-r from-[#1a1b26] via-[#bb9af7] to-[#7dcfff] border border-tokyo-border" />
+            {viewDimension === '3D' && (
+              <span className="text-[9px] text-tokyo-cyan font-mono">Altura Y = Descontinuidade U-Matrix</span>
+            )}
+          </div>
           <span className="text-[#9aa5ce] font-semibold uppercase font-mono">Menos Similar (Fronteiras)</span>
         </div>
       )}

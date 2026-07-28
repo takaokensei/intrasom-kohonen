@@ -6,6 +6,7 @@ import { SYNTHETIC_CLASS_COLORS as CLASS_COLORS, getUMatrixColor } from '../lib/
 import { NeuronDetailPanel } from './NeuronDetailPanel';
 import { getHexPoints, computeContiguousHexRadius, getHexCenter } from '../lib/geometry';
 import { FullscreenPanel } from './FullscreenPanel';
+import { UMatrix3D } from './UMatrix3D';
 
 // ──────────────────────────────────────────────────────────
 // Main HexGrid component
@@ -14,6 +15,7 @@ export const HexGrid = memo(function HexGrid() {
   const { selectedMapSize, selectedNeuronId, setSelectedNeuronId, loadingSynthetic, lattice, topology, series, getActiveSOMModel } = useDashboardStore();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   const [colorMode, setColorMode] = useState<'class' | 'umatrix'>('class');
+  const [viewDimension, setViewDimension] = useState<'2D' | '3D'>('2D');
 
   // Tooltip local state
   const [hoveredNeuron, setHoveredNeuron] = useState<NeuronItem | null>(null);
@@ -29,16 +31,16 @@ export const HexGrid = memo(function HexGrid() {
   const svgWidth = isFullscreen ? 800 : 540;
   const svgHeight = isFullscreen ? 550 : 360;
 
-  const { r, minUMatrixVal, maxUMatrixVal, neuronLayouts, interstitialCells } = useMemo(() => {
+  const { r, minUMatrixVal, maxUMatrixVal, neuronLayouts, interstitialCells, offsetX, offsetY } = useMemo(() => {
     if (!neurons || neurons.length === 0) {
-      return { r: 0, minUMatrixVal: 0, maxUMatrixVal: 0, neuronLayouts: [], interstitialCells: [] };
+      return { r: 0, minUMatrixVal: 0, maxUMatrixVal: 0, neuronLayouts: [], interstitialCells: [], offsetX: 0, offsetY: 0 };
     }
 
     const isUMatrix = colorMode === 'umatrix';
     const colsEff = isUMatrix ? 2 * cols - 1 : cols;
     const rowsEff = isUMatrix ? 2 * rows - 1 : rows;
 
-    const radius = computeContiguousHexRadius(colsEff, rowsEff, svgWidth, svgHeight, padding);
+    const { radius, offsetX, offsetY } = computeContiguousHexRadius(colsEff, rowsEff, svgWidth, svgHeight, padding);
 
     const uMatrixVals = neurons.map(n => n.umatrix_value);
     const minUVal = Math.min(...uMatrixVals);
@@ -90,7 +92,9 @@ export const HexGrid = memo(function HexGrid() {
       neuronLayouts: layouts,
       interstitialCells: interstitials,
       edgeMin: eMin,
-      edgeMax: eMax
+      edgeMax: eMax,
+      offsetX,
+      offsetY
     };
   }, [neurons, cols, rows, svgWidth, svgHeight, model, lattice, colorMode]);
 
@@ -212,6 +216,24 @@ export const HexGrid = memo(function HexGrid() {
             </button>
           </div>
 
+          {/* Toggle 2D / 3D (visible only when colorMode === 'umatrix') */}
+          {colorMode === 'umatrix' && (
+            <div className="flex rounded border border-tokyo-border overflow-hidden">
+              <button
+                onClick={() => setViewDimension('2D')}
+                className={`px-2.5 py-1 text-xs font-mono transition active-press-scale ${viewDimension === '2D' ? 'bg-tokyo-purple text-tokyo-bg font-bold' : 'bg-tokyo-panel text-tokyo-text hover:bg-opacity-80'}`}
+              >
+                2D
+              </button>
+              <button
+                onClick={() => setViewDimension('3D')}
+                className={`px-2.5 py-1 text-xs font-mono transition active-press-scale ${viewDimension === '3D' ? 'bg-tokyo-purple text-tokyo-bg font-bold' : 'bg-tokyo-panel text-tokyo-text hover:bg-opacity-80'}`}
+              >
+                3D
+              </button>
+            </div>
+          )}
+
           {/* Export SVG */}
           <button
             onClick={downloadSVG}
@@ -237,17 +259,28 @@ export const HexGrid = memo(function HexGrid() {
 
         {/* Hex Map column — shrinks when panel is open */}
         <div
-          className="flex flex-col min-h-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+          className="flex flex-col min-h-0 flex-1 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
           style={{ flex: sidePanelOpen ? '0 0 48%' : '1 1 100%' }}
         >
-          {/* SVG Hex Map */}
+          {/* SVG Hex Map or 3D U-Matrix */}
           <div className={`${isFullscreen ? 'flex-1' : 'min-h-[320px]'} flex justify-center items-center relative overflow-hidden bg-tokyo-dark bg-opacity-40 rounded-xl border border-tokyo-border border-opacity-30`}>
+          {colorMode === 'umatrix' && viewDimension === '3D' ? (
+            <UMatrix3D
+              neurons={neurons || []}
+              cols={cols}
+              rows={rows}
+              umatrix_edges={model.umatrix_edges}
+              edgeMin={model.umatrix_edge_min}
+              edgeMax={model.umatrix_edge_max}
+              lattice={lattice}
+            />
+          ) : (
             <svg
               id="som-hex-grid-svg"
               viewBox={`0 0 ${svgWidth} ${svgHeight}`}
               className="w-full h-full max-h-[500px]"
             >
-              <g>
+              <g transform={`translate(${offsetX}, ${offsetY})`}>
                 {colorMode === 'umatrix' && interstitialCells.map(cell => (
                   lattice === 'RECT' ? (
                     <rect
@@ -289,7 +322,7 @@ export const HexGrid = memo(function HexGrid() {
 
                   if (colorMode === 'class') {
                     if (neuron.total_samples > 0) {
-                      fill = CLASS_COLORS[neuron.dominant_class] || '#1f2335';
+                      fill = CLASS_COLORS[neuron.dominant_class as keyof typeof CLASS_COLORS] || '#1f2335';
                     }
                   } else {
                     fill = getUMatrixColor(neuron.umatrix_value, minUMatrixVal, maxUMatrixVal);
@@ -390,29 +423,35 @@ export const HexGrid = memo(function HexGrid() {
                 })}
               </g>
             </svg>
-          </div>
-
-          {/* Legend */}
-          {colorMode === 'class' ? (
-            <div className="grid grid-cols-3 gap-2 mt-4 text-[10px] bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
-              {Object.entries(CLASS_COLORS).map(([name, color]) => (
-                <div key={name} className="flex items-center space-x-1.5 text-tokyo-text">
-                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
-                  <span className="truncate">{name}</span>
-                </div>
-              ))}
-              <div className="flex items-center space-x-1.5 text-[#9aa5ce]">
-                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-tokyo-panel border border-dashed border-tokyo-text border-opacity-45" />
-                <span>Vazio</span>
-              </div>
-            </div>
-          ) : (
-            <div className="flex justify-between items-center mt-4 text-[10px] bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
-              <span className="text-[#9aa5ce] font-semibold uppercase font-mono">Mais Similar (Valores baixos)</span>
-              <div className="w-24 h-2 rounded bg-gradient-to-r from-[#1a1b26] via-[#bb9af7] to-[#7dcfff] border border-tokyo-border" />
-              <span className="text-[#9aa5ce] font-semibold uppercase font-mono">Menos Similar (Fronteiras)</span>
-            </div>
           )}
+        </div>
+
+        {/* Legend */}
+        {colorMode === 'class' ? (
+          <div className="grid grid-cols-3 gap-2 mt-4 text-[10px] bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
+            {Object.entries(CLASS_COLORS).map(([name, color]) => (
+              <div key={name} className="flex items-center space-x-1.5 text-tokyo-text">
+                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: color as string }} />
+                <span className="truncate">{name}</span>
+              </div>
+            ))}
+            <div className="flex items-center space-x-1.5 text-[#9aa5ce]">
+              <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-tokyo-panel border border-dashed border-tokyo-text border-opacity-45" />
+              <span>Vazio</span>
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-between items-center mt-4 text-[10px] bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
+            <span className="text-[#9aa5ce] font-semibold uppercase font-mono">Mais Similar (Valores baixos)</span>
+            <div className="flex flex-col items-center space-y-1">
+              <div className="w-24 h-2 rounded bg-gradient-to-r from-[#1a1b26] via-[#bb9af7] to-[#7dcfff] border border-tokyo-border" />
+              {viewDimension === '3D' && (
+                <span className="text-[9px] text-tokyo-cyan font-mono">Altura Y = Descontinuidade U-Matrix</span>
+              )}
+            </div>
+            <span className="text-[#9aa5ce] font-semibold uppercase font-mono">Menos Similar (Fronteiras)</span>
+          </div>
+        )}
         </div>
 
         {/* ── Sliding side panel (fullscreen-only) ── */}

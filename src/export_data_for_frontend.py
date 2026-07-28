@@ -46,6 +46,7 @@ def export_all():
         cols, rows = som.mapsize
         ii = [[1, 1, 0, -1, 0, 1], [1, 0, -1, -1, -1, 0]]
         jj = [[0, 1, 1, 0, -1, -1], [0, 1, 1, 0, -1, -1]]
+        is_toroid = (som.mapshape == 'toroid')
         edges = []
         seen_pairs = set()
         for r in range(rows):
@@ -58,18 +59,17 @@ def export_all():
                         continue
                     nr = r + jj[e][k]
                     nc = c + ii[e][k]
-                    if 0 <= nr < rows and 0 <= nc < cols:
-                        neighbor_idx = nr * cols + nc
-                        p1 = min(neuron_idx, neighbor_idx)
-                        p2 = max(neuron_idx, neighbor_idx)
-                        pair = (p1, p2)
-                        if pair not in seen_pairs:
-                            seen_pairs.add(pair)
-                            edges.append({
-                                "from": p1 + 1,
-                                "to": p2 + 1,
-                                "distance": float(dist)
-                            })
+                    if is_toroid:
+                        nr %= rows
+                        nc %= cols
+                    elif not (0 <= nr < rows and 0 <= nc < cols):
+                        continue
+                    neighbor_idx = nr * cols + nc
+                    p1, p2 = min(neuron_idx, neighbor_idx), max(neuron_idx, neighbor_idx)
+                    pair = (p1, p2)
+                    if pair not in seen_pairs:
+                        seen_pairs.add(pair)
+                        edges.append({"from": p1 + 1, "to": p2 + 1, "distance": float(dist)})
         edge_dists = [e["distance"] for e in edges]
         min_dist = float(np.min(edge_dists)) if edge_dists else 0.0
         max_dist = float(np.max(edge_dists)) if edge_dists else 1.0

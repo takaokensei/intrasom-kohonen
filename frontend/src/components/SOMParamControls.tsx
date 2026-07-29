@@ -104,12 +104,6 @@ export function SOMParamControls() {
             Retangular (RECT)
           </button>
         </div>
-        {/* Notice shown when RECT is selected */}
-        {lattice === 'RECT' && (
-          <div className="mt-1.5 px-2.5 py-1.5 rounded-lg bg-orange-900/30 border border-orange-500/40 text-[10px] text-orange-300 leading-tight flex items-center justify-between">
-            <span>⚙️ <strong>Engine: IntraSOM 1.1.1</strong> · Grade Retangular</span>
-          </div>
-        )}
       </div>
 
       {/* Topology Selector (Toroid vs Planar) */}
@@ -158,7 +152,7 @@ export function SOMParamControls() {
             onChange={(e) => setInitialRadius(e.target.value as '80%' | '50%' | '100%')}
             className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-xs font-bold focus:outline-none focus:border-tokyo-blue cursor-pointer"
           >
-            <option value="80%">80% do mapa (Padrao Prof.)</option>
+            <option value="80%">80% do mapa (Recomendado)</option>
             <option value="50%">50% do mapa</option>
             <option value="100%">100% do mapa</option>
           </select>
@@ -172,7 +166,7 @@ export function SOMParamControls() {
             onChange={(e) => setFinalRadius(e.target.value as '1' | '2')}
             className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-xs font-bold focus:outline-none focus:border-tokyo-blue cursor-pointer"
           >
-            <option value="1">1 neurônio (Padrao Prof.)</option>
+            <option value="1">1 neurônio (Ajuste Fino)</option>
             <option value="2">2 neurônios</option>
           </select>
         </div>
@@ -185,7 +179,7 @@ export function SOMParamControls() {
             onChange={(e) => setEpochs(Number(e.target.value) as 500 | 200 | 100)}
             className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-xs font-bold focus:outline-none focus:border-tokyo-blue cursor-pointer"
           >
-            <option value={500}>500 épocas (Padrao Prof.)</option>
+            <option value={500}>500 épocas (Recomendado)</option>
             <option value={200}>200 épocas</option>
             <option value={100}>100 épocas</option>
           </select>

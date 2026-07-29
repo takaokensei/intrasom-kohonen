@@ -39,7 +39,7 @@ export const TextHexGrid = memo(function TextHexGrid() {
 
   const padding = 20;
   const svgWidth = isFullscreen ? 800 : 500;
-  const svgHeight = isFullscreen ? 550 : 360;
+  const svgHeight = isFullscreen ? 550 : 380;
 
   const { r, minUMatrixVal, maxUMatrixVal, neuronLayouts, interstitialCells, offsetX, offsetY } = useMemo(() => {
     if (!neurons || neurons.length === 0) {
@@ -50,7 +50,7 @@ export const TextHexGrid = memo(function TextHexGrid() {
     const colsEff = isUMatrix ? 2 * cols - 1 : cols;
     const rowsEff = isUMatrix ? 2 * rows - 1 : rows;
 
-    const { radius, offsetX, offsetY } = computeContiguousHexRadius(colsEff, rowsEff, svgWidth, svgHeight, padding);
+    const { radius, offsetX, offsetY } = computeContiguousHexRadius(colsEff, rowsEff, svgWidth, svgHeight, padding, lattice);
 
     const uMatrixVals = neurons.map(n => n.umatrix_value);
     const minUVal = Math.min(...uMatrixVals);
@@ -232,7 +232,7 @@ export const TextHexGrid = memo(function TextHexGrid() {
       </div>
       
       {/* Hex Grid SVG, 3D Terrain, or 3D Torus */}
-      <div className="flex-1 flex justify-center items-center relative overflow-hidden bg-tokyo-dark bg-opacity-40 rounded-xl border border-tokyo-border border-opacity-30 min-h-[220px]">
+      <div className="flex-1 flex justify-center items-center relative overflow-hidden bg-tokyo-dark bg-opacity-40 rounded-xl border border-tokyo-border border-opacity-30 min-h-[380px]">
         {colorMode === 'umatrix' && viewDimension === '3D' && model ? (
           threeMode === 'torus' ? (
             <UMatrixTorus

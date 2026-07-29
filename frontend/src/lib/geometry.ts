@@ -23,9 +23,27 @@ export function computeContiguousHexRadius(
   rows: number,
   width: number,
   height: number,
-  padding: number = 25
+  padding: number = 25,
+  lattice: string = 'HEX'
 ): { radius: number; offsetX: number; offsetY: number } {
   if (cols <= 0 || rows <= 0) return { radius: 10, offsetX: 0, offsetY: 0 };
+
+  if (lattice === 'RECT') {
+    const maxRx = (width - 2 * padding) / (cols * Math.sqrt(3));
+    const maxRy = (height - 2 * padding) / (rows * Math.sqrt(3));
+    const radius = Math.max(5, Math.min(maxRx, maxRy));
+
+    const side = radius * Math.sqrt(3);
+    const usedWidth = cols * side + 2 * padding;
+    const usedHeight = rows * side + 2 * padding;
+
+    return {
+      radius,
+      offsetX: Math.max(0, (width - usedWidth) / 2),
+      offsetY: Math.max(0, (height - usedHeight) / 2),
+    };
+  }
+
   const maxRx = (width - 2 * padding) / ((cols + 0.5) * Math.sqrt(3));
   const maxRy = (height - 2 * padding) / (1.5 * rows + 0.5);
   const radius = Math.max(5, Math.min(maxRx, maxRy));

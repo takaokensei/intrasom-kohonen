@@ -111,6 +111,8 @@ The dashboard is structured around two main areas of analysis:
   2. If offline, calls the **Hugging Face Inference API** (via serverless proxy) and runs client-side PCA projection
   3. If external calls fail, falls back to a **client-side keyword heuristic**
 
+> 💡 **Paridade Metodológica & Geometria de Grade:** Todos os modelos (HEX e RECT) são treinados pelo motor IntraSOM 1.1.1 sob a mesma norma euclidiana e mesmos hiperparâmetros de vizinhança. Para a malha Hexagonal (`HEX`), o IntraSOM ajusta o número de linhas $N$ para $N+1$ quando o número de linhas solicitado é ímpar (ex.: $5\times 5 \rightarrow 5\times 6 = 30$ neurônios). A grade Retangular (`RECT`) mantém as dimensões exatas solicita das ($5\times 5 = 25$ neurônios).
+
 </td>
 </tr>
 </table>

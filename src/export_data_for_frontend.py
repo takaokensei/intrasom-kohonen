@@ -265,11 +265,6 @@ def export_all():
     
     # Nota: text_rect_models.json (MiniSom legado) não é mais necessário.
     # Os modelos RECT de texto agora são carregados de parquets IntraSOM abaixo.
-
-    for dname, dinfo in datasets_info.items():
-        text_models[dname] = {}
-        docs, text_labels = dinfo["load_fn"]()
-        num_docs = len(docs)
         
     def build_text_som_model_from_files(neurons_file, results_file, params_file, text_labels, num_docs):
         if not (os.path.exists(neurons_file) and os.path.exists(results_file) and os.path.exists(params_file)):

@@ -122,7 +122,7 @@ export function SOMParamControls() {
           <button
             onClick={() => lattice === 'HEX' && setTopology('toroid')}
             disabled={lattice === 'RECT'}
-            title={lattice === 'RECT' ? 'Motor MiniSom opera exclusivamente em topologia plana' : 'Topologia toroidal (Rosca - bordas conectadas)'}
+            title={lattice === 'RECT' ? 'Toroidal training for rectangular lattices is not supported by the pinned intrasom==1.0.4.6 (upstream bug in _rect_dist_tor — see project notes). Only planar rectangular SOMs are available here.' : 'Topologia toroidal (Rosca - bordas conectadas)'}
             className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold border transition flex items-center justify-center gap-1.5 ${
               lattice === 'RECT'
                 ? 'opacity-40 cursor-not-allowed bg-tokyo-dark text-tokyo-muted border-tokyo-border'
@@ -146,6 +146,11 @@ export function SOMParamControls() {
             Plana (Sem Karnaugh)
           </button>
         </div>
+        {lattice === 'RECT' && (
+          <p className="text-[9px] font-mono text-tokyo-muted leading-tight mt-1 bg-tokyo-dark bg-opacity-40 p-2 rounded border border-tokyo-border border-opacity-30">
+            💡 <strong>Nota metodológica:</strong> Modelos RECT são treinados com MiniSom (planar), enquanto modelos HEX usam IntraSOM. Comparações quantitativas diretas entre malhas devem considerar as diferenças de algoritmo.
+          </p>
+        )}
       </div>
 
       {/* Neighborhood & Training Parameters Grid */}

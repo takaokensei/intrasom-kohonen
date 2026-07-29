@@ -171,6 +171,8 @@ interface DashboardState {
   setTrainingMode: (mode: 'batch' | 'online') => void;
   setInitialization: (init: 'linear' | 'random') => void;
 
+  getServedTopology: () => 'toroid' | 'planar';
+  
   // Actions
   setActiveTab: (tab: TabType) => void;
   loadSyntheticData: () => Promise<void>;
@@ -235,6 +237,12 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   setEpochs: (epochs) => set({ epochs }),
   setTrainingMode: (trainingMode) => set({ trainingMode }),
   setInitialization: (initialization) => set({ initialization }),
+
+  getServedTopology: () => {
+    const { lattice, topology } = get();
+    if (lattice === 'RECT') return 'planar';
+    return topology;
+  },
 
   // Actions
   setSelectedTextDataset: (selectedTextDataset) => set({ 

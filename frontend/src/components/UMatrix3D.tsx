@@ -246,8 +246,9 @@ function UMatrixMesh({
         const { val, id } = getValueAt(r, c);
         const normH = Math.max(0, Math.min(1, (val - minVal) / (maxVal - minVal || 1)));
 
-        // X, Z coordinates with hex staggering
-        const hexStag = (lattice === 'HEX' && r % 2 === 1) ? 0.5 : 0;
+        // X, Z coordinates with hex staggering based on REAL row parity
+        const realRow = Math.floor(r / 2);
+        const hexStag = (lattice === 'HEX' && realRow % 2 === 1) ? 0.5 : 0;
         const x = (c + hexStag - (gridCols - 1) / 2) * widthScale;
         const z = (r - (gridRows - 1) / 2) * widthScale * (lattice === 'HEX' ? Math.sqrt(3) / 2 : 1);
         const y = normH * heightScale;
@@ -298,7 +299,7 @@ function UMatrixMesh({
       // Calculate position of border indicator near n1 pointing outward
       const expR1 = 2 * w.n1.row;
       const expC1 = 2 * w.n1.col;
-      const hexStag1 = (lattice === 'HEX' && expR1 % 2 === 1) ? 0.5 : 0;
+      const hexStag1 = (lattice === 'HEX' && w.n1.row % 2 === 1) ? 0.5 : 0;
 
       let borderDx = 0;
       let borderDz = 0;

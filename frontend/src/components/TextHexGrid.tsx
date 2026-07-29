@@ -6,6 +6,7 @@ import { getClassColor, TEXT_CLASS_COLORS, getUMatrixColor } from '../lib/colors
 import { getHexPoints, computeContiguousHexRadius, getHexCenter } from '../lib/geometry';
 import { FullscreenPanel } from './FullscreenPanel';
 import { UMatrix3D } from './UMatrix3D';
+import { UMatrixTorus } from './UMatrixTorus';
 
 export const TextHexGrid = memo(function TextHexGrid() {
   const { 
@@ -15,12 +16,14 @@ export const TextHexGrid = memo(function TextHexGrid() {
     loadingText, 
     classificationResult,
     lattice,
-    topology,
+    getServedTopology,
     getActiveTextModel
   } = useDashboardStore();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
+  const servedTopology = getServedTopology();
   const [colorMode, setColorMode] = useState<'class' | 'umatrix'>('class');
   const [viewDimension, setViewDimension] = useState<'2D' | '3D'>('2D');
+  const [threeMode, setThreeMode] = useState<'terrain' | 'torus'>('terrain');
   
   const model = getActiveTextModel();
   const neurons = model?.neurons;
@@ -145,11 +148,11 @@ export const TextHexGrid = memo(function TextHexGrid() {
               Malha {lattice === 'HEX' ? 'Hexagonal (HEX)' : 'Retangular (RECT)'} - Notícias (10x10)
             </h3>
             <span className={`text-[9px] font-mono px-2 py-0.5 rounded border font-semibold ${
-              topology === 'toroid'
+              servedTopology === 'toroid'
                 ? 'bg-tokyo-magenta bg-opacity-10 text-tokyo-magenta border-tokyo-magenta border-opacity-30'
                 : 'bg-tokyo-yellow bg-opacity-10 text-tokyo-yellow border-tokyo-yellow border-opacity-30'
             }`}>
-              {topology === 'toroid' ? 'Toroide ON' : 'Plana (Sem Karnaugh)'}
+              {servedTopology === 'toroid' ? 'Toroide ON' : 'Plana (Sem Karnaugh)'}
             </span>
           </div>
           <p className="text-[10px] text-tokyo-muted font-mono mt-0.5">
@@ -193,6 +196,24 @@ export const TextHexGrid = memo(function TextHexGrid() {
             </div>
           )}
 
+          {/* Sub-toggle Terreno 3D vs Toroide 3D */}
+          {colorMode === 'umatrix' && viewDimension === '3D' && (
+            <div className="flex rounded border border-tokyo-border overflow-hidden">
+              <button
+                onClick={() => setThreeMode('terrain')}
+                className={`px-2 py-1 text-[11px] font-mono transition active-press-scale ${threeMode === 'terrain' ? 'bg-tokyo-cyan text-tokyo-bg font-bold' : 'bg-tokyo-panel text-tokyo-text hover:bg-opacity-80'}`}
+              >
+                Terreno
+              </button>
+              <button
+                onClick={() => setThreeMode('torus')}
+                className={`px-2 py-1 text-[11px] font-mono transition active-press-scale ${threeMode === 'torus' ? 'bg-tokyo-magenta text-tokyo-bg font-bold' : 'bg-tokyo-panel text-tokyo-text hover:bg-opacity-80'}`}
+              >
+                Toroide 🍩
+              </button>
+            </div>
+          )}
+
           <button 
             onClick={toggleFullscreen}
             className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-tokyo-muted hover:text-tokyo-text active-press-scale"
@@ -203,18 +224,30 @@ export const TextHexGrid = memo(function TextHexGrid() {
         </div>
       </div>
       
-      {/* Hex Grid SVG or 3D U-Matrix */}
+      {/* Hex Grid SVG, 3D Terrain, or 3D Torus */}
       <div className="flex-1 flex justify-center items-center relative overflow-hidden bg-tokyo-dark bg-opacity-40 rounded-xl border border-tokyo-border border-opacity-30 min-h-[220px]">
         {colorMode === 'umatrix' && viewDimension === '3D' && model ? (
-          <UMatrix3D
-            neurons={neurons || []}
-            cols={cols}
-            rows={rows}
-            umatrix_edges={model.umatrix_edges}
-            edgeMin={model.umatrix_edge_min}
-            edgeMax={model.umatrix_edge_max}
-            lattice={lattice}
-          />
+          threeMode === 'torus' ? (
+            <UMatrixTorus
+              neurons={neurons || []}
+              cols={cols}
+              rows={rows}
+              umatrix_edges={model.umatrix_edges}
+              edgeMin={model.umatrix_edge_min}
+              edgeMax={model.umatrix_edge_max}
+              lattice={lattice}
+            />
+          ) : (
+            <UMatrix3D
+              neurons={neurons || []}
+              cols={cols}
+              rows={rows}
+              umatrix_edges={model.umatrix_edges}
+              edgeMin={model.umatrix_edge_min}
+              edgeMax={model.umatrix_edge_max}
+              lattice={lattice}
+            />
+          )
         ) : (
           <svg 
             viewBox={`0 0 ${svgWidth} ${svgHeight}`} 

@@ -15,8 +15,8 @@
         "train_finetune_len": 350,
         "train_rough_radiusin": 4,
         "train_rough_radiusfin": 1,
-        "quantization_error": 5.0597118556667935,
-        "topographic_error": 0.0016666666666666668
+        "quantization_error": 4.308238896188276,
+        "topographic_error": 0.0033333333333333335
     },
     {
         "size_name": "5x5",
@@ -53,8 +53,8 @@
         "train_finetune_len": 350,
         "train_rough_radiusin": 6,
         "train_rough_radiusfin": 1,
-        "quantization_error": 4.57624115252542,
-        "topographic_error": 0.018333333333333333
+        "quantization_error": 4.057223533212366,
+        "topographic_error": 0.015
     },
     {
         "size_name": "7x7",
@@ -91,8 +91,8 @@
         "train_finetune_len": 350,
         "train_rough_radiusin": 8,
         "train_rough_radiusfin": 1,
-        "quantization_error": 4.281876720594141,
-        "topographic_error": 0.008333333333333333
+        "quantization_error": 3.7117820813101314,
+        "topographic_error": 0.0016666666666666668
     },
     {
         "size_name": "10x10",
@@ -129,8 +129,8 @@
         "train_finetune_len": 350,
         "train_rough_radiusin": 10,
         "train_rough_radiusfin": 1,
-        "quantization_error": 4.287007292674622,
-        "topographic_error": 0.14166666666666666
+        "quantization_error": 3.594967648718726,
+        "topographic_error": 0.006666666666666667
     },
     {
         "size_name": "12x12",
@@ -167,8 +167,8 @@
         "train_finetune_len": 350,
         "train_rough_radiusin": 12,
         "train_rough_radiusfin": 1,
-        "quantization_error": 3.9681724406253958,
-        "topographic_error": 0.018333333333333333
+        "quantization_error": 3.4583495988079584,
+        "topographic_error": 0.005
     },
     {
         "size_name": "15x15",
@@ -205,8 +205,8 @@
         "train_finetune_len": 350,
         "train_rough_radiusin": 16,
         "train_rough_radiusfin": 1,
-        "quantization_error": 3.7243960235643114,
-        "topographic_error": 0.005
+        "quantization_error": 3.242026041562587,
+        "topographic_error": 0.0033333333333333335
     },
     {
         "size_name": "20x20",

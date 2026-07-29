@@ -17,8 +17,8 @@
         "train_finetune_len": 350,
         "train_rough_radiusin": 8,
         "train_rough_radiusfin": 1,
-        "quantization_error": 3.5179119085331183,
-        "topographic_error": 0.04
+        "quantization_error": 3.0231614557484137,
+        "topographic_error": 0.02
     },
     {
         "dataset_name": "20news",
@@ -59,8 +59,8 @@
         "train_finetune_len": 350,
         "train_rough_radiusin": 8,
         "train_rough_radiusfin": 1,
-        "quantization_error": 3.740320637958717,
-        "topographic_error": 0.04
+        "quantization_error": 3.2150811091173224,
+        "topographic_error": 0.0125
     },
     {
         "dataset_name": "20news",
@@ -101,8 +101,8 @@
         "train_finetune_len": 350,
         "train_rough_radiusin": 8,
         "train_rough_radiusfin": 1,
-        "quantization_error": 3.519039543095545,
-        "topographic_error": 0.028391167192429023
+        "quantization_error": 2.866065708404445,
+        "topographic_error": 0.0031545741324921135
     },
     {
         "dataset_name": "6class",
@@ -143,8 +143,8 @@
         "train_finetune_len": 350,
         "train_rough_radiusin": 8,
         "train_rough_radiusfin": 1,
-        "quantization_error": 3.7234546213574493,
-        "topographic_error": 0.031545741324921134
+        "quantization_error": 3.1958376150297148,
+        "topographic_error": 0.022082018927444796
     },
     {
         "dataset_name": "6class",

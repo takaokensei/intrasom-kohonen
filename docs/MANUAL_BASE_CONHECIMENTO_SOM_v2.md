@@ -348,8 +348,8 @@ A escolha da disposição geométrica dos neurônios afeta diretamente a simetri
   * Cada neurônio possui **6 vizinhos adjacentes estritamente equidistantes** ($d=1$).
   * *Fundamentação Biológica/Física (Carneiro & Rodrigo):* Na natureza, a geometria hexagonal é a forma espacial mais estável para preenchimento de superfícies contínuas (ângulo mecânico de 120º em favos de abelhas, basaltos vulcânicos e bolhas de sabão). Oferece a melhor simetria espacial para a função de vizinhança Gaussiana.
 
-> ℹ️ **Nota Técnica de Implementação do Projeto (Motor Complementar MiniSom):**
-> A variante **RECT** deste projeto é treinada através da biblioteca **MiniSom** (`minisom==2.3.6`, https://github.com/JustGlowing/minisom) devido ao bloqueador nativo no método `build_umatrix()` da biblioteca `intrasom`, que lança explicitamente `Exception("build_umatrix error: non hexagonal lattice not implemented!")` para malhas não hexagonais (o bug secundário de gerador em `Codebook._rect_dist_plan` já foi corrigido localmente via monkey-patch em `src/reproducibility.py`, mas a restrição da Matriz U permanece como impedimento principal). O treinamento realiza a quantização retangular pura ($x = \text{col}$, $y = \text{row}$) em topologia plana com o algoritmo batch síncrono `train_batch_offline`, PCA na inicialização de pesos e curva de decaimento do raio de vizinhança de 80% do mapa até 1 neurônio ao longo de 500 épocas.
+> ℹ️ **Nota Técnica de Implementação do Projeto (Paridade Metodológica com IntraSOM 1.1.1):**
+> Todas as variantes do projeto — tanto hexagonais (**HEX**) quanto retangulares (**RECT**), nas topologias plana e toroidal — são treinadas nativamente utilizando o motor **IntraSOM 1.1.1** (`intrasom==1.1.1`). A release 1.1.1 corrigiu o cálculo de distância toroidal em malhas retangulares (`_rect_dist_tor`) e adicionou a verificação de malha em `calculate_map_dist`, permitindo treinamento toroidal retangular matematicamente exato sem necessidade de motores secundários. Todos os modelos utilizam inicialização PCA, quantização retangular/hexagonal contínua e a mesma curva de decaimento de raio (80% até 1 neurônio em 500 épocas síncronas batch).
 
 ---
 

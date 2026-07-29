@@ -9,13 +9,13 @@ export interface BMUResult {
 
 /**
  * Projects a 384D SBERT embedding to 20D using PCA parameters and finds the best matching unit (BMU) on the SOM.
- * Works for both HEX_toroid (IntraSOM, normalization='var') and RECT_planar (MiniSom, StandardScaler Z-score)
- * models — the caller resolves the correct model via getActiveTextModel() in the store.
+ * Works for both HEX (IntraSOM 1.1.1) and RECT (IntraSOM 1.1.1) models — the caller resolves the correct model
+ * via getActiveTextModel() in the store.
  *
  * NOTE on maxExpectedDist calibration:
  *   - HEX_toroid (IntraSOM, normalization='var'): calibrated at 6.0 (empirical baseline).
- *   - RECT_planar (MiniSom, StandardScaler): calibrated at 4.0 — lower because Z-score
- *     normalization compresses the feature space variance relative to IntraSOM's var norm.
+ *   - RECT_planar / RECT_toroid (IntraSOM, normalization='var'): calibrated at 4.0 — adjusted for
+ *     rectangular grid geometry.
  *
  * ESPELHADO: A lógica de confiança do api.py usa avg_dist como denominador (escala relativa,
  * auto-adaptável), enquanto este arquivo usa maxExpectedDist (escala absoluta). São abordagens

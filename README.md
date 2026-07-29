@@ -136,9 +136,10 @@ intrasom-kohonen/
 │   ├── api.py                        # Local FastAPI server for vectorization/projection
 │   ├── train_som.py                  # Training of the base models (HEX toroidal)
 │   ├── train_som_variants.py         # Planar variants (HEX)
-│   ├── train_som_rect.py             # Rectangular variant via MiniSom
+│   ├── train_som_rect.py             # Rectangular variants (RECT_planar and RECT_toroid) via IntraSOM 1.1.1
 │   ├── train_parameter_study.py      # Multivariate parameter sensitivity study
-│   ├── text_som_clustering.py        # Training pipeline for the textual SOM
+│   ├── text_som_clustering.py        # Training pipeline for the textual SOM (HEX)
+│   ├── train_text_som_rect.py        # Rectangular text variants (RECT_planar and RECT_toroid) via IntraSOM 1.1.1
 │   ├── export_data_for_frontend.py   # Exports Python results into static JSONs
 │   ├── evaluate_clusters.py          # Evaluation metrics (ARI, NMI, Silhouette, etc.)
 │   └── deploy_to_hf.py               # Packages and publishes the API to Hugging Face Spaces
@@ -211,16 +212,19 @@ python src/train_som.py
 # 3. Train the planar variants for ALL 6 sizes (HEX_planar / Toroid OFF)
 python src/train_som_variants.py
 
-# 4. Train the rectangular variants for ALL 6 sizes via MiniSom (RECT_planar)
+# 4. Train the rectangular variants for ALL 6 sizes (RECT_planar and RECT_toroid)
 python src/train_som_rect.py
 
 # 5. Run the multivariate parameter sensitivity study
 python src/train_parameter_study.py
 
-# 6. Train the 4 semantic text models (20news and 6class, TF-IDF and SBERT)
+# 6. Train the 4 semantic text models (20news and 6class, TF-IDF and SBERT: HEX_toroid and HEX_planar)
 python src/text_som_clustering.py
 
-# 7. Export all structured files (.parquet + JSONs) for the React frontend
+# 7. Train the 4 rectangular text models (RECT_planar and RECT_toroid)
+python src/train_text_som_rect.py
+
+# 8. Export all structured files (.parquet + JSONs) for the React frontend
 python src/export_data_for_frontend.py
 ```
 
@@ -228,13 +232,10 @@ python src/export_data_for_frontend.py
 
 ## `> engine_architecture`
 
-* **Hexagonal Grid (`IntraSOM`):**
-  All hexagonal maps (both toroidal and planar topologies) across the 6 map sizes (5x5 to 20x20) are trained with the primary `intrasom` engine.
-* **Rectangular Grid (`MiniSom`):**
-  The use of the complementary **MiniSom** engine (`minisom==2.3.6`) for the **RECT_planar** variant stems from a real technical limitation in the `intrasom` library:
-  1. **Main Blocker (Unresolved):** The `build_umatrix()` method explicitly raises `Exception("build_umatrix error: non hexagonal lattice not implemented!")`, which would require rewriting the U-Matrix construction for rectangular lattices inside the library (out of scope).
-  2. **Syntax Bug (Patched Locally):** The bug in `Codebook._rect_dist_plan` (a generator passed to `np.array()`) was fixed via a monkey-patch in `src/reproducibility.py` (`_patch_intrasom_rect_dist_plan`), though this fix alone does not remove the U-Matrix blocker.
-  For this structural reason (and not as an arbitrary stylistic choice), we use **MiniSom** with the synchronous batch algorithm `train_batch_offline`, ensuring 100% real data with no decorative fallback.
+* **Unified Engine Parity (`IntraSOM 1.1.1`):**
+  All SOM models across both geometries (**Hexagonal** and **Rectangular**) and both topologies (**Planar** and **Toroidal**) are trained exclusively using **IntraSOM 1.1.1** (`intrasom==1.1.1`) with 100% identical training hyperparameters (PCA initialization, 500 epochs, 80%→1 neighborhood radius decay, batch algorithm).
+* **Upstream Fixes & Toroidal Parity:**
+  The upgrade to `intrasom==1.1.1` resolved the upstream bug in `Codebook._rect_dist_tor` (which previously calculated rectangular toroidal distances using hexagonal coordinates) and added the proper lattice guard `if self.lattice == 'hexa'` in `calculate_map_dist`. This eliminates the need for any secondary engine workaround and enables native, mathematically exact **RECT_toroid** training alongside **HEX_toroid**, **HEX_planar**, and **RECT_planar**.
 
 <br/>
 

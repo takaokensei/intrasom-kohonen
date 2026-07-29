@@ -8,15 +8,34 @@
         ],
         "lattice": "rect",
         "mapshape": "planar",
-        "engine": "minisom",
+        "engine": "intrasom",
         "initialization": "pca",
         "total_epochs": 500,
         "train_rough_len": 150,
         "train_finetune_len": 350,
         "train_rough_radiusin": 4,
         "train_rough_radiusfin": 1,
-        "quantization_error": 36.17692210866404,
-        "topographic_error": 0.023333333333333334
+        "quantization_error": 5.0597118556667935,
+        "topographic_error": 0.0016666666666666668
+    },
+    {
+        "size_name": "5x5",
+        "variant_key": "RECT_toroid",
+        "mapsize": [
+            5,
+            5
+        ],
+        "lattice": "rect",
+        "mapshape": "toroid",
+        "engine": "intrasom",
+        "initialization": "pca",
+        "total_epochs": 500,
+        "train_rough_len": 150,
+        "train_finetune_len": 350,
+        "train_rough_radiusin": 4,
+        "train_rough_radiusfin": 1,
+        "quantization_error": 4.933731319480364,
+        "topographic_error": 0.03666666666666667
     },
     {
         "size_name": "7x7",
@@ -27,15 +46,34 @@
         ],
         "lattice": "rect",
         "mapshape": "planar",
-        "engine": "minisom",
+        "engine": "intrasom",
         "initialization": "pca",
         "total_epochs": 500,
         "train_rough_len": 150,
         "train_finetune_len": 350,
         "train_rough_radiusin": 6,
         "train_rough_radiusfin": 1,
-        "quantization_error": 32.649392909239126,
-        "topographic_error": 0.013333333333333334
+        "quantization_error": 4.57624115252542,
+        "topographic_error": 0.018333333333333333
+    },
+    {
+        "size_name": "7x7",
+        "variant_key": "RECT_toroid",
+        "mapsize": [
+            7,
+            7
+        ],
+        "lattice": "rect",
+        "mapshape": "toroid",
+        "engine": "intrasom",
+        "initialization": "pca",
+        "total_epochs": 500,
+        "train_rough_len": 150,
+        "train_finetune_len": 350,
+        "train_rough_radiusin": 6,
+        "train_rough_radiusfin": 1,
+        "quantization_error": 4.349351438203999,
+        "topographic_error": 0.04833333333333333
     },
     {
         "size_name": "10x10",
@@ -46,15 +84,34 @@
         ],
         "lattice": "rect",
         "mapshape": "planar",
-        "engine": "minisom",
+        "engine": "intrasom",
         "initialization": "pca",
         "total_epochs": 500,
         "train_rough_len": 150,
         "train_finetune_len": 350,
         "train_rough_radiusin": 8,
         "train_rough_radiusfin": 1,
-        "quantization_error": 29.63632644646199,
-        "topographic_error": 0.016666666666666666
+        "quantization_error": 4.281876720594141,
+        "topographic_error": 0.008333333333333333
+    },
+    {
+        "size_name": "10x10",
+        "variant_key": "RECT_toroid",
+        "mapsize": [
+            10,
+            10
+        ],
+        "lattice": "rect",
+        "mapshape": "toroid",
+        "engine": "intrasom",
+        "initialization": "pca",
+        "total_epochs": 500,
+        "train_rough_len": 150,
+        "train_finetune_len": 350,
+        "train_rough_radiusin": 8,
+        "train_rough_radiusfin": 1,
+        "quantization_error": 3.9142592937346095,
+        "topographic_error": 0.07
     },
     {
         "size_name": "12x12",
@@ -65,15 +122,34 @@
         ],
         "lattice": "rect",
         "mapshape": "planar",
-        "engine": "minisom",
+        "engine": "intrasom",
         "initialization": "pca",
         "total_epochs": 500,
         "train_rough_len": 150,
         "train_finetune_len": 350,
         "train_rough_radiusin": 10,
         "train_rough_radiusfin": 1,
-        "quantization_error": 28.32532151746995,
-        "topographic_error": 0.006666666666666667
+        "quantization_error": 4.287007292674622,
+        "topographic_error": 0.14166666666666666
+    },
+    {
+        "size_name": "12x12",
+        "variant_key": "RECT_toroid",
+        "mapsize": [
+            12,
+            12
+        ],
+        "lattice": "rect",
+        "mapshape": "toroid",
+        "engine": "intrasom",
+        "initialization": "pca",
+        "total_epochs": 500,
+        "train_rough_len": 150,
+        "train_finetune_len": 350,
+        "train_rough_radiusin": 10,
+        "train_rough_radiusfin": 1,
+        "quantization_error": 3.736811397244854,
+        "topographic_error": 0.05
     },
     {
         "size_name": "15x15",
@@ -84,15 +160,34 @@
         ],
         "lattice": "rect",
         "mapshape": "planar",
-        "engine": "minisom",
+        "engine": "intrasom",
         "initialization": "pca",
         "total_epochs": 500,
         "train_rough_len": 150,
         "train_finetune_len": 350,
         "train_rough_radiusin": 12,
         "train_rough_radiusfin": 1,
-        "quantization_error": 27.055681530705396,
-        "topographic_error": 0.015
+        "quantization_error": 3.9681724406253958,
+        "topographic_error": 0.018333333333333333
+    },
+    {
+        "size_name": "15x15",
+        "variant_key": "RECT_toroid",
+        "mapsize": [
+            15,
+            15
+        ],
+        "lattice": "rect",
+        "mapshape": "toroid",
+        "engine": "intrasom",
+        "initialization": "pca",
+        "total_epochs": 500,
+        "train_rough_len": 150,
+        "train_finetune_len": 350,
+        "train_rough_radiusin": 12,
+        "train_rough_radiusfin": 1,
+        "quantization_error": 3.5464317302324093,
+        "topographic_error": 0.028333333333333332
     },
     {
         "size_name": "20x20",
@@ -103,14 +198,33 @@
         ],
         "lattice": "rect",
         "mapshape": "planar",
-        "engine": "minisom",
+        "engine": "intrasom",
         "initialization": "pca",
         "total_epochs": 500,
         "train_rough_len": 150,
         "train_finetune_len": 350,
         "train_rough_radiusin": 16,
         "train_rough_radiusfin": 1,
-        "quantization_error": 25.350516894414476,
-        "topographic_error": 0.0033333333333333335
+        "quantization_error": 3.7243960235643114,
+        "topographic_error": 0.005
+    },
+    {
+        "size_name": "20x20",
+        "variant_key": "RECT_toroid",
+        "mapsize": [
+            20,
+            20
+        ],
+        "lattice": "rect",
+        "mapshape": "toroid",
+        "engine": "intrasom",
+        "initialization": "pca",
+        "total_epochs": 500,
+        "train_rough_len": 150,
+        "train_finetune_len": 350,
+        "train_rough_radiusin": 16,
+        "train_rough_radiusfin": 1,
+        "quantization_error": 3.3191560115728542,
+        "topographic_error": 0.02666666666666667
     }
 ]

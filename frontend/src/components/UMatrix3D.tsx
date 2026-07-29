@@ -48,7 +48,7 @@ interface HoveredPointInfo {
 }
 
 /**
- * Modular boundary crossing test for toroidal wraparound edge classification.
+ * Strict modular boundary crossing test for toroidal wraparound edge classification (IntraSOM 1.1.1 parity).
  */
 function isWraparoundEdge(
   r1: number, c1: number,

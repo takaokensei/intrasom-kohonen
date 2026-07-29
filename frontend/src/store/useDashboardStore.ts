@@ -73,6 +73,9 @@ export interface ParameterStudyEntry {
 
 export interface MetricRow {
   Modelo: string;
+  lattice?: string;
+  topology?: string;
+  variant?: string;
   ARI: number;
   NMI: number;
   Silhouette: number;
@@ -136,7 +139,7 @@ interface DashboardState {
   loadingText: boolean;
   
   // Synthetic Control
-  selectedMapSize: '10x10' | '15x15' | '20x20';
+  selectedMapSize: '5x5' | '7x7' | '10x10' | '12x12' | '15x15' | '20x20';
   selectedNeuronId: number | null;
   highlightedClass: string | null;
   
@@ -179,7 +182,7 @@ interface DashboardState {
   setActiveTab: (tab: TabType) => void;
   loadSyntheticData: () => Promise<void>;
   loadTextData: () => Promise<void>;
-  setSelectedMapSize: (size: '10x10' | '15x15' | '20x20') => void;
+  setSelectedMapSize: (size: '5x5' | '7x7' | '10x10' | '12x12' | '15x15' | '20x20') => void;
   setSelectedNeuronId: (id: number | null) => void;
   setHighlightedClass: (className: string | null) => void;
   setSelectedTextRep: (rep: 'SBERT' | 'TF-IDF') => void;

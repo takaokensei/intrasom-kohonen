@@ -19,10 +19,12 @@ export function SOMParamControls() {
     setInitialization,
     activeTab,
     selectedMapSize,
-    setSelectedMapSize
+    setSelectedMapSize,
+    getActiveSOMModel
   } = useDashboardStore();
 
   const isTextTab = activeTab === 'text';
+  const activeSOMModel = getActiveSOMModel();
 
   return (
     <div className="glass-panel rounded-2xl p-5 flex flex-col space-y-4 text-tokyo-text">
@@ -36,14 +38,14 @@ export function SOMParamControls() {
         </span>
       </div>
 
-      {/* Map Size Selector */}
+      {/* Map Size Selector (5x5, 7x7, 10x10, 12x12, 15x15, 20x20) */}
       <div className="flex flex-col space-y-1.5">
         <label className="text-[10px] text-tokyo-muted font-semibold uppercase font-mono tracking-wider flex items-center gap-1">
           <Layers size={12} className="text-tokyo-cyan" />
-          Dimensões da Grade (cols x rows)
+          Dimensões da Grade (Solicitado)
         </label>
         <div className="grid grid-cols-3 gap-2">
-          {(['10x10', '15x15', '20x20'] as const).map((size) => {
+          {(['5x5', '7x7', '10x10', '12x12', '15x15', '20x20'] as const).map((size) => {
             const isDisabled = isTextTab && size !== '10x10';
             return (
               <button
@@ -64,6 +66,12 @@ export function SOMParamControls() {
             );
           })}
         </div>
+        {activeSOMModel && (
+          <div className="flex justify-between items-center text-[10px] font-mono text-tokyo-muted bg-tokyo-dark bg-opacity-40 px-2 py-1 rounded border border-tokyo-border border-opacity-30">
+            <span>Dimensão Efetiva (Motor): <strong className="text-tokyo-cyan">{activeSOMModel.cols}×{activeSOMModel.rows}</strong></span>
+            <span className="font-bold text-tokyo-text">{activeSOMModel.cols * activeSOMModel.rows} neurônios</span>
+          </div>
+        )}
         {isTextTab && (
           <span className="text-[10px] font-mono text-tokyo-muted italic">
             ℹ️ Modelos textuais são treinados exclusivamente na dimensão 10x10.

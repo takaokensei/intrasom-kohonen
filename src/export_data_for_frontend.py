@@ -44,68 +44,75 @@ def export_all():
 
     def build_expanded_umatrix_grid(som, umat_expanded):
         cols, rows = som.mapsize
-        ii = [[1, 1, 0, -1, 0, 1], [1, 0, -1, -1, -1, 0]]
-        jj = [[0, 1, 1, 0, -1, -1], [0, 1, 1, 0, -1, -1]]
+        lattice = getattr(som.codebook, 'lattice', 'hexa')
         is_toroid = (som.mapshape == 'toroid')
         edges = []
         seen_pairs = set()
-        for r in range(rows):
-            for c in range(cols):
-                neuron_idx = r * cols + c
-                e = 1 if r % 2 == 0 else 0
-                for k in range(6):
-                    dist = umat_expanded[r, c, k]
-                    if np.isnan(dist):
-                        continue
-                    nr = r + jj[e][k]
-                    nc = c + ii[e][k]
-                    if is_toroid:
-                        nr %= rows
-                        nc %= cols
-                    elif not (0 <= nr < rows and 0 <= nc < cols):
-                        continue
-                    neighbor_idx = nr * cols + nc
-                    p1, p2 = min(neuron_idx, neighbor_idx), max(neuron_idx, neighbor_idx)
-                    pair = (p1, p2)
-                    if pair not in seen_pairs:
-                        seen_pairs.add(pair)
-                        edges.append({"from": p1 + 1, "to": p2 + 1, "distance": float(dist)})
-        edge_dists = [e["distance"] for e in edges]
-        min_dist = float(np.min(edge_dists)) if edge_dists else 0.0
-        max_dist = float(np.max(edge_dists)) if edge_dists else 1.0
-        return edges, min_dist, max_dist
 
-    def build_rect_umatrix_edges(neurons_list, cols, rows):
-        offsets = [(0, 1), (1, 1), (1, 0), (1, -1)]
-        codebooks = {}
-        for n in neurons_list:
-            if "codebook" in n and n["codebook"]:
-                codebooks[n["id"]] = np.array(n["codebook"])
-        edges = []
-        seen_pairs = set()
-        for r in range(rows):
-            for c in range(cols):
-                nid1 = r * cols + c + 1
-                cb1 = codebooks.get(nid1)
-                if cb1 is None:
-                    continue
-                for dr, dc in offsets:
-                    nr, nc = r + dr, c + dc
-                    if 0 <= nr < rows and 0 <= nc < cols:
-                        nid2 = nr * cols + nc + 1
-                        cb2 = codebooks.get(nid2)
-                        if cb2 is not None:
-                            p1 = min(nid1, nid2)
-                            p2 = max(nid1, nid2)
-                            pair = (p1, p2)
-                            if pair not in seen_pairs:
-                                seen_pairs.add(pair)
-                                dist = float(np.linalg.norm(cb1 - cb2))
-                                edges.append({
-                                    "from": p1,
-                                    "to": p2,
-                                    "distance": dist
-                                })
+        if lattice == 'rect':
+            # 8 vizinhos para malha retangular (ordem síncrona com IntraSOM 1.1.1 build_umatrix):
+            # [right, down-right, down, down-left, left, up-left, up, up-right]
+            rect_offsets = [
+                (1, 0),    # 0 = right
+                (1, 1),    # 1 = down-right
+                (0, 1),    # 2 = down
+                (-1, 1),   # 3 = down-left
+                (-1, 0),   # 4 = left
+                (-1, -1),  # 5 = up-left
+                (0, -1),   # 6 = up
+                (1, -1),   # 7 = up-right
+            ]
+            for r in range(rows):
+                for c in range(cols):
+                    neuron_idx = r * cols + c
+                    for k in range(8):
+                        dist = umat_expanded[r, c, k]
+                        if np.isnan(dist):
+                            continue
+                        dc, dr = rect_offsets[k]
+                        nr = r + dr
+                        nc = c + dc
+                        if is_toroid:
+                            nr %= rows
+                            nc %= cols
+                        elif not (0 <= nr < rows and 0 <= nc < cols):
+                            continue
+                        neighbor_idx = nr * cols + nc
+                        if neuron_idx == neighbor_idx:
+                            continue
+                        p1, p2 = min(neuron_idx, neighbor_idx), max(neuron_idx, neighbor_idx)
+                        pair = (p1, p2)
+                        if pair not in seen_pairs:
+                            seen_pairs.add(pair)
+                            edges.append({"from": p1 + 1, "to": p2 + 1, "distance": float(dist)})
+        else:
+            # 6 vizinhos para malha hexagonal
+            ii = [[1, 1, 0, -1, 0, 1], [1, 0, -1, -1, -1, 0]]
+            jj = [[0, 1, 1, 0, -1, -1], [0, 1, 1, 0, -1, -1]]
+            for r in range(rows):
+                for c in range(cols):
+                    neuron_idx = r * cols + c
+                    e = 1 if r % 2 == 0 else 0
+                    for k in range(6):
+                        dist = umat_expanded[r, c, k]
+                        if np.isnan(dist):
+                            continue
+                        nr = r + jj[e][k]
+                        nc = c + ii[e][k]
+                        if is_toroid:
+                            nr %= rows
+                            nc %= cols
+                        elif not (0 <= nr < rows and 0 <= nc < cols):
+                            continue
+                        neighbor_idx = nr * cols + nc
+                        if neuron_idx == neighbor_idx:
+                            continue
+                        p1, p2 = min(neuron_idx, neighbor_idx), max(neuron_idx, neighbor_idx)
+                        pair = (p1, p2)
+                        if pair not in seen_pairs:
+                            seen_pairs.add(pair)
+                            edges.append({"from": p1 + 1, "to": p2 + 1, "distance": float(dist)})
+
         edge_dists = [e["distance"] for e in edges]
         min_dist = float(np.min(edge_dists)) if edge_dists else 0.0
         max_dist = float(np.max(edge_dists)) if edge_dists else 1.0
@@ -114,8 +121,12 @@ def export_all():
     def build_neurons_list(neurons_df, results_df_local, som, y_labels, is_time_series=True):
         """Constroi a lista de neuronios para o JSON do frontend."""
         cols, rows = som.mapsize
-        plot_f     = PlotFactory(som)
-        coords     = plot_f.generate_hex_lattice(cols, rows)
+        lattice = getattr(som.codebook, 'lattice', 'hexa')
+        if lattice == 'rect':
+            coords = [(float(idx % cols), float(idx // cols)) for idx in range(cols * rows)]
+        else:
+            plot_f = PlotFactory(som)
+            coords = plot_f.generate_hex_lattice(cols, rows)
         umat_expanded = som.build_umatrix(expanded=True)
         umat          = som.build_umatrix(expanded=False)
         edges, edge_min, edge_max = build_expanded_umatrix_grid(som, umat_expanded)

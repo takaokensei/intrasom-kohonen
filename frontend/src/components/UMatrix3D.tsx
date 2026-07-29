@@ -70,8 +70,9 @@ function UMatrixMesh({
   edgeMin,
   edgeMax,
   lattice = 'HEX',
+  showWraparoundEdges = false,
   onHover
-}: UMatrix3DProps & { onHover: (info: HoveredPointInfo | null) => void }) {
+}: UMatrix3DProps & { showWraparoundEdges?: boolean; onHover: (info: HoveredPointInfo | null) => void }) {
   const meshRef = useRef<THREE.Mesh>(null);
 
   // Compute min/max for normalization
@@ -371,8 +372,8 @@ function UMatrixMesh({
         />
       </mesh>
 
-      {/* Wraparound Border Strips (Toroidal Edge Indicators) */}
-      {borderStrips.map(strip => (
+      {/* Optional Wraparound Border Strips (Debug/Inspection Only) */}
+      {showWraparoundEdges && borderStrips.map(strip => (
         <mesh
           key={strip.key}
           position={strip.position}
@@ -393,7 +394,7 @@ function UMatrixMesh({
           }}
           onPointerOut={() => onHover(null)}
         >
-          <boxGeometry args={[0.35, 0.35, 0.35]} />
+          <boxGeometry args={[0.25, 0.25, 0.25]} />
           <meshStandardMaterial
             color={strip.color}
             roughness={0.2}
@@ -409,6 +410,7 @@ function UMatrixMesh({
 
 export function UMatrix3D(props: UMatrix3DProps) {
   const [hoverInfo, setHoverInfo] = useState<HoveredPointInfo | null>(null);
+  const [showWraparoundEdges, setShowWraparoundEdges] = useState(false);
 
   return (
     <div className="relative w-full h-full min-h-[320px] rounded-xl overflow-hidden bg-[#1a1b26]">
@@ -421,7 +423,7 @@ export function UMatrix3D(props: UMatrix3DProps) {
         <directionalLight position={[10, 15, 10]} intensity={0.8} />
         <directionalLight position={[-10, -5, -10]} intensity={0.25} />
         
-        <UMatrixMesh {...props} onHover={setHoverInfo} />
+        <UMatrixMesh {...props} showWraparoundEdges={showWraparoundEdges} onHover={setHoverInfo} />
 
         <OrbitControls
           enableDamping
@@ -466,12 +468,23 @@ export function UMatrix3D(props: UMatrix3DProps) {
         </div>
       )}
 
-      {/* Floating 3D Navigation Hint */}
-      <div className="absolute bottom-2 left-3 pointer-events-none text-[10px] font-mono text-tokyo-muted bg-[#16161e] bg-opacity-80 px-2 py-1 rounded border border-tokyo-border border-opacity-30 flex items-center gap-2">
-        <span>🖱️ Arraste para girar | Scroll para zoom</span>
-        <span className="text-[9px] text-tokyo-magenta bg-tokyo-magenta bg-opacity-10 px-1.5 py-0.5 rounded border border-tokyo-magenta border-opacity-20 font-semibold">
-          📦 Cubos na borda = Wraparound Toroidal
-        </span>
+      {/* Floating 3D Controls & Navigation Hint */}
+      <div className="absolute bottom-2 left-3 right-3 pointer-events-none flex items-center justify-between font-mono text-[10px]">
+        <div className="text-tokyo-muted bg-[#16161e] bg-opacity-80 px-2.5 py-1 rounded border border-tokyo-border border-opacity-30 flex items-center gap-2">
+          <span>🖱️ Arraste para girar | Scroll para zoom</span>
+          <span className="text-[9px] text-tokyo-cyan bg-tokyo-cyan bg-opacity-10 px-1.5 py-0.5 rounded border border-tokyo-cyan border-opacity-20 font-semibold">
+            Modo Terreno 3D (Plano / Malha Expandida)
+          </span>
+        </div>
+
+        {/* Optional debug toggle for wraparound indicators */}
+        <button
+          onClick={() => setShowWraparoundEdges(!showWraparoundEdges)}
+          className="pointer-events-auto px-2 py-0.5 rounded bg-[#16161e] bg-opacity-90 border border-tokyo-border text-tokyo-muted hover:text-tokyo-text transition text-[9px]"
+          title="Alternar exibição de indicadores de arestas wraparound nas bordas"
+        >
+          {showWraparoundEdges ? 'Ocultar Arestas Wraparound' : 'Arestas Wraparound (Debug)'}
+        </button>
       </div>
     </div>
   );

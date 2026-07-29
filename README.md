@@ -81,33 +81,35 @@ The dashboard is structured around two main areas of analysis:
 
 **Dataset:** 600 time series from the *Synthetic Control* dataset, split across 6 trend classes (Normal, Cyclic, Increasing Trend, Decreasing Trend, Upward Shift, and Downward Shift).
 
-**Supported maps:** Hexagonal grids of sizes **5x5, 7x7, 10x10, 12x12, 15x15, and 20x20**.
+**Supported maps & variants:** Map sizes **5x5, 7x7, 10x10, 12x12, 15x15, and 20x20**, each shipping **4 live variants**:
+- `HEX_toroid` (Hexagonal Toroidal) & `HEX_planar` (Hexagonal Planar)
+- `RECT_toroid` (Rectangular Toroidal) & `RECT_planar` (Rectangular Planar)
 
-**Visualizations:**
-- **U-Matrix** — distances between neighboring neurons on the lattice
-- **Dominant Class** — majority trend class per neuron
-- **Purity** — internal cohesion of each neuron
-- **Baseline Metrics** — real-time comparison (ARI, NMI, Silhouette, Davies-Bouldin, Calinski-Harabasz, Quantization Error, Topographic Error) against K-Means, PCA + K-Means, Agglomerative Clustering, and DBSCAN
-- **Radar Chart** — trade-offs across SOM map dimensions
+**Visualizations & 3D Renderers:**
+- **Dual 3D Renderers:** Seamless **Torus 3D (Donut)** for toroidal maps vs **Terrain 3D (Heightmap)** for planar maps.
+- **U-Matrix** — expanded distance grid between neighboring neurons
+- **Dominant Class & Purity** — majority trend class and internal cohesion
+- **Baseline Metrics** — real-time comparison (ARI, NMI, Silhouette, Davies-Bouldin, Calinski-Harabasz, QE, TE) against K-Means, PCA + K-Means, Agglomerative, and DBSCAN
+- **Radar Chart** — multi-metric trade-off evaluation
 
 </td>
 <td width="50%">
 
-### 📰 2. Semantic Text Classifier (20 Newsgroups)
+### 📰 2. Semantic Text Classifier (20 Newsgroups & 6-Class)
 <p><img src="https://img.shields.io/badge/Status-✅_Complete-9ece6a?style=for-the-badge"/></p>
 
-**Dataset:** 400 news articles from the *20 Newsgroups* corpus, evenly distributed across 4 target classes (Graphics, Baseball, Mideast, and Space).
+**Dataset:** 400 news articles from the *20 Newsgroups* corpus (4 target classes) and 60 documents from the *6-class* corpus.
 
-**Hexagonal maps (10x10):**
-- Side-by-side comparison between the classic **TF-IDF (Frequency-based)** representation and the deep **Sentence-BERT (Semantic)** representation
-- Statistical analysis highlighting the ARI/NMI gain achieved with contextual embeddings
+**Maps & 4-Variant Matrix (10x10):**
+- Side-by-side comparison between **TF-IDF (Frequency-based)** and **Sentence-BERT (Semantic)** representations
+- Every text model ships **4 live variants** (`HEX_toroid`, `HEX_planar`, `RECT_planar`, `RECT_toroid`), all trained natively with IntraSOM 1.1.1.
 
 **Real-time classifier:**
-- Type any short or long text and project it onto the Kohonen lattice to find the corresponding activated neuron (BMU)
+- Type any text and project it onto the active Kohonen lattice to find the activated Best Matching Unit (BMU)
 - **Cascading hybrid pipeline** with three fallback levels:
   1. Tries the **local FastAPI server** (`http://127.0.0.1:8000`), when available
-  2. If offline, calls the **Hugging Face Inference API** (via a serverless proxy function) and runs the 384D → 20D PCA projection in JavaScript directly in the browser
-  3. If the external call fails, falls back to a **client-side heuristic** based on keyword similarity, ensuring the classifier is never fully unavailable
+  2. If offline, calls the **Hugging Face Inference API** (via serverless proxy) and runs client-side PCA projection
+  3. If external calls fail, falls back to a **client-side keyword heuristic**
 
 </td>
 </tr>

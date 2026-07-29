@@ -59,9 +59,11 @@ export function projectAndFindBMU(
     }
   });
   
-  // Calculate score (confidence) using calibrated maxExpectedDist per model type.
-  // RECT_planar uses StandardScaler Z-score; HEX_toroid uses IntraSOM normalization='var'.
-  const maxExpectedDist = isRectModel ? 4.0 : 6.0;
+  // Calculate score (confidence) using empirical maxExpectedDist calibration:
+  // Both HEX and RECT models are trained with IntraSOM 1.1.1 (normalization='var').
+  // - HEX models (6-neighborhood): maxExpectedDist ~ 6.0
+  // - RECT models (4-neighborhood): maxExpectedDist ~ 4.5
+  const maxExpectedDist = isRectModel ? 4.5 : 6.0;
   const confidence = Math.max(0, Math.min(100, Math.round((1.0 - (minDistance / maxExpectedDist)) * 100)));
   
   // ESPELHADO: Esta fórmula de confiança está espelhada no api.py do backend.

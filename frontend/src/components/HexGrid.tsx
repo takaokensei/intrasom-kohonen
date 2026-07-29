@@ -18,7 +18,12 @@ export const HexGrid = memo(function HexGrid() {
   const servedTopology = getServedTopology();
   const [colorMode, setColorMode] = useState<'class' | 'umatrix'>('class');
   const [viewDimension, setViewDimension] = useState<'2D' | '3D'>('2D');
-  const [threeMode, setThreeMode] = useState<'terrain' | 'torus'>('terrain');
+  const [threeMode, setThreeMode] = useState<'terrain' | 'torus'>(servedTopology === 'toroid' ? 'torus' : 'terrain');
+
+  // Sincronizar três modos 3D com a topologia do modelo servido
+  useMemo(() => {
+    setThreeMode(servedTopology === 'toroid' ? 'torus' : 'terrain');
+  }, [servedTopology]);
 
   // Tooltip local state
   const [hoveredNeuron, setHoveredNeuron] = useState<NeuronItem | null>(null);

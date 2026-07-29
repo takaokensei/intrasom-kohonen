@@ -1,4 +1,4 @@
-import { useState, useMemo, memo } from 'react';
+import { useState, useEffect, useMemo, memo } from 'react';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { Maximize2, Minimize2 } from 'lucide-react';
@@ -23,11 +23,13 @@ export const TextHexGrid = memo(function TextHexGrid() {
   const servedTopology = getServedTopology();
   const [colorMode, setColorMode] = useState<'class' | 'umatrix'>('class');
   const [viewDimension, setViewDimension] = useState<'2D' | '3D'>('2D');
-  const [threeMode, setThreeMode] = useState<'terrain' | 'torus'>(servedTopology === 'toroid' ? 'torus' : 'terrain');
-  
-  // Sincronizar três modos 3D com a topologia do modelo servido
-  useMemo(() => {
-    setThreeMode(servedTopology === 'toroid' ? 'torus' : 'terrain');
+  const [threeModeOverride, setThreeModeOverride] = useState<'terrain' | 'torus' | null>(null);
+
+  const threeMode = threeModeOverride ?? (servedTopology === 'toroid' ? 'torus' : 'terrain');
+
+  // Ao mudar a topologia servida, limpa o override manual para que o padrao da topologia vença
+  useEffect(() => {
+    setThreeModeOverride(null);
   }, [servedTopology]);
   
   const model = getActiveTextModel();
@@ -205,13 +207,13 @@ export const TextHexGrid = memo(function TextHexGrid() {
           {colorMode === 'umatrix' && viewDimension === '3D' && (
             <div className="flex rounded border border-tokyo-border overflow-hidden">
               <button
-                onClick={() => setThreeMode('terrain')}
+                onClick={() => setThreeModeOverride('terrain')}
                 className={`px-2 py-1 text-[11px] font-mono transition active-press-scale ${threeMode === 'terrain' ? 'bg-tokyo-cyan text-tokyo-bg font-bold' : 'bg-tokyo-panel text-tokyo-text hover:bg-opacity-80'}`}
               >
                 Terreno
               </button>
               <button
-                onClick={() => setThreeMode('torus')}
+                onClick={() => setThreeModeOverride('torus')}
                 className={`px-2 py-1 text-[11px] font-mono transition active-press-scale ${threeMode === 'torus' ? 'bg-tokyo-magenta text-tokyo-bg font-bold' : 'bg-tokyo-panel text-tokyo-text hover:bg-opacity-80'}`}
               >
                 Toroide 🍩

@@ -48,6 +48,23 @@ interface HoveredPointInfo {
 }
 
 /**
+ * Modular boundary crossing test for toroidal wraparound edge classification.
+ */
+function isWraparoundEdge(
+  r1: number, c1: number,
+  r2: number, c2: number,
+  rows: number, cols: number
+): boolean {
+  const dr = Math.min(Math.abs(r1 - r2), rows - Math.abs(r1 - r2));
+  const dc = Math.min(Math.abs(c1 - c2), cols - Math.abs(c1 - c2));
+  const rawDr = Math.abs(r1 - r2);
+  const rawDc = Math.abs(c1 - c2);
+  const modularlyAdjacent = dr <= 1 && dc <= 1 && (dr + dc) >= 1;
+  const crossesBoundary = rawDr > 1 || rawDc > 1;
+  return modularlyAdjacent && crossesBoundary;
+}
+
+/**
  * Converts "rgb(r, g, b)" string into a THREE.Color instance.
  */
 function parseRgbToThreeColor(rgbStr: string): THREE.Color {
@@ -114,9 +131,7 @@ function UMatrixMesh({
       const p1 = nPos.get(e.from);
       const p2 = nPos.get(e.to);
       if (!p1 || !p2) return;
-      const dr = Math.abs(p1.row - p2.row);
-      const dc = Math.abs(p1.col - p2.col);
-      const isWrap = dr > 1 || dc > 1;
+      const isWrap = isWraparoundEdge(p1.row, p1.col, p2.row, p2.col, rows, cols);
       if (isWrap) {
         const n1 = neurons.find(n => n.id === e.from);
         const n2 = neurons.find(n => n.id === e.to);
@@ -127,7 +142,7 @@ function UMatrixMesh({
     });
 
     return { wraparoundEdges: wrap };
-  }, [neurons, umatrix_edges]);
+  }, [neurons, umatrix_edges, rows, cols]);
 
   // Determine whether to use expanded grid (2N-1) x (2M-1)
   const isExpanded = umatrix_edges.length > 0;
@@ -302,20 +317,8 @@ function UMatrixMesh({
       const expC1 = 2 * w.n1.col;
       const hexStag1 = (lattice === 'HEX' && w.n1.row % 2 === 1) ? 0.5 : 0;
 
-      let borderDx = 0;
-      let borderDz = 0;
-
-      if (w.n1.col === 0 && w.n2.col === cols - 1) {
-        borderDx = -1.2;
-      } else if (w.n1.col === cols - 1 && w.n2.col === 0) {
-        borderDx = 1.2;
-      }
-
-      if (w.n1.row === 0 && w.n2.row === rows - 1) {
-        borderDz = -1.2;
-      } else if (w.n1.row === rows - 1 && w.n2.row === 0) {
-        borderDz = 1.2;
-      }
+      const borderDx = w.n1.col === 0 && w.n2.col === cols - 1 ? -0.5 : (w.n1.col === cols - 1 && w.n2.col === 0 ? 0.5 : 0);
+      const borderDz = w.n1.row === 0 && w.n2.row === rows - 1 ? -0.5 : (w.n1.row === rows - 1 && w.n2.row === 0 ? 0.5 : 0);
 
       const x = (expC1 + hexStag1 - (gridCols - 1) / 2 + borderDx) * widthScale;
       const z = (expR1 - (gridRows - 1) / 2 + borderDz) * widthScale * (lattice === 'HEX' ? Math.sqrt(3) / 2 : 1);

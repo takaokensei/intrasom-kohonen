@@ -53,60 +53,70 @@ def evaluate_models():
     sizes = ["5x5", "7x7", "10x10", "12x12", "15x15", "20x20"]
     som_results = []
     
+    variants_def = [
+        ("HEX_toroid", "HEX", "toroid", "", ""),
+        ("HEX_planar", "HEX", "planar", "_HEX_planar", "_HEX_planar"),
+        ("RECT_planar", "RECT", "planar", "_RECT_planar", "_RECT_planar"),
+        ("RECT_toroid", "RECT", "toroid", "_RECT_toroid", "_RECT_toroid"),
+    ]
+
     for size_name in sizes:
-        neurons_file = os.path.join(maps_dir, f"SOM_{size_name}_neurons.parquet")
-        results_file = os.path.join(maps_dir, f"SOM_{size_name}_results.parquet")
-        params_file = os.path.join(maps_dir, f"params_SOM_{size_name}.json")
-        
-        if not (os.path.exists(neurons_file) and os.path.exists(results_file) and os.path.exists(params_file)):
-            print(f"SOM {size_name} files not found. Skipping.")
-            continue
-            
-        print(f"Evaluating SOM {size_name}...")
-        
-        # Load SOM
-        neurons_df = pd.read_parquet(neurons_file)
-        results_df = pd.read_parquet(results_file)
-        params = json.load(open(params_file))
-        
-        som = intrasom.SOMFactory.load_som(data=X, trained_neurons=neurons_df, params=params)
-        
-        # Cluster neurons into 6 groups using K-Means
-        cf = ClusterFactory(som)
-        neuron_clusters = cf.kmeans(k=6)
-        res_df = cf.results_cluster(neuron_clusters, save=False)
-        
-        # Get sample level cluster assignments
-        cluster_col = "6_clusters"
-        sample_clusters = res_df[cluster_col].values
-        
-        # Calculate cluster metrics
-        ari = adjusted_rand_score(y, sample_clusters)
-        nmi = normalized_mutual_info_score(y, sample_clusters)
-        sil = silhouette_score(X_scaled, sample_clusters)
-        db = davies_bouldin_score(X_scaled, sample_clusters)
-        ch = calinski_harabasz_score(X_scaled, sample_clusters)
-        
-        # Average neuron purity (non-clustered, just winner neurons)
-        purity = compute_average_neuron_purity(res_df, y)
-        
-        # Error metrics (already calculated during training, let's reload them)
-        with open(os.path.join(metrics_dir, f"som_{size_name}_error_metrics.json"), "r") as f:
-            errors = json.load(f)
-        qe = errors["quantization_error"]
-        te = errors["topographic_error"]
-        
-        som_results.append({
-            "Modelo": f"SOM {size_name}",
-            "ARI": ari,
-            "NMI": nmi,
-            "Silhouette": sil,
-            "Davies-Bouldin": db,
-            "Calinski-Harabasz": ch,
-            "Pureza Neurônios": purity,
-            "Erro Quantização": qe,
-            "Erro Topográfico": te
-        })
+        for variant_key, lat, top, suffix, p_suffix in variants_def:
+            neurons_file = os.path.join(maps_dir, f"SOM_{size_name}{suffix}_neurons.parquet")
+            results_file = os.path.join(maps_dir, f"SOM_{size_name}{suffix}_results.parquet")
+            params_file = os.path.join(maps_dir, f"params_SOM_{size_name}{p_suffix}.json")
+
+            if not (os.path.exists(neurons_file) and os.path.exists(results_file) and os.path.exists(params_file)):
+                continue
+
+            print(f"Evaluating SOM {size_name} ({variant_key})...")
+
+            # Load SOM
+            neurons_df = pd.read_parquet(neurons_file)
+            results_df = pd.read_parquet(results_file)
+            params = json.load(open(params_file))
+
+            som = intrasom.SOMFactory.load_som(data=X, trained_neurons=neurons_df, params=params)
+
+            # Cluster neurons into 6 groups using K-Means via ClusterFactory
+            cf = ClusterFactory(som)
+            neuron_clusters = cf.kmeans(k=6)  # 2D array of shape (rows, cols)
+            cols = som.mapsize[0]
+
+            # Get sample level cluster assignments
+            sample_clusters = np.array([
+                neuron_clusters[(bmu - 1) // cols, (bmu - 1) % cols]
+                for bmu in results_df['BMU'].values
+            ])
+
+            # Calculate cluster metrics
+            ari = adjusted_rand_score(y, sample_clusters)
+            nmi = normalized_mutual_info_score(y, sample_clusters)
+            sil = silhouette_score(X_scaled, sample_clusters)
+            db = davies_bouldin_score(X_scaled, sample_clusters)
+            ch = calinski_harabasz_score(X_scaled, sample_clusters)
+
+            # Average neuron purity (non-clustered, just winner neurons)
+            purity = compute_average_neuron_purity(results_df, y)
+
+            # Error metrics from SOM instance
+            qe = float(som.calculate_quantization_error() if callable(getattr(som, 'calculate_quantization_error', None)) else getattr(som, 'calculate_quantization_error', 0.0))
+            te = float(som.topographic_error() if callable(getattr(som, 'topographic_error', None)) else getattr(som, 'topographic_error', 0.0))
+
+            som_results.append({
+                "Modelo": f"SOM {size_name} {variant_key}",
+                "lattice": lat,
+                "topology": top,
+                "variant": variant_key,
+                "ARI": ari,
+                "NMI": nmi,
+                "Silhouette": sil,
+                "Davies-Bouldin": db,
+                "Calinski-Harabasz": ch,
+                "Pureza Neurônios": purity,
+                "Erro Quantização": qe,
+                "Erro Topográfico": te
+            })
         
     # Baseline 1: K-Means directly on scaled data (K=6)
     print("Evaluating Baseline: K-Means (K=6)...")
@@ -121,6 +131,9 @@ def evaluate_models():
     
     som_results.append({
         "Modelo": "K-Means (Direto)",
+        "lattice": "N/A",
+        "topology": "N/A",
+        "variant": "baseline",
         "ARI": ari_km,
         "NMI": nmi_km,
         "Silhouette": sil_km,
@@ -146,6 +159,9 @@ def evaluate_models():
     
     som_results.append({
         "Modelo": "PCA + K-Means",
+        "lattice": "N/A",
+        "topology": "N/A",
+        "variant": "baseline",
         "ARI": ari_pca,
         "NMI": nmi_pca,
         "Silhouette": sil_pca,
@@ -170,6 +186,9 @@ def evaluate_models():
     
     som_results.append({
         "Modelo": "Agglomerative (K=6)",
+        "lattice": "N/A",
+        "topology": "N/A",
+        "variant": "baseline",
         "ARI": ari_agg,
         "NMI": nmi_agg,
         "Silhouette": sil_agg,
@@ -210,6 +229,9 @@ def evaluate_models():
     
     som_results.append({
         "Modelo": "DBSCAN",
+        "lattice": "N/A",
+        "topology": "N/A",
+        "variant": "baseline",
         "ARI": ari_db,
         "NMI": nmi_db,
         "Silhouette": sil_db,

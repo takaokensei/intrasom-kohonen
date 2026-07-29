@@ -1,12 +1,24 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { Maximize2, Minimize2 } from 'lucide-react';
 import { FullscreenPanel } from './FullscreenPanel';
 
 export const MetricTable = memo(function MetricTable() {
-  const { metrics, loadingSynthetic } = useDashboardStore();
+  const { metrics, loadingSynthetic, lattice, getServedTopology } = useDashboardStore();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
+
+  const activeLattice = lattice;
+  const activeTopology = getServedTopology();
+  const activeVariant = `${activeLattice}_${activeTopology}`;
+
+  const filteredMetrics = useMemo(() => {
+    return metrics.filter(m => {
+      if (m.variant === 'baseline' || m.lattice === 'N/A') return true;
+      if (m.variant) return m.variant === activeVariant;
+      return m.lattice === activeLattice && m.topology === activeTopology;
+    });
+  }, [metrics, activeLattice, activeTopology, activeVariant]);
 
   if (loadingSynthetic) {
     return (
@@ -46,9 +58,14 @@ export const MetricTable = memo(function MetricTable() {
       className="glass-panel rounded-2xl p-6 flex flex-col"
     >
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">
-          Comparativo Quantitativo de Modelos (Séries Sintéticas)
-        </h3>
+        <div>
+          <h3 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">
+            Comparativo Quantitativo de Modelos (Séries Sintéticas)
+          </h3>
+          <span className="text-[10px] text-tokyo-muted font-mono">
+            Variante ativa: <strong className="text-tokyo-cyan">{activeLattice}</strong> · <strong className="text-tokyo-magenta">{activeTopology === 'toroid' ? 'Toroide' : 'Plana'}</strong>
+          </span>
+        </div>
         
         <button 
           onClick={toggleFullscreen}
@@ -74,7 +91,7 @@ export const MetricTable = memo(function MetricTable() {
             </tr>
           </thead>
           <tbody className="divide-y divide-tokyo-border divide-opacity-30 text-xs">
-            {metrics.map((row, idx) => {
+            {filteredMetrics.map((row, idx) => {
               const isSOM = row.Modelo.startsWith('SOM');
               return (
                 <tr 

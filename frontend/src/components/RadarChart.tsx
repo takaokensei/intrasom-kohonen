@@ -11,8 +11,12 @@ const MODEL_COLORS: Record<string, string> = {
 };
 
 export const RadarChart = memo(function RadarChart() {
-  const { metrics, loadingSynthetic } = useDashboardStore();
+  const { metrics, loadingSynthetic, lattice, getServedTopology } = useDashboardStore();
   const [hoveredModel, setHoveredModel] = useState<string | null>(null);
+
+  const activeLattice = lattice;
+  const activeTopology = getServedTopology();
+  const activeVariant = `${activeLattice}_${activeTopology}`;
 
   if (loadingSynthetic || metrics.length === 0) {
     return (
@@ -22,8 +26,12 @@ export const RadarChart = memo(function RadarChart() {
     );
   }
 
-  // Filter only SOM models for radar comparison
-  const somMetrics = metrics.filter(m => m.Modelo.startsWith("SOM"));
+  // Filter only SOM models matching the active variant for radar comparison
+  const somMetrics = metrics.filter(m => {
+    if (!m.Modelo.startsWith("SOM")) return false;
+    if (m.variant) return m.variant === activeVariant;
+    return m.lattice === activeLattice && m.topology === activeTopology;
+  });
   
   const axes = [
     { name: "ARI", key: "ARI", max: 0.7 },
@@ -112,6 +120,7 @@ export const RadarChart = memo(function RadarChart() {
 
             {/* Model polygons */}
             {somMetrics.map((row) => {
+              const baseName = row.Modelo.match(/SOM\s+\d+x\d+/)?.[0] || row.Modelo;
               const isHovered = hoveredModel === row.Modelo;
               const points = axes.map((axis, aIdx) => {
                 const val = (row[axis.key as keyof typeof row] as number) || 0;
@@ -119,7 +128,7 @@ export const RadarChart = memo(function RadarChart() {
                 return `${x},${y}`;
               }).join(' ');
 
-              const color = MODEL_COLORS[row.Modelo] || '#7aa2f7';
+              const color = MODEL_COLORS[baseName] || '#7aa2f7';
 
               return (
                 <polygon
@@ -142,24 +151,28 @@ export const RadarChart = memo(function RadarChart() {
           <span className="text-[#9aa5ce] font-semibold uppercase font-mono tracking-wider">Selecione o Modelo:</span>
           
           <div className="grid grid-cols-2 gap-1.5">
-            {somMetrics.map(row => (
-              <div 
-                key={row.Modelo}
-                onMouseEnter={() => setHoveredModel(row.Modelo)}
-                onMouseLeave={() => setHoveredModel(null)}
-                className={`flex items-center space-x-2 p-1.5 rounded border transition-all cursor-pointer ${
-                  hoveredModel === row.Modelo 
-                    ? 'bg-tokyo-panel border-tokyo-blue' 
-                    : 'bg-tokyo-panel bg-opacity-20 border-transparent'
-                }`}
-              >
-                <span 
-                  className="w-2.5 h-2.5 rounded-full flex-shrink-0" 
-                  style={{ backgroundColor: MODEL_COLORS[row.Modelo] || '#7aa2f7' }} 
-                />
-                <span className="font-semibold text-tokyo-text">{row.Modelo}</span>
-              </div>
-            ))}
+            {somMetrics.map(row => {
+              const baseName = row.Modelo.match(/SOM\s+\d+x\d+/)?.[0] || row.Modelo;
+              const color = MODEL_COLORS[baseName] || '#7aa2f7';
+              return (
+                <div 
+                  key={row.Modelo}
+                  onMouseEnter={() => setHoveredModel(row.Modelo)}
+                  onMouseLeave={() => setHoveredModel(null)}
+                  className={`flex items-center space-x-2 p-1.5 rounded border transition-all cursor-pointer ${
+                    hoveredModel === row.Modelo 
+                      ? 'bg-tokyo-panel border-tokyo-blue' 
+                      : 'bg-tokyo-panel bg-opacity-20 border-transparent'
+                  }`}
+                >
+                  <span 
+                    className="w-2.5 h-2.5 rounded-full flex-shrink-0" 
+                    style={{ backgroundColor: color }} 
+                  />
+                  <span className="font-mono font-bold text-tokyo-text">{baseName}</span>
+                </div>
+              );
+            })}
           </div>
 
           <p className="text-[10px] text-[#9aa5ce] leading-relaxed pt-2 border-t border-tokyo-border border-opacity-20">

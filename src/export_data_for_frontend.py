@@ -164,46 +164,56 @@ def export_all():
             "umatrix_edge_max": edge_max
         }
 
-    # Carregar modelos MiniSom RECT pré-gerados
-    rect_models_path = os.path.join(maps_dir, "som_rect_models.json")
-    rect_models_data = json.load(open(rect_models_path, "r", encoding="utf-8")) if os.path.exists(rect_models_path) else {}
-
     all_sizes = ["5x5", "7x7", "10x10", "12x12", "15x15", "20x20"]
     for size_name in all_sizes:
-        print(f"Processing SOM {size_name} (HEX_toroid, HEX_planar, RECT_planar)...")
+        print(f"Processing SOM {size_name} (HEX_toroid, HEX_planar, RECT_planar, RECT_toroid)...")
         som_models[size_name] = {"has_variants": True}
 
+        # Helper: carrega variante IntraSOM de arquivo parquet
+        def _load_variant(nf, rf, pf):
+            if not (os.path.exists(nf) and os.path.exists(rf) and os.path.exists(pf)):
+                return None
+            ndf = pd.read_parquet(nf)
+            rdf = pd.read_parquet(rf)
+            p   = json.load(open(pf))
+            s   = intrasom.SOMFactory.load_som(data=X, trained_neurons=ndf, params=p)
+            return build_neurons_list(ndf, rdf, s, y)
+
         # 1. HEX_toroid
-        toroid_nf = os.path.join(maps_dir, f"SOM_{size_name}_neurons.parquet")
-        toroid_rf = os.path.join(maps_dir, f"SOM_{size_name}_results.parquet")
-        toroid_pf = os.path.join(maps_dir, f"params_SOM_{size_name}.json")
-        if os.path.exists(toroid_nf) and os.path.exists(toroid_rf) and os.path.exists(toroid_pf):
-            neurons_df = pd.read_parquet(toroid_nf)
-            results_df = pd.read_parquet(toroid_rf)
-            params     = json.load(open(toroid_pf))
-            som        = intrasom.SOMFactory.load_som(data=X, trained_neurons=neurons_df, params=params)
-            som_models[size_name]["HEX_toroid"] = build_neurons_list(neurons_df, results_df, som, y)
+        result = _load_variant(
+            os.path.join(maps_dir, f"SOM_{size_name}_neurons.parquet"),
+            os.path.join(maps_dir, f"SOM_{size_name}_results.parquet"),
+            os.path.join(maps_dir, f"params_SOM_{size_name}.json"),
+        )
+        if result:
+            som_models[size_name]["HEX_toroid"] = result
 
         # 2. HEX_planar
-        planar_nf = os.path.join(maps_dir, f"SOM_{size_name}_HEX_planar_neurons.parquet")
-        planar_rf = os.path.join(maps_dir, f"SOM_{size_name}_HEX_planar_results.parquet")
-        planar_pf = os.path.join(maps_dir, f"params_SOM_{size_name}_HEX_planar.json")
-        if os.path.exists(planar_nf) and os.path.exists(planar_rf) and os.path.exists(planar_pf):
-            neurons_df = pd.read_parquet(planar_nf)
-            results_df = pd.read_parquet(planar_rf)
-            params     = json.load(open(planar_pf))
-            som        = intrasom.SOMFactory.load_som(data=X, trained_neurons=neurons_df, params=params)
-            som_models[size_name]["HEX_planar"] = build_neurons_list(neurons_df, results_df, som, y)
+        result = _load_variant(
+            os.path.join(maps_dir, f"SOM_{size_name}_HEX_planar_neurons.parquet"),
+            os.path.join(maps_dir, f"SOM_{size_name}_HEX_planar_results.parquet"),
+            os.path.join(maps_dir, f"params_SOM_{size_name}_HEX_planar.json"),
+        )
+        if result:
+            som_models[size_name]["HEX_planar"] = result
 
-        # 3. RECT_planar (MiniSom)
-        if size_name in rect_models_data:
-            rect_m = dict(rect_models_data[size_name])
-            if "umatrix_edges" not in rect_m:
-                edges, emin, emax = build_rect_umatrix_edges(rect_m["neurons"], rect_m["cols"], rect_m["rows"])
-                rect_m["umatrix_edges"] = edges
-                rect_m["umatrix_edge_min"] = emin
-                rect_m["umatrix_edge_max"] = emax
-            som_models[size_name]["RECT_planar"] = rect_m
+        # 3. RECT_planar (IntraSOM 1.1.1 — lattice='rect', mapshape='planar')
+        result = _load_variant(
+            os.path.join(maps_dir, f"SOM_{size_name}_RECT_planar_neurons.parquet"),
+            os.path.join(maps_dir, f"SOM_{size_name}_RECT_planar_results.parquet"),
+            os.path.join(maps_dir, f"params_SOM_{size_name}_RECT_planar.json"),
+        )
+        if result:
+            som_models[size_name]["RECT_planar"] = result
+
+        # 4. RECT_toroid (IntraSOM 1.1.1 — lattice='rect', mapshape='toroid')
+        result = _load_variant(
+            os.path.join(maps_dir, f"SOM_{size_name}_RECT_toroid_neurons.parquet"),
+            os.path.join(maps_dir, f"SOM_{size_name}_RECT_toroid_results.parquet"),
+            os.path.join(maps_dir, f"params_SOM_{size_name}_RECT_toroid.json"),
+        )
+        if result:
+            som_models[size_name]["RECT_toroid"] = result
 
     with open(os.path.join(public_data_dir, "som_models.json"), "w", encoding="utf-8") as f:
         json.dump(som_models, f, ensure_ascii=False)
@@ -242,11 +252,8 @@ def export_all():
         }
     }
     
-    # Carregar modelos MiniSom RECT de texto pré-gerados por train_text_som_rect.py
-    text_rect_path = os.path.join(maps_dir, "text_rect_models.json")
-    text_rect_data = json.load(open(text_rect_path, "r", encoding="utf-8")) if os.path.exists(text_rect_path) else {}
-    if not text_rect_data:
-        print("WARNING: text_rect_models.json not found. Run src/train_text_som_rect.py first.")
+    # Nota: text_rect_models.json (MiniSom legado) não é mais necessário.
+    # Os modelos RECT de texto agora são carregados de parquets IntraSOM abaixo.
 
     for dname, dinfo in datasets_info.items():
         text_models[dname] = {}
@@ -267,10 +274,17 @@ def export_all():
         
         som = intrasom.SOMFactory.load_som(data=dummy_data, trained_neurons=neurons_df, params=params)
         cols, rows = som.mapsize
-        
-        from intrasom.visualization import PlotFactory
-        plot_f = PlotFactory(som)
-        coords = plot_f.generate_hex_lattice(cols, rows)
+
+        # Generate visual coordinates depending on lattice type.
+        # RECT: pure integer (col, row) — no hex zig-zag offset.
+        # HEX : standard odd-r offset via PlotFactory.generate_hex_lattice.
+        if getattr(som.codebook, 'lattice', 'hexa') == 'rect':
+            coords = [(float(idx % cols), float(idx // cols)) for idx in range(cols * rows)]
+        else:
+            from intrasom.visualization import PlotFactory
+            plot_f = PlotFactory(som)
+            coords = plot_f.generate_hex_lattice(cols, rows)
+
         umat_expanded = som.build_umatrix(expanded=True)
         umat          = som.build_umatrix(expanded=False)
         edges, edge_min, edge_max = build_expanded_umatrix_grid(som, umat_expanded)
@@ -321,6 +335,7 @@ def export_all():
             "umatrix_edges": edges,
             "umatrix_edge_min": edge_min,
             "umatrix_edge_max": edge_max
+
         }
 
     for dname, dinfo in datasets_info.items():
@@ -345,26 +360,30 @@ def export_all():
             planar_pf = os.path.join(maps_dir, f"params_SOM_Text_{dname}_{rep}_HEX_planar.json")
             hex_planar_model = build_text_som_model_from_files(planar_nf, planar_rf, planar_pf, text_labels, num_docs)
 
-            # 3. RECT_planar
-            rect_model = text_rect_data.get(dname, {}).get(rep, {}).get("RECT_planar", None)
-            if rect_model:
-                rect_m = dict(rect_model)
-                if "umatrix_edges" not in rect_m:
-                    edges, emin, emax = build_rect_umatrix_edges(rect_m["neurons"], rect_m["cols"], rect_m["rows"])
-                    rect_m["umatrix_edges"] = edges
-                    rect_m["umatrix_edge_min"] = emin
-                    rect_m["umatrix_edge_max"] = emax
-                rect_model = rect_m
+            # 3. RECT_planar (IntraSOM 1.1.1 — lattice='rect', mapshape='planar')
+            rect_planar_nf = os.path.join(maps_dir, f"SOM_Text_{dname}_{rep}_RECT_planar_neurons.parquet")
+            rect_planar_rf = os.path.join(maps_dir, f"SOM_Text_{dname}_{rep}_RECT_planar_results.parquet")
+            rect_planar_pf = os.path.join(maps_dir, f"params_SOM_Text_{dname}_{rep}_RECT_planar.json")
+            rect_planar_model = build_text_som_model_from_files(
+                rect_planar_nf, rect_planar_rf, rect_planar_pf, text_labels, num_docs
+            )
 
-            # Assemble variants dict (mirrors SCM pattern)
-            variant_dict = {
-                "has_variants": True,
-                "HEX_toroid": hex_toroid_model
-            }
+            # 4. RECT_toroid (IntraSOM 1.1.1 — lattice='rect', mapshape='toroid')
+            rect_toroid_nf = os.path.join(maps_dir, f"SOM_Text_{dname}_{rep}_RECT_toroid_neurons.parquet")
+            rect_toroid_rf = os.path.join(maps_dir, f"SOM_Text_{dname}_{rep}_RECT_toroid_results.parquet")
+            rect_toroid_pf = os.path.join(maps_dir, f"params_SOM_Text_{dname}_{rep}_RECT_toroid.json")
+            rect_toroid_model = build_text_som_model_from_files(
+                rect_toroid_nf, rect_toroid_rf, rect_toroid_pf, text_labels, num_docs
+            )
+
+            # Assemble variants dict (mirrors SCM pattern) — 4 variantes reais
+            variant_dict: dict = {"has_variants": True, "HEX_toroid": hex_toroid_model}
             if hex_planar_model:
                 variant_dict["HEX_planar"] = hex_planar_model
-            if rect_model:
-                variant_dict["RECT_planar"] = rect_model
+            if rect_planar_model:
+                variant_dict["RECT_planar"] = rect_planar_model
+            if rect_toroid_model:
+                variant_dict["RECT_toroid"] = rect_toroid_model
 
             text_models[dname][rep] = variant_dict
 

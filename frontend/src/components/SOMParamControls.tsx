@@ -90,10 +90,10 @@ export function SOMParamControls() {
             Hexagonal (HEX)
           </button>
 
-          {/* RECT button — Real Rectangular Grid via MiniSom engine */}
+          {/* RECT button — Real Rectangular Grid via IntraSOM 1.1.1 engine */}
           <button
             onClick={() => setLattice('RECT')}
-            title="Geometria Retangular Real: Modelo treinado com o motor MiniSom (Kohonen 2013, algoritmo batch síncrono)."
+            title="Geometria Retangular: Modelo treinado com o motor IntraSOM 1.1.1 (_rect_dist_tor corrigida)."
             className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold border transition flex items-center justify-center gap-1.5 active-press-scale ${
               lattice === 'RECT'
                 ? 'bg-tokyo-orange text-tokyo-bg border-tokyo-orange shadow-[0_0_10px_rgba(249,115,22,0.3)]'
@@ -107,7 +107,7 @@ export function SOMParamControls() {
         {/* Notice shown when RECT is selected */}
         {lattice === 'RECT' && (
           <div className="mt-1.5 px-2.5 py-1.5 rounded-lg bg-orange-900/30 border border-orange-500/40 text-[10px] text-orange-300 leading-tight flex items-center justify-between">
-            <span>⚙️ <strong>Engine: MiniSom</strong> · Grade Retangular Real (Plana)</span>
+            <span>⚙️ <strong>Engine: IntraSOM 1.1.1</strong> · Grade Retangular</span>
           </div>
         )}
       </div>
@@ -120,15 +120,12 @@ export function SOMParamControls() {
         </label>
         <div className="grid grid-cols-2 gap-2">
           <button
-            onClick={() => lattice === 'HEX' && setTopology('toroid')}
-            disabled={lattice === 'RECT'}
-            title={lattice === 'RECT' ? 'Toroidal training for rectangular lattices is not supported by the pinned intrasom==1.0.4.6 (upstream bug in _rect_dist_tor — see project notes). Only planar rectangular SOMs are available here.' : 'Topologia toroidal (Rosca - bordas conectadas)'}
-            className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold border transition flex items-center justify-center gap-1.5 ${
-              lattice === 'RECT'
-                ? 'opacity-40 cursor-not-allowed bg-tokyo-dark text-tokyo-muted border-tokyo-border'
-                : topology === 'toroid'
-                ? 'bg-tokyo-magenta text-tokyo-bg border-tokyo-magenta shadow-[0_0_10px_rgba(217,70,239,0.3)] active-press-scale'
-                : 'bg-tokyo-dark text-tokyo-text border-tokyo-border hover:border-tokyo-magenta active-press-scale'
+            onClick={() => setTopology('toroid')}
+            title="Topologia toroidal (Rosca - bordas conectadas sem efeitos de borda)"
+            className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold border transition flex items-center justify-center gap-1.5 active-press-scale ${
+              topology === 'toroid'
+                ? 'bg-tokyo-magenta text-tokyo-bg border-tokyo-magenta shadow-[0_0_10px_rgba(217,70,239,0.3)]'
+                : 'bg-tokyo-dark text-tokyo-text border-tokyo-border hover:border-tokyo-magenta'
             }`}
           >
             Toroide (Rosca)
@@ -138,7 +135,7 @@ export function SOMParamControls() {
             onClick={() => setTopology('planar')}
             title="Topologia plana (Bordas desconectadas - sem efeito Karnaugh)"
             className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold border transition flex items-center justify-center gap-1.5 active-press-scale ${
-              topology === 'planar' || lattice === 'RECT'
+              topology === 'planar'
                 ? 'bg-tokyo-yellow text-tokyo-bg border-tokyo-yellow shadow-[0_0_10px_rgba(234,179,8,0.3)]'
                 : 'bg-tokyo-dark text-tokyo-text border-tokyo-border hover:border-tokyo-yellow'
             }`}
@@ -146,11 +143,9 @@ export function SOMParamControls() {
             Plana (Sem Karnaugh)
           </button>
         </div>
-        {lattice === 'RECT' && (
-          <p className="text-[9px] font-mono text-tokyo-muted leading-tight mt-1 bg-tokyo-dark bg-opacity-40 p-2 rounded border border-tokyo-border border-opacity-30">
-            💡 <strong>Nota metodológica:</strong> Modelos RECT são treinados com MiniSom (planar), enquanto modelos HEX usam IntraSOM. Comparações quantitativas diretas entre malhas devem considerar as diferenças de algoritmo.
-          </p>
-        )}
+        <p className="text-[9px] font-mono text-tokyo-muted leading-tight mt-1 bg-tokyo-dark bg-opacity-40 p-2 rounded border border-tokyo-border border-opacity-30">
+          💡 <strong>Paridade Metodológica:</strong> Todos os modelos (HEX e RECT) são treinados pelo motor IntraSOM 1.1.1 com os mesmos hiperparâmetros, permitindo comparação direta rigorosa.
+        </p>
       </div>
 
       {/* Neighborhood & Training Parameters Grid */}
@@ -163,9 +158,9 @@ export function SOMParamControls() {
             onChange={(e) => setInitialRadius(e.target.value as '80%' | '50%' | '100%')}
             className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-xs font-bold focus:outline-none focus:border-tokyo-blue cursor-pointer"
           >
-            <option value="80%">80% do mapa (Recomendado)</option>
+            <option value="80%">80% do mapa (Padrao Prof.)</option>
             <option value="50%">50% do mapa</option>
-            <option value="100%">100% do mapa (Global)</option>
+            <option value="100%">100% do mapa</option>
           </select>
         </div>
 
@@ -177,20 +172,20 @@ export function SOMParamControls() {
             onChange={(e) => setFinalRadius(e.target.value as '1' | '2')}
             className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-xs font-bold focus:outline-none focus:border-tokyo-blue cursor-pointer"
           >
-            <option value="1">1 neurônio (Ajuste Fino)</option>
+            <option value="1">1 neurônio (Padrao Prof.)</option>
             <option value="2">2 neurônios</option>
           </select>
         </div>
 
         {/* Epochs */}
         <div className="flex flex-col space-y-1">
-          <span className="text-[10px] text-tokyo-muted uppercase font-semibold">Épocas de Treino</span>
+          <span className="text-[10px] text-tokyo-muted uppercase font-semibold">Total de Épocas</span>
           <select
             value={epochs}
             onChange={(e) => setEpochs(Number(e.target.value) as 500 | 200 | 100)}
             className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-xs font-bold focus:outline-none focus:border-tokyo-blue cursor-pointer"
           >
-            <option value={500}>500 épocas (Recomendado)</option>
+            <option value={500}>500 épocas (Padrao Prof.)</option>
             <option value={200}>200 épocas</option>
             <option value={100}>100 épocas</option>
           </select>
@@ -204,19 +199,19 @@ export function SOMParamControls() {
             onChange={(e) => setTrainingMode(e.target.value as 'batch' | 'online')}
             className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-xs font-bold focus:outline-none focus:border-tokyo-blue cursor-pointer"
           >
-            <option value="batch">Batch (Lote Síncrono)</option>
-            <option value="online">Online (Estocástico)</option>
+            <option value="batch">Batch Síncrono (Kohonen 2013)</option>
+            <option value="online">Online Estocástico</option>
           </select>
         </div>
       </div>
 
       {/* Initialization */}
-      <div className="flex flex-col space-y-1 pt-1 border-t border-tokyo-border border-opacity-20">
-        <span className="text-[10px] text-tokyo-muted uppercase font-semibold font-mono">Inicialização de Pesos</span>
+      <div className="flex flex-col space-y-1 text-[11px] font-mono border-t border-tokyo-border border-opacity-20 pt-2">
+        <span className="text-[10px] text-tokyo-muted uppercase font-semibold">Inicialização dos Pesos</span>
         <select
           value={initialization}
           onChange={(e) => setInitialization(e.target.value as 'linear' | 'random')}
-          className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-xs font-bold font-mono focus:outline-none focus:border-tokyo-blue cursor-pointer"
+          className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-xs font-bold focus:outline-none focus:border-tokyo-blue cursor-pointer"
         >
           <option value="linear">Linear (PCA - Autovalores)</option>
           <option value="random">Aleatória</option>
@@ -228,21 +223,19 @@ export function SOMParamControls() {
         <div className="flex justify-between">
           <span>Motor / Malha:</span>
           <span className={`font-bold ${lattice === 'RECT' ? 'text-tokyo-orange' : 'text-tokyo-text'}`}>
-            {lattice === 'HEX' ? 'IntraSOM (Hexagonal)' : 'MiniSom (Retangular Real)'}
+            {lattice === 'HEX' ? 'IntraSOM 1.1.1 (Hexagonal)' : 'IntraSOM 1.1.1 (Retangular)'}
           </span>
         </div>
         <div className="flex justify-between">
           <span>Topologia Ativa:</span>
           <span className={`font-bold ${
-            lattice === 'RECT' || topology === 'planar'
-              ? 'text-tokyo-yellow'
-              : 'text-tokyo-text'
+            topology === 'toroid'
+              ? 'text-tokyo-magenta'
+              : 'text-tokyo-yellow'
           }`}>
-            {lattice === 'RECT'
-              ? 'Plana ✓ MiniSom RECT'
-              : topology === 'toroid'
-              ? 'Toroide (Rosca)'
-              : 'Plana ✓ IntraSOM HEX'}
+            {topology === 'toroid'
+              ? `Toroide (Rosca ${lattice})`
+              : `Plana (${lattice})`}
           </span>
         </div>
         <div className="flex justify-between">

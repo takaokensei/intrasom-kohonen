@@ -39,20 +39,22 @@ export interface SOMModel {
   umatrix_edge_max?: number;
 }
 
-// All 6 map sizes ship 3 real variants: HEX_toroid, HEX_planar, RECT_planar
+// All 6 map sizes ship 4 real variants: HEX_toroid, HEX_planar, RECT_planar, RECT_toroid
 export interface SOMModelWithVariants {
   has_variants: true;
   HEX_toroid?: SOMModel;
   HEX_planar?: SOMModel;
   RECT_planar?: SOMModel;
+  RECT_toroid?: SOMModel;  // IntraSOM 1.1.1 — _rect_dist_tor corrigida
 }
 
-// Text models ship 3 variants: HEX_toroid, HEX_planar, RECT_planar
+// Text models ship 4 variants: HEX_toroid, HEX_planar, RECT_planar, RECT_toroid
 export interface TextModelWithVariants {
   has_variants: true;
   HEX_toroid?: TextModel;
   HEX_planar?: TextModel;
   RECT_planar?: TextModel;
+  RECT_toroid?: TextModel;  // IntraSOM 1.1.1 — mesmo motor que HEX
 }
 
 
@@ -239,8 +241,8 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   setInitialization: (initialization) => set({ initialization }),
 
   getServedTopology: () => {
-    const { lattice, topology } = get();
-    if (lattice === 'RECT') return 'planar';
+    // RECT_toroid now exists — return the real topology for all 4 variants
+    const { topology } = get();
     return topology;
   },
 
@@ -296,17 +298,18 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   },
 
   // Returns the active SOMModel based on selected map size, lattice and topology.
-  // Routes to real pre-trained variants across all 6 map sizes:
-  // - RECT lattice -> RECT_planar (MiniSom)
-  // - HEX lattice + planar topology -> HEX_planar (IntraSOM)
-  // - HEX lattice + toroid topology -> HEX_toroid (IntraSOM)
+  // Routes to real pre-trained IntraSOM variants across all 6 map sizes:
+  // - RECT lattice + toroid topology -> RECT_toroid (IntraSOM 1.1.1)
+  // - RECT lattice + planar topology -> RECT_planar (IntraSOM 1.1.1)
+  // - HEX lattice + planar topology  -> HEX_planar  (IntraSOM)
+  // - HEX lattice + toroid topology  -> HEX_toroid  (IntraSOM)
   getActiveSOMModel: () => {
     const { somModels, selectedMapSize, lattice, topology } = get();
     const entry = somModels[selectedMapSize];
     if (!entry) return null;
     if ('has_variants' in entry) {
       const variantKey = lattice === 'RECT'
-        ? 'RECT_planar'
+        ? (topology === 'toroid' ? 'RECT_toroid' : 'RECT_planar')
         : (topology === 'planar' ? 'HEX_planar' : 'HEX_toroid');
       return (entry as SOMModelWithVariants)[variantKey] ?? null;
     }
@@ -314,18 +317,18 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   },
 
   // Returns the active TextModel based on global lattice & topology state.
-  // Routes to real pre-trained variants:
-  // - RECT lattice                    -> RECT_planar (MiniSom, Z-score normalized)
-  // - HEX lattice + planar topology   -> HEX_planar  (IntraSOM, normalization='var')
-  // - HEX lattice + toroid topology   -> HEX_toroid  (IntraSOM, normalization='var')
-  // Mirrors getActiveSOMModel() pattern.
+  // Routes to real pre-trained IntraSOM variants:
+  // - RECT lattice + toroid topology -> RECT_toroid (IntraSOM 1.1.1)
+  // - RECT lattice + planar topology -> RECT_planar (IntraSOM 1.1.1)
+  // - HEX lattice + planar topology  -> HEX_planar  (IntraSOM, normalization='var')
+  // - HEX lattice + toroid topology  -> HEX_toroid  (IntraSOM, normalization='var')
   getActiveTextModel: () => {
     const { textModels, selectedTextDataset, selectedTextRep, lattice, topology } = get();
     const entry = textModels[selectedTextDataset]?.[selectedTextRep];
     if (!entry) return null;
     if ('has_variants' in entry) {
       const variantKey = lattice === 'RECT'
-        ? 'RECT_planar'
+        ? (topology === 'toroid' ? 'RECT_toroid' : 'RECT_planar')
         : (topology === 'planar' ? 'HEX_planar' : 'HEX_toroid');
       return (entry as TextModelWithVariants)[variantKey] ?? null;
     }

@@ -17,8 +17,14 @@ GLOBAL_SEED: int = 42
 
 
 def _patch_intrasom_rect_dist_plan() -> None:
-    """Monkey-patches intrasom.codebook.Codebook._rect_dist_plan to fix the upstream generator bug."""
+    """Only patch IntraSOM < 1.1.1 (legacy generator bug era). Never override IntraSOM 1.1.1+."""
     try:
+        import importlib.metadata
+        ver_str = importlib.metadata.version("intrasom")
+        ver_tuple = tuple(int(x) for x in ver_str.split(".") if x.isdigit())
+        if ver_tuple >= (1, 1, 1):
+            return  # Upstream fixed in 1.1.1+: keep Euclidean/squared grid distance
+
         import intrasom.codebook
         def _rect_dist_plan_fixed(self, node_ind):
             rows, cols = self.mapsize
@@ -33,7 +39,7 @@ def _patch_intrasom_rect_dist_plan() -> None:
         )
 
 
-# Apply monkey patch on import
+# Apply monkey patch on import only if needed (IntraSOM < 1.1.1)
 _patch_intrasom_rect_dist_plan()
 
 

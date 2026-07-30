@@ -273,6 +273,28 @@ def run_multi_seed_experiment():
     df_summary["dim"] = df_summary["size"].map(size_order)
     df_summary = df_summary.sort_values(by=["dim", "variant"]).drop(columns=["dim"])
 
+    # Diagnostics CSV: number of unique pearson_r and seg_ari values across 5 seeds
+    diag_list = []
+    for (size_name, var_key), group in grouped:
+        n_uniq_r = group["pearson_r"].nunique()
+        n_uniq_ari = group["seg_ari"].nunique()
+        r_std = group["pearson_r"].std()
+        stable = (r_std < 1e-6) or (n_uniq_r <= 2)
+        diag_list.append({
+            "model": f"SOM_{size_name}_{var_key}",
+            "size": size_name,
+            "variant": var_key,
+            "n_seeds": len(group),
+            "n_unique_pearson_r": n_uniq_r,
+            "pearson_r_std": r_std,
+            "n_unique_seg_ari": n_uniq_ari,
+            "seg_ari_std": group["seg_ari"].std(),
+            "convergence_status": "stable_basin" if stable else "variable_basin"
+        })
+    df_diag = pd.DataFrame(diag_list)
+    diag_csv = os.path.join(OUT_DIR, "seed_convergence_diagnostics.csv")
+    df_diag.to_csv(diag_csv, index=False)
+
     out_csv = os.path.join(OUT_DIR, "umatrix_divergence_5seeds.csv")
     df_summary.to_csv(out_csv, index=False)
     # Also save as umatrix_divergence.csv for generate_figures.py
@@ -280,7 +302,8 @@ def run_multi_seed_experiment():
 
     print("\n" + "=" * 68)
     print(f"[OK] Multi-seed experiment completed successfully!")
-    print(f"     Saved summary -> {out_csv}")
+    print(f"     Saved summary     -> {out_csv}")
+    print(f"     Saved diagnostics -> {diag_csv}")
     print("=" * 68)
 
     print("\nSUMMARY STATISTICAL TABLE (Mean +- Std across 5 seeds):")

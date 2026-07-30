@@ -59,9 +59,9 @@ export const MetricTable = memo(function MetricTable() {
     >
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h3 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">
+          <h2 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">
             Comparativo Quantitativo de Modelos (Séries Sintéticas)
-          </h3>
+          </h2>
           <span className="text-[10px] text-tokyo-muted font-mono">
             Variante ativa: <strong className="text-tokyo-cyan">{activeLattice}</strong> · <strong className="text-tokyo-magenta">{activeTopology === 'toroid' ? 'Toroide' : 'Plana'}</strong>
           </span>

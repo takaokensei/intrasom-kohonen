@@ -31,10 +31,10 @@ export function SOMParamControls() {
     <div className="glass-panel rounded-2xl p-5 flex flex-col space-y-5 text-tokyo-text">
       {/* Main Header */}
       <div className="flex items-center justify-between border-b border-tokyo-border border-opacity-30 pb-3">
-        <h3 className="text-sm font-bold uppercase font-mono tracking-wider flex items-center gap-2 text-tokyo-blue">
+        <h2 className="text-sm font-bold uppercase font-mono tracking-wider flex items-center gap-2 text-tokyo-blue">
           <Settings size={16} />
           Parâmetros do Algoritmo de Kohonen
-        </h3>
+        </h2>
         <span className="text-[10px] font-mono bg-tokyo-dark px-2 py-0.5 rounded border border-tokyo-border text-tokyo-magenta font-semibold">
           IntraSOM Config
         </span>

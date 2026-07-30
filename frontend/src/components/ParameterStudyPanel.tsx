@@ -54,9 +54,9 @@ export const ParameterStudyPanel: React.FC = () => {
     >
       <div className="px-4 py-3 border-b border-white/10 flex items-center gap-2">
         <span className="w-2 h-2 rounded-full bg-tokyo-purple animate-pulse" />
-        <span className="text-xs font-semibold uppercase tracking-widest text-tokyo-purple font-mono">
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-tokyo-purple font-mono">
           📊 Estudo de Parâmetros
-        </span>
+        </h2>
         <span className="text-xs text-white/40 ml-auto font-mono">
           Mapa 10×10 · HEX · Toroid · PCA · Batch
         </span>

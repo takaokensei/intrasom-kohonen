@@ -12,7 +12,7 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
         <div className="w-12 h-12 bg-tokyo-red bg-opacity-10 text-tokyo-red rounded-full flex items-center justify-center mx-auto">
           <AlertTriangle size={24} />
         </div>
-        <h3 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">Erro ao Carregar Dados</h3>
+        <h2 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">Erro ao Carregar Dados</h2>
         <p className="text-xs text-[#9aa5ce] leading-relaxed">{message}</p>
         <button 
           onClick={onRetry} 

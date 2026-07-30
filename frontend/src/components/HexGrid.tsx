@@ -197,9 +197,9 @@ export const HexGrid = memo(function HexGrid() {
       {/* ── Header ── */}
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">
+          <h2 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">
             Malha {lattice === 'HEX' ? 'Hexagonal (HEX)' : 'Retangular (RECT)'} Kohonen ({selectedMapSize})
-          </h3>
+          </h2>
           <span className={`text-[9px] font-mono px-2 py-0.5 rounded border font-semibold ${
             servedTopology === 'toroid'
               ? 'bg-tokyo-magenta bg-opacity-10 text-tokyo-magenta border-tokyo-magenta border-opacity-30'

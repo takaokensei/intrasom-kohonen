@@ -60,9 +60,9 @@ export const RadarChart = memo(function RadarChart() {
 
   return (
     <div className="glass-panel rounded-2xl p-5 flex flex-col">
-      <h3 className="text-sm font-bold text-tokyo-text mb-2 uppercase font-mono tracking-wider">
+      <h2 className="text-sm font-bold text-tokyo-text mb-2 uppercase font-mono tracking-wider">
         Trade-Off de Tamanhos do SOM
-      </h3>
+      </h2>
       
       <div className="flex-1 flex flex-col md:flex-row items-center justify-between min-h-0">
         {/* SVG Radar */}

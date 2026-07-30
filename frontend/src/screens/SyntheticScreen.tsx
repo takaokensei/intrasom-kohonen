@@ -39,6 +39,8 @@ export function SyntheticScreen() {
 
   return (
     <main className="grow flex-shrink-0 p-6 pb-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start relative z-10">
+      <h2 className="sr-only">Análise de Séries Temporais (Synthetic Control)</h2>
+
       {/* Left Area - HexGrid Map & Metrics */}
       <section className="lg:col-span-8 flex flex-col space-y-6 min-w-0">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
@@ -66,10 +68,10 @@ export function SyntheticScreen() {
 
         {/* Selection Details Panel */}
         <div className="glass-panel rounded-2xl p-5 flex flex-col">
-          <h3 className="text-sm font-bold text-tokyo-text mb-4 uppercase font-mono tracking-wider flex items-center gap-1.5">
+          <h2 className="text-sm font-bold text-tokyo-text mb-4 uppercase font-mono tracking-wider flex items-center gap-1.5">
             <Cpu size={15} className="text-tokyo-magenta" />
             Detalhes do Neurônio
-          </h3>
+          </h2>
           
           {loadingSynthetic ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-[#9aa5ce]">

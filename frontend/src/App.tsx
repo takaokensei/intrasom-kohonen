@@ -53,51 +53,69 @@ function App() {
           </div>
         </div>
 
-        {/* Tab Selector */}
-        <div className="flex bg-tokyo-dark bg-opacity-80 p-1 rounded-xl border border-tokyo-border z-10">
-          <button
-            onClick={() => handleTabChange('synthetic')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all active-press-scale ${
-              activeTab === 'synthetic'
-                ? 'bg-tokyo-blue text-tokyo-bg shadow-lg'
-                : 'text-[#9aa5ce] hover:text-tokyo-text'
-            }`}
-          >
-            <LineChart size={14} />
-            Synthetic Control
-          </button>
-          <button
-            onClick={() => handleTabChange('text')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all active-press-scale ${
-              activeTab === 'text'
-                ? 'bg-tokyo-blue text-tokyo-bg shadow-lg'
-                : 'text-[#9aa5ce] hover:text-tokyo-text'
-            }`}
-          >
-            <FileText size={14} />
-            Clusterização de Textos
-          </button>
-        </div>
+        {/* Tab Selector Navigation Landmark */}
+        <nav aria-label="Navegação principal">
+          <div role="tablist" aria-label="Seções do analisador" className="flex bg-tokyo-dark bg-opacity-80 p-1 rounded-xl border border-tokyo-border z-10">
+            <button
+              role="tab"
+              id="tab-synthetic"
+              aria-selected={activeTab === 'synthetic'}
+              aria-controls="panel-synthetic"
+              onClick={() => handleTabChange('synthetic')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all active-press-scale ${
+                activeTab === 'synthetic'
+                  ? 'bg-tokyo-blue text-tokyo-bg shadow-lg'
+                  : 'text-[#9aa5ce] hover:text-tokyo-text'
+              }`}
+            >
+              <LineChart size={14} />
+              Synthetic Control
+            </button>
+            <button
+              role="tab"
+              id="tab-text"
+              aria-selected={activeTab === 'text'}
+              aria-controls="panel-text"
+              onClick={() => handleTabChange('text')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all active-press-scale ${
+                activeTab === 'text'
+                  ? 'bg-tokyo-blue text-tokyo-bg shadow-lg'
+                  : 'text-[#9aa5ce] hover:text-tokyo-text'
+              }`}
+            >
+              <FileText size={14} />
+              Clusterização de Textos
+            </button>
+          </div>
+        </nav>
       </header>
 
       {/* Main content grid or Error handling */}
-      {activeTab === 'synthetic' ? (
-        errorSynthetic ? (
+      <div
+        role="tabpanel"
+        id="panel-synthetic"
+        aria-labelledby="tab-synthetic"
+        className={`grow flex flex-col ${activeTab === 'synthetic' ? 'animate-tab-change' : 'hidden'}`}
+      >
+        {errorSynthetic ? (
           <ErrorState message={errorSynthetic} onRetry={loadSyntheticData} />
         ) : (
-          <div key="synthetic" className="grow flex flex-col animate-tab-change">
-            <SyntheticScreen />
-          </div>
-        )
-      ) : (
-        errorText ? (
+          <SyntheticScreen />
+        )}
+      </div>
+
+      <div
+        role="tabpanel"
+        id="panel-text"
+        aria-labelledby="tab-text"
+        className={`grow flex flex-col ${activeTab === 'text' ? 'animate-tab-change' : 'hidden'}`}
+      >
+        {errorText ? (
           <ErrorState message={errorText} onRetry={loadTextData} />
         ) : (
-          <div key="text" className="grow flex flex-col animate-tab-change">
-            <TextScreen />
-          </div>
-        )
-      )}
+          <TextScreen />
+        )}
+      </div>
 
       {/* Footer bar */}
       <footer className="px-6 py-3 bg-tokyo-dark bg-opacity-90 border-t border-tokyo-border text-[9.5px] text-[#9aa5ce] font-semibold flex flex-col md:flex-row justify-between items-center gap-2 md:gap-0 text-center md:text-left z-10">

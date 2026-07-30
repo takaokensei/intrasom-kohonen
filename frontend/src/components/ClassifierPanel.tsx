@@ -73,10 +73,10 @@ export function ClassifierPanel() {
     <div className="glass-panel rounded-2xl p-5 flex flex-col h-full overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider flex items-center gap-1.5">
+        <h2 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider flex items-center gap-1.5">
           <Sparkles size={15} className="text-tokyo-magenta" />
           Classificador de Textos em Tempo Real
-        </h3>
+        </h2>
         
         <div className="flex gap-2">
           <select

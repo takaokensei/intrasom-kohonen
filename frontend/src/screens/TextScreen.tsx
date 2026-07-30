@@ -37,6 +37,8 @@ export function TextScreen() {
 
   return (
     <main className="grow flex-shrink-0 p-6 pb-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start relative z-10">
+      <h2 className="sr-only">Análise e Clusterização Semântica de Textos</h2>
+
       {/* Left Side: Hex grid comparison */}
       <section className="lg:col-span-7 flex flex-col min-w-0">
         <TextHexGrid />
@@ -49,10 +51,10 @@ export function TextScreen() {
         
         {/* Scientific Explanation Panel */}
         <div className="glass-panel rounded-2xl p-5 flex flex-col text-xs leading-relaxed text-tokyo-text">
-          <h4 className="font-bold text-tokyo-magenta uppercase font-mono tracking-wider mb-3 flex items-center gap-1.5">
+          <h3 className="font-bold text-tokyo-magenta uppercase font-mono tracking-wider mb-3 flex items-center gap-1.5">
             <CheckCircle size={14} className="text-tokyo-green" />
             Como o Sentence-BERT se compara ao TF-IDF?
-          </h4>
+          </h3>
           
           <div className="space-y-2.5 text-tokyo-text text-opacity-90">
             <p>

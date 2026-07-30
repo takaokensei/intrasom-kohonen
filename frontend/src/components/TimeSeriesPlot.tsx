@@ -92,9 +92,9 @@ export const TimeSeriesPlot = memo(function TimeSeriesPlot() {
     >
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">
+          <h2 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">
             {selectedNeuronId !== null ? `Padrões no Neurônio N${selectedNeuronId}` : 'Visualizador de Sinais Temporais'}
-          </h3>
+          </h2>
           <p className="text-[10px] text-tokyo-muted font-mono mt-0.5">
             {selectedNeuronId !== null 
               ? `${selectedNeuronInfo?.total_samples} amostras mapeadas` 

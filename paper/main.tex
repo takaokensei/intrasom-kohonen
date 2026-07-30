@@ -15,7 +15,7 @@
 
 \begin{document}
 
-\title{Efeito da Normaliza\c{c}\~ao Diagonal na U-Matrix de SOMs Retangulares:\\
+\title{[Nota T\'ecnica] Efeito da Normaliza\c{c}\~ao Diagonal na U-Matrix de SOMs Retangulares:\\
 Uma Rean\'alise Emp\'irica da Biblioteca IntraSOM\\
 \`a Luz de Costa \& Netto (2007)}
 
@@ -42,23 +42,22 @@ grade retangular. A formula\c{c}\~ao cl\'assica de Costa \& Netto (2007), que
 generaliza Ultsch (1993), exige a divis\~ao das dist\^ancias diagonais pelo fator
 de escala geom\'etrica $\sqrt{2}$ para garantir a isotropia do gradiente espacial
 no espa\c{c}o de pesos. Este trabalho demonstra, mediante an\'alise do c\'odigo-fonte
-e experimentos com repeti\c{c}\~ao estat\'istica (5 sementes aleat\'orias, totalizando
-60 treinamentos) no dataset \textit{Synthetic Control} (Alcock \& Manolopoulos, 1999;
-600 amostras, 6 classes), que a biblioteca open-source IntraSOM (Gouv\^ea et al., 2023)
-n\~ao aplica esse fator: a m\'edia \'e calculada sobre normas euclidianas brutas
-das 8 dire\c{c}\~oes sem pondera\c{c}\~ao espacial. A diverg\^encia resultante \'e
-sistem\'atica e mensur\'avel: a implementa\c{c}\~ao atual inflaciona os valores da
-U-matrix em $17{,}3\% \pm 0{,}0\%$ a $20{,}4\% \pm 0{,}0\%$ em rela\c{c}\~ao \`a
-formula\c{c}\~ao cl\'assica (raz\~ao de escala m\'edia de $1{,}173$ a $1{,}204$),
-com alta correla\c{c}\~ao espacial de Pearson ($r \geq 0{,}985$) entre as duas
-vers\~oes. A deriva\c{c}\~ao te\'orica estabelece $(1+\sqrt{2})/2 \approx 1{,}207$
-como limite assint\'otico superior sob isotropia perfeita. O Adjusted Rand Index (ARI)
-entre as segmenta\c{c}\~oes das duas U-matrizes varia de $0{,}42 \pm 0{,}00$ a
-$0{,}96 \pm 0{,}00$, enquanto o ARI contra os r\'otulos reais do dataset permanece
-est\'avel ($0{,}11$--$0{,}26$). Este resultado motiva a inclus\~ao do par\^ametro
-opcional \texttt{normalize\_diagonals} na biblioteca e documenta a import\^ancia da
-verifica\c{c}\~ao de conformidade entre equa\c{c}\~oes publicadas e c\'odigo de
-bibliotecas de aprendizado de m\'aquina.
+e experimentos com repeti\c{c}\~ao estat\'istica sob inicializa\c{c}\~ao aleat\'oria
+estoc\'astica (5 sementes aleat\'orias, totalizando 60 treinamentos) no dataset
+\textit{Synthetic Control} (Alcock \& Manolopoulos, 1999; 600 amostras, 6 classes),
+que a biblioteca open-source IntraSOM (Gouv\^ea et al., 2023) n\~ao aplica esse fator:
+a m\'edia \'e calculada sobre normas euclidianas brutas das 8 dire\c{c}\~oes sem
+pondera\c{c}\~ao espacial. A diverg\^encia resultante \'e sistem\'atica e mensur\'avel:
+a implementa\c{c}\~ao atual inflaciona os valores da U-matrix em $16{,}8\% \pm 0{,}2\%$
+a $20{,}5\% \pm 0{,}0\%$ em rela\c{c}\~ao \`a formula\c{c}\~ao cl\'assica (raz\~ao de escala
+m\'edia de $1{,}168$ a $1{,}205$), com alta correla\c{c}\~ao espacial de Pearson
+($r \geq 0{,}989$) entre as duas vers\~oes. A deriva\c{c}\~ao te\'orica estabelece
+$(1+\sqrt{2})/2 \approx 1{,}207$ como limite assint\'otico superior sob isotropia perfeita.
+O Adjusted Rand Index (ARI) entre as segmenta\c{c}\~oes das duas U-matrizes varia de
+$0{,}54 \pm 0{,}18$ a $0{,}96 \pm 0{,}00$, enquanto o ARI contra os r\'otulos reais do
+dataset permanece est\'avel ($0{,}09$--$0{,}26$). Este resultado motiva a inclus\~ao
+do par\^ametro opcional \texttt{normalize\_diagonals} na biblioteca e documenta a
+import\^ancia da verifica\c{c}\~ao de conformidade entre equa\c{c}\~oes publicadas e c\'odigo.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -77,11 +76,10 @@ multidimensionais em grades de baixa dimens\~ao. A biblioteca IntraSOM
 \cite{gouvea2023intrasom}, publicada recentemente no peri\'odico \textit{Software Impacts},
 destaca-se como um pacote open-source em Python desenvolvido para suprir demandas
 de treinamento em malhas hexagonais e toroidais com suporte a dados ausentes,
-sendo adotada em pesquisas aplicadas, centros de pesquisa como o InTRA-USP e
-projetos acad\^emicos de engenharia. Com o aumento da ado\c{c}\~ao de bibliotecas
-de aprendizado de m\'aquina em sistemas num\'ericos e dashboards interativos,
-a verifica\c{c}\~ao formal de fidelidade algor\'itmica torna-se essencial para
-evitar que diverg\^encias sutis de c\'odigo afetem a reprodu\-tibili\-dade cient\'ifica
+sendo adotada em pesquisas aplicadas, centros como o InTRA-USP e projetos acad\^emicos.
+Com o aumento da ado\c{c}\~ao de bibliotecas de aprendizado de m\'aquina em sistemas
+num\'ericos, a verifica\c{c}\~ao formal de fidelidade algor\'itmica torna-se essencial
+para evitar que diverg\^encias sutis de c\'odigo afetem a reprodu\-tibili\-dade cient\'ifica
 \cite{peng2011reproducible, stodden2014implementing}.
 
 Uma das representa\c{c}\~oes mais influentes para a interpreta\c{c}\~ao de mapas
@@ -92,29 +90,31 @@ Ultsch \& Siemon (1990) \cite{ultsch1990innc}, detalhada por Ultsch (1993)
 pesos em relevos tridimensionais onde vales identificam regi\~oes homog\^eneas
 (\textit{clusters}) e cristas marcam fronteiras entre classes.
 
-Contudo, a prolifera\c{c}\~ao de pacotes open-source --- como o \texttt{kohonen} em R
-\cite{wehrens2007self}, o MiniSom em Python \cite{vesanto2000clustering} e a IntraSOM
-\cite{gouvea2023intrasom} --- introduziu varia\c{c}\~oes de implementa\c{c}\~ao
-que nem sempre s\~ao documentadas em rela\c{c}\~ao \`a literatura de refer\^encia
-\cite{flexer2001use}. A aus\^encia de testes de conformidade (\textit{conformance testing})
-entre a f\'ormula publicada e a rotina num\'erica executada representa uma fonte
-de d\'evida t\'ecnica em sistemas de IA \cite{sculley2015hidden, sandve2013ten}.
+Contudo, a prolifera\c{c}\~ao de pacotes open-source --- como o pacote \texttt{kohonen} em R
+\cite{wehrens2007self} e a IntraSOM \cite{gouvea2023intrasom} --- introduziu
+varia\c{c}\~oes de implementa\c{c}\~ao que nem sempre s\~ao documentadas em rela\c{c}\~ao
+\`a literatura de refer\^encia \cite{flexer2001use}. A aus\^encia de testes de conformidade
+(\textit{conformance testing}) entre a f\'ormula publicada e a rotina num\'erica
+executada representa uma fonte de d\'evida t\'ecnica em sistemas de IA
+\cite{sculley2015hidden, sandve2013ten}.
 
 Este trabalho documenta e quantifica uma diverg\^encia concreta: a implementa\c{c}\~ao
 da U-matrix reduzida para grades retangulares na biblioteca IntraSOM (vers\~ao 1.1.1)
 \cite{gouvea2023intrasom} n\~ao aplica o fator de normaliza\c{c}\~ao espacial $1/\sqrt{2}$
 nas conex\~oes diagonais previsto por Costa \& Netto (2007) \cite{costa2007segmentacao}.
-Atrav\'es de repeti\c{c}\~ao estat\'istica com 5 sementes aleat\'orias em 12 modelos RECT,
-demonstra-se que a omiss\~ao desse fator produz uma infla\c{c}\~ao sistem\'atica dos
-valores da U-matrix, com impacto mensur\'avel sobre a segmenta\c{c}\~ao.
+Atrav\'es de repeti\c{c}\~ao estat\'istica sob inicializa\c{c}\~ao aleat\'oria com 5 sementes
+estoc\'asticas em 12 modelos RECT, demonstra-se que a omiss\~ao desse fator produz
+uma infla\c{c}\~ao sistem\'atica dos valores da U-matrix, com impacto mensur\'avel
+sobre a segmenta\c{c}\~ao.
 
-As contribui\c{c}\~oes deste trabalho s\~ao:
+As contribui\c{c}\~oes desta Nota T\'ecnica s\~ao:
 \begin{enumerate}
     \item \textbf{Deriva\c{c}\~ao Anal\'itica}: Demonstra\c{c}\~ao do fator de infla\c{c}\~ao
     te\'orico $(1+\sqrt{2})/2 \approx 1{,}207$ como limite assint\'otico superior sob isotropia.
-    \item \textbf{Experimento Multissemente}: Avalia\c{c}\~ao quantitativa com 5 seeds ($N=60$
-    treinamentos) reportando m\'edia e desvio padr\~ao para correla\c{c}\~ao de Pearson,
-    diferen\c{c}a relativa, raz\~ao de escala e ARI de segmenta\c{c}\~ao.
+    \item \textbf{Experimento Estoc\'astico Multissemente}: Avalia\c{c}\~ao quantitativa
+    com inicializa\c{c}\~ao aleat\'oria em 5 seeds ($N=60$ treinamentos) reportando m\'edia e
+    desvio padr\~ao real para correla\c{c}\~ao de Pearson, diferen\c{c}a relativa, raz\~ao de
+    escala e ARI de segmenta\c{c}\~ao.
     \item \textbf{Avalia\c{c}\~ao Downstream}: An\'alise do impacto na qualidade real de
     agrupamento contra r\'otulos de refer\^encia (\textit{ground truth}).
     \item \textbf{Proposta de Corre\c{c}\~ao}: Sugest\~ao de extens\~ao da API da biblioteca
@@ -181,9 +181,9 @@ $(r,c)$.
 %% ============================================================
 
 \subsection{Implementa\c{c}\~ao Observada}
-A inspe\c{c}\~ao do m\'etodo \texttt{build\_umatrix} em
-\texttt{intrasom/intrasom.py} (linhas 135--205, vers\~ao 1.1.1)
-\cite{gouvea2023intrasom} revela que, para a grade retangular
+A inspe\c{c}\~ao do m\'etodo \texttt{build\_umatrix} na classe \texttt{SOM}
+da biblioteca IntraSOM (localizado na linha 2626 de \texttt{intrasom/intrasom.py},
+vers\~ao 1.1.1) \cite{gouvea2023intrasom} revela que, para a grade retangular
 (\texttt{lattice == "rect"}), todos os oito vizinhos recebem norma
 euclidiana bruta dos pesos sem o fator $1/\sqrt{2}$ nas dire\c{c}\~oes
 diagonais:
@@ -231,17 +231,19 @@ O experimento utiliza o dataset \textit{Synthetic Control Chart Time Series}
 \cite{alcock1999time}: 600 s\'eries temporais de 60 passos divididas em 6
 classes morfol\'ogicas ($n = 100$ por classe).
 
-Para garantir o rigor estat\'istico, foram treinadas 12 combina\c{c}\~oes do SOM
-retangular (2 topologias: planar e toroidal; 6 dimens\~oes: $5\times5$, $7\times7$,
-$10\times10$, $12\times12$, $15\times15$, $20\times20$) com repeti\c{c}\~ao sobre
-\textbf{5 sementes aleat\'orias} ($S = \{42, 43, 44, 45, 46\}$), perfazendo um
-total de $N = 60$ modelos treinados (Batch SOM, inicializa\c{c}\~ao PCA, 500
-\'epocas totais).
+Para garantir a vari\^ancia estat\'istica real entre execu\c{c}\~oes, foram treinadas
+12 combina\c{c}\~oes do SOM retangular (2 topologias: planar e toroidal; 6
+dimens\~oes: $5\times5$, $7\times7$, $10\times10$, $12\times12$, $15\times15$,
+$20\times20$) com \textbf{inicializa\c{c}\~ao aleat\'oria estoc\'astica}
+(\texttt{initialization='random'}) sob **5 sementes aleat\'orias** ($S = \{42, 43,
+44, 45, 46\}$), perfazendo um total de $N = 60$ modelos treinados (Batch SOM,
+500 \'epocas totais). A se\c{c}\~ao~\ref{subsec:meta_note} detalha a corre\c{c}\~ao
+metodol\'ogica efetuada no controle de sementes.
 
 \subsection{M\'etricas de Avalia\c{c}\~ao}
 Para cada um dos 60 treinamentos, computam-se a U-matrix IntraSOM $U_A$ e a
 U-matrix Cl\'assica $U_B$. Em seguida, calculam-se as m\'etricas e reportam-se
-as m\'edias $\pm$ desvios padr\~ao sobre as 5 sementes:
+as m\'edias $\pm$ desvios padr\~ao reais sobre as 5 sementes:
 \begin{itemize}
     \item \textbf{Pearson $r$}: correla\c{c}\~ao espacial entre $U_A$ e $U_B$.
     \item \textbf{Diferen\c{c}a Relativa (\%)}: $\overline{|\Delta U|} / \overline{U_B} \times 100$.
@@ -260,8 +262,8 @@ as m\'edias $\pm$ desvios padr\~ao sobre as 5 sementes:
 \subsection{Visualiza\c{c}\~ao Comparativa}
 A Fig.~\ref{fig:umatrix_comparison} exibe $U_A$ e $U_B$ para o modelo SOM
 $10\times10$ RECT toroidal (seed 42). A topologia relativa \'e visualmente
-preservada ($r = 0{,}9992$), contudo $U_A$ exibe amplitude sistematicamente
-superior ($20{,}4\%$ de infla\c{c}\~ao relative m\'edia).
+preservada ($r = 0{,}9993$), contudo $U_A$ exibe amplitude sistematicamente
+superior ($20{,}5\%$ de infla\c{c}\~ao relativa m\'edia).
 
 \begin{figure}[htbp]
     \centering
@@ -274,32 +276,32 @@ superior ($20{,}4\%$ de infla\c{c}\~ao relative m\'edia).
 
 \subsection{Estat\'istica Multissemente e Tabela Resumo}
 A Tabela~\ref{tab:divergencia} apresenta os resultados m\'edios $\pm$ desvio padr\~ao
-obtidos nas 5 sementes para todos os 12 modelos.
+real obtidos nas 5 sementes com inicializa\c{c}\~ao estoc\'astica.
 
 \begin{table*}[htbp]
 \centering
-\caption{M\'etricas de Diverg\^encia entre $U_A$ (IntraSOM 1.1.1) e $U_B$ (Costa \& Netto 2007) com Repeti\c{c}\~ao Estat\'istica (M\'edia $\pm$ Desvio Padr\~ao sobre 5 Seeds)}
+\caption{M\'etricas de Diverg\^encia entre $U_A$ (IntraSOM 1.1.1) e $U_B$ (Costa \& Netto 2007) com Repeti\c{c}\~ao Estoc\'astica (M\'edia $\pm$ Desvio Padr\~ao sobre 5 Seeds)}
 \label{tab:divergencia}
-\setlength{\tabcolsep}{4.5pt}
-\small
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{lcccccc}
 \toprule
 \textbf{Modelo} & \textbf{Pearson $r$} & \textbf{Dif. Relativa (\%)} & \textbf{Escala $\bar{U}_A/\bar{U}_B$} & \textbf{ARI ($U_A$ vs $U_B$)} & \textbf{ARI Ground ($U_A$)} & \textbf{ARI Ground ($U_B$)} \\
 \midrule
-$5\times5$ RECT Planar   & $0.9855 \pm 0.0000$ & $17.26 \pm 0.00$ & $1.173 \pm 0.000$ & $0.539 \pm 0.070$ & $0.256 \pm 0.000$ & $0.228 \pm 0.013$ \\
-$5\times5$ RECT Toroide  & $0.9893 \pm 0.0000$ & $20.07 \pm 0.00$ & $1.201 \pm 0.000$ & $0.417 \pm 0.000$ & $0.242 \pm 0.000$ & $0.178 \pm 0.000$ \\
+$5\times5$ RECT Planar   & $0.9902 \pm 0.0020$ & $16.80 \pm 0.18$ & $1.168 \pm 0.002$ & $0.760 \pm 0.169$ & $0.242 \pm 0.057$ & $0.223 \pm 0.074$ \\
+$5\times5$ RECT Toroide  & $0.9899 \pm 0.0012$ & $20.17 \pm 0.13$ & $1.202 \pm 0.001$ & $0.539 \pm 0.184$ & $0.237 \pm 0.018$ & $0.180 \pm 0.096$ \\
 $7\times7$ RECT Planar   & $0.9973 \pm 0.0000$ & $18.03 \pm 0.00$ & $1.180 \pm 0.000$ & $0.963 \pm 0.000$ & $0.259 \pm 0.000$ & $0.256 \pm 0.000$ \\
-$7\times7$ RECT Toroide  & $0.9983 \pm 0.0000$ & $20.26 \pm 0.00$ & $1.203 \pm 0.000$ & $0.887 \pm 0.036$ & $0.201 \pm 0.000$ & $0.193 \pm 0.000$ \\
-$10\times10$ RECT Planar & $0.9975 \pm 0.0000$ & $18.91 \pm 0.00$ & $1.189 \pm 0.000$ & $0.577 \pm 0.026$ & $0.179 \pm 0.005$ & $0.200 \pm 0.005$ \\
-$10\times10$ RECT Toroide& $0.9992 \pm 0.0000$ & $20.42 \pm 0.00$ & $1.204 \pm 0.000$ & $0.832 \pm 0.056$ & $0.144 \pm 0.001$ & $0.143 \pm 0.000$ \\
-$12\times12$ RECT Planar & $0.9978 \pm 0.0000$ & $19.39 \pm 0.00$ & $1.194 \pm 0.000$ & $0.889 \pm 0.006$ & $0.145 \pm 0.000$ & $0.159 \pm 0.008$ \\
-$12\times12$ RECT Toroide& $0.9994 \pm 0.0000$ & $20.33 \pm 0.00$ & $1.203 \pm 0.000$ & $0.945 \pm 0.009$ & $0.137 \pm 0.000$ & $0.142 \pm 0.000$ \\
-$15\times15$ RECT Planar & $0.9984 \pm 0.0000$ & $19.72 \pm 0.00$ & $1.197 \pm 0.000$ & $0.873 \pm 0.020$ & $0.134 \pm 0.006$ & $0.142 \pm 0.006$ \\
-$15\times15$ RECT Toroide& $0.9993 \pm 0.0000$ & $20.22 \pm 0.00$ & $1.202 \pm 0.000$ & $0.760 \pm 0.031$ & $0.126 \pm 0.005$ & $0.134 \pm 0.002$ \\
-$20\times20$ RECT Planar & $0.9985 \pm 0.0000$ & $19.83 \pm 0.00$ & $1.198 \pm 0.000$ & $0.852 \pm 0.031$ & $0.156 \pm 0.004$ & $0.175 \pm 0.000$ \\
-$20\times20$ RECT Toroide& $0.9995 \pm 0.0000$ & $20.30 \pm 0.00$ & $1.203 \pm 0.000$ & $0.887 \pm 0.000$ & $0.112 \pm 0.000$ & $0.115 \pm 0.000$ \\
+$7\times7$ RECT Toroide  & $0.9982 \pm 0.0006$ & $20.29 \pm 0.15$ & $1.203 \pm 0.002$ & $0.882 \pm 0.085$ & $0.248 \pm 0.078$ & $0.222 \pm 0.062$ \\
+$10\times10$ RECT Planar & $0.9976 \pm 0.0005$ & $18.58 \pm 0.18$ & $1.186 \pm 0.002$ & $0.751 \pm 0.057$ & $0.191 \pm 0.011$ & $0.217 \pm 0.019$ \\
+$10\times10$ RECT Toroide& $0.9993 \pm 0.0000$ & $20.47 \pm 0.03$ & $1.205 \pm 0.000$ & $0.860 \pm 0.084$ & $0.143 \pm 0.010$ & $0.140 \pm 0.015$ \\
+$12\times12$ RECT Planar & $0.9986 \pm 0.0004$ & $19.24 \pm 0.08$ & $1.192 \pm 0.001$ & $0.817 \pm 0.051$ & $0.185 \pm 0.023$ & $0.192 \pm 0.017$ \\
+$12\times12$ RECT Toroide& $0.9994 \pm 0.0001$ & $20.35 \pm 0.07$ & $1.204 \pm 0.001$ & $0.900 \pm 0.063$ & $0.128 \pm 0.014$ & $0.137 \pm 0.019$ \\
+$15\times15$ RECT Planar & $0.9988 \pm 0.0003$ & $19.45 \pm 0.14$ & $1.194 \pm 0.001$ & $0.796 \pm 0.037$ & $0.170 \pm 0.012$ & $0.174 \pm 0.007$ \\
+$15\times15$ RECT Toroide& $0.9993 \pm 0.0000$ & $20.26 \pm 0.06$ & $1.203 \pm 0.001$ & $0.810 \pm 0.032$ & $0.124 \pm 0.009$ & $0.139 \pm 0.007$ \\
+$20\times20$ RECT Planar & $0.9990 \pm 0.0003$ & $19.73 \pm 0.07$ & $1.197 \pm 0.001$ & $0.819 \pm 0.062$ & $0.146 \pm 0.012$ & $0.154 \pm 0.011$ \\
+$20\times20$ RECT Toroide& $0.9995 \pm 0.0001$ & $20.39 \pm 0.14$ & $1.204 \pm 0.001$ & $0.897 \pm 0.040$ & $0.094 \pm 0.019$ & $0.090 \pm 0.021$ \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table*}
 
 A Fig.~\ref{fig:divergence_dist} ilustra a distribui\c{c}\~ao da diverg\^encia
@@ -310,15 +312,15 @@ por neur\^onio e a diverg\^encia m\'edia por topologia.
     \includegraphics[width=\linewidth]{fig2_divergence_distribution.pdf}
     \caption{(a) Distribui\c{c}\~ao da diverg\^encia relativa por neur\^onio para
     SOM $10\times10$ RECT toroidal. (b) Diferen\c{c}a relativa m\'edia (\%) por
-    modelo e topologia (m\'edias sobre 5 seeds).}
+    modelo e topologia (m\'edias sobre 5 seeds estoc\'asticas).}
     \label{fig:divergence_dist}
 \end{figure}
 
 \subsection{Sistematicidade e Converg\^encia ao Teto Te\'orico}
 A Fig.~\ref{fig:systematic} confirma que a raz\~ao de escala m\'edia em malhas
-toroidais ($1{,}203 \pm 0{,}000$) aproxima-se de forma consistente do limite
+toroidais ($1{,}204 \pm 0{,}001$) aproxima-se de forma consistente do limite
 assint\'otico te\'orico $1{,}207$ ($20{,}7\%$), estabilizando-se para $N \geq 10$.
-Mapas planares exibem valores ligeiramente inferiores ($\approx 17{,}3\%$--$19{,}8\%$)
+Mapas planares exibem valores ligeiramente inferiores ($\approx 16{,}8\%$--$19{,}7\%$)
 devido \`a menor densidade de vizinhos diagonais nas bordas abertas.
 
 \begin{figure}[htbp]
@@ -331,9 +333,9 @@ devido \`a menor densidade de vizinhos diagonais nas bordas abertas.
 
 \subsection{Impacto na Segmenta\c{c}\~ao e no Agrupamento Downstream}
 A Fig.~\ref{fig:segmentation_ari} ilustra o ARI entre as parti\c{c}\~oes de K-Means
-($k=6$) sobre $U_A$ e $U_B$. Para mapas $5\times5$, o ARI cai para $0{,}42 \pm 0{,}00$
-(toroidal) e $0{,}54 \pm 0{,}07$ (planar), indicando que a escolha da matriz altera
-a atribui\c{c}\~ao de agrupamentos locais.
+($k=6$) sobre $U_A$ e $U_B$. Para mapas $5\times5$, o ARI varia em $0{,}54 \pm 0{,}18$
+(toroidal) e $0{,}76 \pm 0{,}17$ (planar), indicando que a escolha da matriz altera
+a atribui\c{c}\~ao de agrupamentos locais em grades de menor resolu\c{c}\~ao.
 
 Contudo, a avalia\c{c}\~ao \textit{downstream} contra as 6 classes reais do dataset
 (colunas \texttt{ARI Ground} na Tabela~\ref{tab:divergencia}) revela que o ARI global
@@ -359,11 +361,23 @@ permanece limitada pela pr\'opria resolu\c{c}\~ao da grade.
 \subsection{Signific\^ancia Pr\'atica e Limite Te\'orico}
 Os experimentos multissemente confirmam que a biblioteca IntraSOM (v1.1.1)
 \cite{gouvea2023intrasom} computa a U-matrix reduzida com norma euclidiana bruta,
-resultando em infla\c{c}\~ao sistem\'atica de $17{,}3\%$ a $20{,}4\%$. O valor te\'orico
+resultando em infla\c{c}\~ao sistem\'atica de $16{,}8\%$ a $20{,}5\%$. O valor te\'orico
 de $20{,}7\%$ derivado na Se\c{c}\~ao~\ref{subsec:fator} atua como teto assint\'otico sob
-isotropia perfeita. A alta correla\c{c}\~ao espacial ($r \geq 0{,}985$) demonstra que o
+isotropia perfeita. A alta correla\c{c}\~ao espacial ($r \geq 0{,}989$) demonstra que o
 relevo topol\'ogico relativo \'e preservado, mas limiares absolutos de segmenta\c{c}\~ao
 s\~ao alterados.
+
+\subsection{Nota sobre Corre\c{c}\~ao Metodol\'ogica no Controle de Sementes}
+\label{subsec:meta_note}
+Em uma revis\~ao metodol\'ogica interna, identificou-se que a primeira vers\~ao
+do experimento utilizou a inicializa\c{c}\~ao determin\'istica por An\'alise de
+Componentes Principais (\texttt{initialization='pca'}). Como o treinamento Batch
+sem amostragem estoc\'astica em dados completos \'e determin\'istico dada uma
+inicializa\c{c}\~ao fixa, o protocolo anterior produzia zero vari\^ancia real entre
+seeds ($\text{std} = 0{,}000$). O protocolo foi corrigido nesta vers\~ao para utilizar
+inicializa\c{c}\~ao aleat\'oria estoc\'astica (\texttt{initialization='random'}),
+gerando desvios padr\~ao genu\'inos e confirmados via teste automatizado de regress\~ao
+(\texttt{tests/test\_seed\_variance.py}).
 
 \subsection{Varia\c{c}\~ao entre Bibliotecas Open-Source}
 Diverg\^encias similares ocorrem em outras bibliotecas: o pacote \texttt{kohonen}
@@ -379,8 +393,23 @@ seis problemas de engenharia adicionais (motor duplo MiniSom/IntraSOM, dist\^anc
 toroidal RECT, arestas expandidas, monkey-patch de dist\^ancia, dimens\~oes efetivas
 e rec\'alculo de $QE$ travado em zero). Esses achados est\~ao documentados no
 relat\'orio de auditoria interna \texttt{ENGINEERING\_AUDIT.md} do reposit\'orio.
-Tais corre\c{c}\~oes ilustram a preval\^encia de d\'evida t\'ecnica e a necessidade
-de boas pr\'aticas em software cient\'ifico \cite{sculley2015hidden, sandve2013ten}.
+A cita\c{c}\~ao de trabalhos gerais de reprodutibilidade \cite{sculley2015hidden, sandve2013ten}
+serve apenas para contextualizar a categoria geral de d\'evida t\'ecnica em sistemas de IA.
+
+\subsection{Limita\c{c}\~oes do Estudo}
+\label{subsec:limitacoes}
+Esta Nota T\'ecnica possui as seguintes limita\c{c}\~oes declaradas:
+\begin{enumerate}
+    \item \textbf{Escopo Geom\'etrico}: A an\'alise \'e restrita \`a malha retangular (RECT),
+    onde a diferen\c{c}a geom\'etrica entre vizinhos ortogonais e diagonais exige o fator
+    $1/\sqrt{2}$. Malhas hexagonais (HEX) possuem simetria radial de 6 vizinhos equidistantes
+    e n\~ao apresentam essa assimetria ortogonal/diagonal.
+    \item \textbf{Dataset \'Unico}: Os experimentos num\'ericos foram conduzidos sobre
+    o dataset benchmark \textit{Synthetic Control} \cite{alcock1999time}.
+    \item \textbf{M\'etodo de Segmenta\c{c}\~ao}: A parti\c{c}\~ao de clusters foi avaliada
+    via K-Means ($k=6$) sobre os valores da U-matrix; algoritmos topo-dependente como
+    \textit{watershed} podem apresentar sensibilidades distintas.
+\end{enumerate}
 
 \subsection{Trabalhos Futuros}
 Propara-se submeter uma contribui\c{c}\~ao (\textit{Pull Request}) ao reposit\'orio
@@ -391,11 +420,11 @@ oficial da biblioteca IntraSOM adicionando o par\^ametro opcional
 \section{Conclus\~ao}
 \label{sec:conclusao}
 %% ============================================================
-Este trabalho apresentou uma rean\'alise emp\'irica e te\'orica da U-matrix na
+Esta Nota T\'ecnica apresentou uma rean\'alise emp\'irica e te\'orica da U-matrix na
 biblioteca IntraSOM (v1.1.1), demonstrando que a omiss\~ao da normaliza\c{c}\~ao
 diagonal $1/\sqrt{2}$ (Costa \& Netto, 2007) produz uma infla\c{c}\~ao emp\'irica
-sistem\'atica de $17{,}3\%$ a $20{,}4\%$, delimitada pelo teto te\'orico de $20{,}7\%$.
-A inclus\~ao de um par\^ametro opcional \texttt{normalize\_diagonals} garante a
+sistem\'atica de $16{,}8\%$ a $20{,}5\%$, delimitada pelo teto te\'orico de $20{,}7\%$.
+A inclus\~ao do par\^ametro opcional \texttt{normalize\_diagonals} garante a
 conformidade com a literatura cl\'assica mantendo compatibilidade retroativa.
 
 \section*{Agradecimentos}

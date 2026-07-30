@@ -165,16 +165,12 @@ interface DashboardState {
   initialRadius: '80%' | '50%' | '100%';
   finalRadius: '1' | '2';
   epochs: 500 | 200 | 100;
-  trainingMode: 'batch' | 'online';
-  initialization: 'linear' | 'random';
   
   setLattice: (lattice: 'HEX' | 'RECT') => void;
   setTopology: (topology: 'toroid' | 'planar') => void;
   setInitialRadius: (radius: '80%' | '50%' | '100%') => void;
   setFinalRadius: (radius: '1' | '2') => void;
   setEpochs: (epochs: 500 | 200 | 100) => void;
-  setTrainingMode: (mode: 'batch' | 'online') => void;
-  setInitialization: (init: 'linear' | 'random') => void;
 
   getServedTopology: () => 'toroid' | 'planar';
   
@@ -230,8 +226,6 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   initialRadius: '80%',
   finalRadius: '1',
   epochs: 500,
-  trainingMode: 'batch',
-  initialization: 'linear',
 
   setLattice: (lattice) => set({ lattice }),
   // setTopology now selects the real trained variant for 10x10;
@@ -240,8 +234,6 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   setInitialRadius: (initialRadius) => set({ initialRadius }),
   setFinalRadius: (finalRadius) => set({ finalRadius }),
   setEpochs: (epochs) => set({ epochs }),
-  setTrainingMode: (trainingMode) => set({ trainingMode }),
-  setInitialization: (initialization) => set({ initialization }),
 
   getServedTopology: () => {
     // RECT_toroid now exists — return the real topology for all 4 variants

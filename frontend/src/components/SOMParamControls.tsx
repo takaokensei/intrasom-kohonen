@@ -1,5 +1,5 @@
 import { useDashboardStore } from '../store/useDashboardStore';
-import { Settings, Sliders, Layers, RefreshCw } from 'lucide-react';
+import { Settings, Sliders, Layers, RefreshCw, Filter, ArrowDownCircle } from 'lucide-react';
 
 export function SOMParamControls() {
   const {
@@ -8,15 +8,11 @@ export function SOMParamControls() {
     initialRadius,
     finalRadius,
     epochs,
-    trainingMode,
-    initialization,
     setLattice,
     setTopology,
     setInitialRadius,
     setFinalRadius,
     setEpochs,
-    setTrainingMode,
-    setInitialization,
     activeTab,
     selectedMapSize,
     setSelectedMapSize,
@@ -27,7 +23,8 @@ export function SOMParamControls() {
   const activeSOMModel = getActiveSOMModel();
 
   return (
-    <div className="glass-panel rounded-2xl p-5 flex flex-col space-y-4 text-tokyo-text">
+    <div className="glass-panel rounded-2xl p-5 flex flex-col space-y-5 text-tokyo-text">
+      {/* Main Header */}
       <div className="flex items-center justify-between border-b border-tokyo-border border-opacity-30 pb-3">
         <h3 className="text-sm font-bold uppercase font-mono tracking-wider flex items-center gap-2 text-tokyo-blue">
           <Settings size={16} />
@@ -38,186 +35,191 @@ export function SOMParamControls() {
         </span>
       </div>
 
-      {/* Map Size Selector (5x5, 7x7, 10x10, 12x12, 15x15, 20x20) */}
-      <div className="flex flex-col space-y-1.5">
-        <label className="text-[10px] text-tokyo-muted font-semibold uppercase font-mono tracking-wider flex items-center gap-1">
-          <Layers size={12} className="text-tokyo-cyan" />
-          Dimensões da Grade (Solicitado)
-        </label>
-        <div className="grid grid-cols-3 gap-2">
-          {(['5x5', '7x7', '10x10', '12x12', '15x15', '20x20'] as const).map((size) => {
-            const isDisabled = isTextTab && size !== '10x10';
-            return (
-              <button
-                key={size}
-                disabled={isDisabled}
-                onClick={() => setSelectedMapSize(size)}
-                title={isDisabled ? 'Modelos de texto são treinados exclusivamente no tamanho 10x10' : undefined}
-                className={`py-1.5 rounded-lg text-xs font-mono font-bold border transition ${
-                  isDisabled
-                    ? 'opacity-40 cursor-not-allowed bg-tokyo-dark text-tokyo-muted border-tokyo-border'
-                    : selectedMapSize === size
-                    ? 'bg-tokyo-blue text-tokyo-bg border-tokyo-blue shadow-[0_0_12px_rgba(59,130,246,0.3)] active-press-scale'
-                    : 'bg-tokyo-dark text-tokyo-text border-tokyo-border hover:border-tokyo-blue hover:bg-opacity-80 active-press-scale'
-                }`}
-              >
-                {size}
-              </button>
-            );
-          })}
-        </div>
-        {activeSOMModel && (
-          <div className="flex justify-between items-center text-[10px] font-mono text-tokyo-muted bg-tokyo-dark bg-opacity-40 px-2 py-1 rounded border border-tokyo-border border-opacity-30">
-            <span>Dimensão Efetiva (Motor): <strong className="text-tokyo-cyan">{activeSOMModel.cols}×{activeSOMModel.rows}</strong></span>
-            <span className="font-bold text-tokyo-text">{activeSOMModel.cols * activeSOMModel.rows} neurônios</span>
-          </div>
-        )}
-        {isTextTab && (
-          <span className="text-[10px] font-mono text-tokyo-muted italic">
-            ℹ️ Modelos textuais são treinados exclusivamente na dimensão 10x10.
+      {/* SECTION 1: Active Model & Grid Routing */}
+      <div className="flex flex-col space-y-3 bg-tokyo-dark bg-opacity-30 p-3.5 rounded-xl border border-tokyo-border border-opacity-30">
+        <div className="flex items-center justify-between border-b border-tokyo-border border-opacity-20 pb-2">
+          <span className="text-[11px] font-bold text-tokyo-cyan uppercase font-mono tracking-wider flex items-center gap-1.5">
+            <Layers size={13} />
+            1. Seleção do Modelo Ativo (Roteamento de Mapa)
           </span>
-        )}
-      </div>
+          <span className="text-[9px] font-mono bg-tokyo-blue bg-opacity-20 text-tokyo-blue px-1.5 py-0.5 rounded border border-tokyo-blue border-opacity-30 font-semibold">
+            Carrega Mapa Pré-Treinado
+          </span>
+        </div>
 
-      {/* Geometry / Lattice Selector (HEX vs RECT) */}
-      <div className="flex flex-col space-y-1.5">
-        <label className="text-[10px] text-tokyo-muted font-semibold uppercase font-mono tracking-wider flex items-center gap-1">
-          <Sliders size={12} className="text-tokyo-green" />
-          Geometria da Grade (Lattice)
-        </label>
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            onClick={() => setLattice('HEX')}
-            className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold border transition flex items-center justify-center gap-1.5 active-press-scale ${
-              lattice === 'HEX'
-                ? 'bg-tokyo-green text-tokyo-bg border-tokyo-green shadow-[0_0_10px_rgba(16,185,129,0.3)]'
-                : 'bg-tokyo-dark text-tokyo-text border-tokyo-border hover:border-tokyo-green'
-            }`}
-          >
-            <span className="w-2.5 h-2.5 rounded-sm rotate-45 border border-current" />
-            Hexagonal (HEX)
-          </button>
+        {/* Map Size Selector */}
+        <div className="flex flex-col space-y-1.5">
+          <label className="text-[10px] text-tokyo-muted font-semibold uppercase font-mono tracking-wider">
+            Dimensões da Grade (Solicitado)
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            {(['5x5', '7x7', '10x10', '12x12', '15x15', '20x20'] as const).map((size) => {
+              const isDisabled = isTextTab && size !== '10x10';
+              return (
+                <button
+                  key={size}
+                  disabled={isDisabled}
+                  onClick={() => setSelectedMapSize(size)}
+                  title={isDisabled ? 'Modelos de texto são treinados exclusivamente no tamanho 10x10' : undefined}
+                  className={`py-1.5 rounded-lg text-xs font-mono font-bold border transition ${
+                    isDisabled
+                      ? 'opacity-40 cursor-not-allowed bg-tokyo-dark text-tokyo-muted border-tokyo-border'
+                      : selectedMapSize === size
+                      ? 'bg-tokyo-blue text-tokyo-bg border-tokyo-blue shadow-[0_0_12px_rgba(59,130,246,0.3)] active-press-scale'
+                      : 'bg-tokyo-dark text-tokyo-text border-tokyo-border hover:border-tokyo-blue hover:bg-opacity-80 active-press-scale'
+                  }`}
+                >
+                  {size}
+                </button>
+              );
+            })}
+          </div>
+          {activeSOMModel && (
+            <div className="flex justify-between items-center text-[10px] font-mono text-tokyo-muted bg-tokyo-dark bg-opacity-60 px-2 py-1 rounded border border-tokyo-border border-opacity-30">
+              <span>Dimensão Efetiva (Motor): <strong className="text-tokyo-cyan">{activeSOMModel.cols}×{activeSOMModel.rows}</strong></span>
+              <span className="font-bold text-tokyo-text">{activeSOMModel.cols * activeSOMModel.rows} neurônios</span>
+            </div>
+          )}
+          {isTextTab && (
+            <span className="text-[10px] font-mono text-tokyo-muted italic">
+              ℹ️ Modelos textuais são treinados exclusivamente na dimensão 10x10.
+            </span>
+          )}
+        </div>
 
-          {/* RECT button — Real Rectangular Grid via IntraSOM 1.1.1 engine */}
-          <button
-            onClick={() => setLattice('RECT')}
-            title="Geometria Retangular: Modelo treinado com o motor IntraSOM 1.1.1 (_rect_dist_tor corrigida)."
-            className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold border transition flex items-center justify-center gap-1.5 active-press-scale ${
-              lattice === 'RECT'
-                ? 'bg-tokyo-orange text-tokyo-bg border-tokyo-orange shadow-[0_0_10px_rgba(249,115,22,0.3)]'
-                : 'bg-tokyo-dark text-tokyo-text border-tokyo-border hover:border-tokyo-orange'
-            }`}
-          >
-            <span className="w-2.5 h-2.5 rounded-sm border border-current" />
-            Retangular (RECT)
-          </button>
+        {/* Geometry / Lattice Selector */}
+        <div className="flex flex-col space-y-1.5 pt-1">
+          <label className="text-[10px] text-tokyo-muted font-semibold uppercase font-mono tracking-wider flex items-center gap-1">
+            <Sliders size={12} className="text-tokyo-green" />
+            Geometria da Grade (Lattice)
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setLattice('HEX')}
+              className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold border transition flex items-center justify-center gap-1.5 active-press-scale ${
+                lattice === 'HEX'
+                  ? 'bg-tokyo-green text-tokyo-bg border-tokyo-green shadow-[0_0_10px_rgba(16,185,129,0.3)]'
+                  : 'bg-tokyo-dark text-tokyo-text border-tokyo-border hover:border-tokyo-green'
+              }`}
+            >
+              <span className="w-2.5 h-2.5 rounded-sm rotate-45 border border-current" />
+              Hexagonal (HEX)
+            </button>
+
+            <button
+              onClick={() => setLattice('RECT')}
+              title="Geometria Retangular: Modelo treinado com o motor IntraSOM 1.1.1 (_rect_dist_tor corrigida)."
+              className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold border transition flex items-center justify-center gap-1.5 active-press-scale ${
+                lattice === 'RECT'
+                  ? 'bg-tokyo-orange text-tokyo-bg border-tokyo-orange shadow-[0_0_10px_rgba(249,115,22,0.3)]'
+                  : 'bg-tokyo-dark text-tokyo-text border-tokyo-border hover:border-tokyo-orange'
+              }`}
+            >
+              <span className="w-2.5 h-2.5 rounded-sm border border-current" />
+              Retangular (RECT)
+            </button>
+          </div>
+        </div>
+
+        {/* Topology Selector */}
+        <div className="flex flex-col space-y-1.5 pt-1">
+          <label className="text-[10px] text-tokyo-muted font-semibold uppercase font-mono tracking-wider flex items-center gap-1">
+            <RefreshCw size={12} className="text-tokyo-magenta" />
+            Topologia do Mapa (Mapshape)
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setTopology('toroid')}
+              title="Topologia toroidal (Rosca - bordas conectadas sem efeitos de borda)"
+              className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold border transition flex items-center justify-center gap-1.5 active-press-scale ${
+                topology === 'toroid'
+                  ? 'bg-tokyo-magenta text-tokyo-bg border-tokyo-magenta shadow-[0_0_10px_rgba(217,70,239,0.3)]'
+                  : 'bg-tokyo-dark text-tokyo-text border-tokyo-border hover:border-tokyo-magenta'
+              }`}
+            >
+              Toroide (Rosca)
+            </button>
+
+            <button
+              onClick={() => setTopology('planar')}
+              title="Topologia plana (Bordas desconectadas)"
+              className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold border transition flex items-center justify-center gap-1.5 active-press-scale ${
+                topology === 'planar'
+                  ? 'bg-tokyo-yellow text-tokyo-bg border-tokyo-yellow shadow-[0_0_10px_rgba(234,179,8,0.3)]'
+                  : 'bg-tokyo-dark text-tokyo-text border-tokyo-border hover:border-tokyo-yellow'
+              }`}
+            >
+              Plana (Sem Karnaugh)
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Topology Selector (Toroid vs Planar) */}
-      <div className="flex flex-col space-y-1.5">
-        <label className="text-[10px] text-tokyo-muted font-semibold uppercase font-mono tracking-wider flex items-center gap-1">
-          <RefreshCw size={12} className="text-tokyo-magenta" />
-          Topologia do Mapa (Mapshape)
-        </label>
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            onClick={() => setTopology('toroid')}
-            title="Topologia toroidal (Rosca - bordas conectadas sem efeitos de borda)"
-            className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold border transition flex items-center justify-center gap-1.5 active-press-scale ${
-              topology === 'toroid'
-                ? 'bg-tokyo-magenta text-tokyo-bg border-tokyo-magenta shadow-[0_0_10px_rgba(217,70,239,0.3)]'
-                : 'bg-tokyo-dark text-tokyo-text border-tokyo-border hover:border-tokyo-magenta'
-            }`}
-          >
-            Toroide (Rosca)
-          </button>
-
-          <button
-            onClick={() => setTopology('planar')}
-            title="Topologia plana (Bordas desconectadas - sem efeito Karnaugh)"
-            className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold border transition flex items-center justify-center gap-1.5 active-press-scale ${
-              topology === 'planar'
-                ? 'bg-tokyo-yellow text-tokyo-bg border-tokyo-yellow shadow-[0_0_10px_rgba(234,179,8,0.3)]'
-                : 'bg-tokyo-dark text-tokyo-text border-tokyo-border hover:border-tokyo-yellow'
-            }`}
-          >
-            Plana (Sem Karnaugh)
-          </button>
+      {/* SECTION 2: Hyperparameter Sensitivity Study (Highlighting Filter) */}
+      <div className="flex flex-col space-y-3 bg-tokyo-dark bg-opacity-30 p-3.5 rounded-xl border border-tokyo-border border-opacity-30">
+        <div className="flex items-center justify-between border-b border-tokyo-border border-opacity-20 pb-2">
+          <span className="text-[11px] font-bold text-tokyo-purple uppercase font-mono tracking-wider flex items-center gap-1.5">
+            <Filter size={13} />
+            2. Estudo de Sensibilidade de Hiperparâmetros
+          </span>
+          <span className="text-[9px] font-mono bg-tokyo-purple bg-opacity-20 text-tokyo-purple px-1.5 py-0.5 rounded border border-tokyo-purple border-opacity-30 font-semibold">
+            Destaque de Tabela
+          </span>
         </div>
-        <p className="text-[9px] font-mono text-tokyo-muted leading-tight mt-1 bg-tokyo-dark bg-opacity-40 p-2 rounded border border-tokyo-border border-opacity-30">
-          💡 <strong>Paridade Metodológica:</strong> Todos os modelos (HEX e RECT) são treinados pelo motor IntraSOM 1.1.1 com os mesmos hiperparâmetros, permitindo comparação direta rigorosa.
+
+        <p className="text-[9.5px] font-mono text-tokyo-muted leading-relaxed">
+          ℹ️ Os seletores abaixo destacam a combinação correspondente na tabela <strong>Estudo de Parâmetros</strong> (não alteram o mapa exibido acima).
         </p>
-      </div>
 
-      {/* Neighborhood & Training Parameters Grid */}
-      <div className="grid grid-cols-2 gap-3 pt-1 border-t border-tokyo-border border-opacity-20 text-[11px] font-mono">
-        {/* Initial Radius */}
-        <div className="flex flex-col space-y-1">
-          <span className="text-[10px] text-tokyo-muted uppercase font-semibold">Vizinhança Inicial</span>
-          <select
-            value={initialRadius}
-            onChange={(e) => setInitialRadius(e.target.value as '80%' | '50%' | '100%')}
-            className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-xs font-bold focus:outline-none focus:border-tokyo-blue cursor-pointer"
-          >
-            <option value="80%">80% do mapa (Recomendado)</option>
-            <option value="50%">50% do mapa</option>
-            <option value="100%">100% do mapa</option>
-          </select>
+        {/* Neighborhood & Epochs Grid */}
+        <div className="grid grid-cols-3 gap-2 text-[11px] font-mono">
+          {/* Initial Radius */}
+          <div className="flex flex-col space-y-1">
+            <span className="text-[9px] text-tokyo-muted uppercase font-semibold">Raio Inicial</span>
+            <select
+              value={initialRadius}
+              onChange={(e) => setInitialRadius(e.target.value as '80%' | '50%' | '100%')}
+              className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-[11px] font-bold focus:outline-none focus:border-tokyo-purple cursor-pointer"
+            >
+              <option value="80%">80% (Rec.)</option>
+              <option value="50%">50%</option>
+              <option value="100%">100%</option>
+            </select>
+          </div>
+
+          {/* Final Radius */}
+          <div className="flex flex-col space-y-1">
+            <span className="text-[9px] text-tokyo-muted uppercase font-semibold">Raio Final</span>
+            <select
+              value={finalRadius}
+              onChange={(e) => setFinalRadius(e.target.value as '1' | '2')}
+              className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-[11px] font-bold focus:outline-none focus:border-tokyo-purple cursor-pointer"
+            >
+              <option value="1">1 (Fino)</option>
+              <option value="2">2 neurônios</option>
+            </select>
+          </div>
+
+          {/* Epochs */}
+          <div className="flex flex-col space-y-1">
+            <span className="text-[9px] text-tokyo-muted uppercase font-semibold">Épocas</span>
+            <select
+              value={epochs}
+              onChange={(e) => setEpochs(Number(e.target.value) as 500 | 200 | 100)}
+              className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-[11px] font-bold focus:outline-none focus:border-tokyo-purple cursor-pointer"
+            >
+              <option value={500}>500 (Rec.)</option>
+              <option value={200}>200 épocas</option>
+              <option value={100}>100 épocas</option>
+            </select>
+          </div>
         </div>
 
-        {/* Final Radius */}
-        <div className="flex flex-col space-y-1">
-          <span className="text-[10px] text-tokyo-muted uppercase font-semibold">Vizinhança Final</span>
-          <select
-            value={finalRadius}
-            onChange={(e) => setFinalRadius(e.target.value as '1' | '2')}
-            className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-xs font-bold focus:outline-none focus:border-tokyo-blue cursor-pointer"
-          >
-            <option value="1">1 neurônio (Ajuste Fino)</option>
-            <option value="2">2 neurônios</option>
-          </select>
+        {/* Link / Visual indicator to table below */}
+        <div className="flex items-center gap-1.5 pt-1 text-[9.5px] font-mono text-tokyo-purple font-semibold">
+          <ArrowDownCircle size={12} className="animate-bounce" />
+          <span>Realça a linha ativa na tabela "📊 Estudo de Parâmetros" abaixo</span>
         </div>
-
-        {/* Epochs */}
-        <div className="flex flex-col space-y-1">
-          <span className="text-[10px] text-tokyo-muted uppercase font-semibold">Total de Épocas</span>
-          <select
-            value={epochs}
-            onChange={(e) => setEpochs(Number(e.target.value) as 500 | 200 | 100)}
-            className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-xs font-bold focus:outline-none focus:border-tokyo-blue cursor-pointer"
-          >
-            <option value={500}>500 épocas (Recomendado)</option>
-            <option value={200}>200 épocas</option>
-            <option value={100}>100 épocas</option>
-          </select>
-        </div>
-
-        {/* Training Mode */}
-        <div className="flex flex-col space-y-1">
-          <span className="text-[10px] text-tokyo-muted uppercase font-semibold">Modo de Treino</span>
-          <select
-            value={trainingMode}
-            onChange={(e) => setTrainingMode(e.target.value as 'batch' | 'online')}
-            className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-xs font-bold focus:outline-none focus:border-tokyo-blue cursor-pointer"
-          >
-            <option value="batch">Batch Síncrono (Kohonen 2013)</option>
-            <option value="online">Online Estocástico</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Initialization */}
-      <div className="flex flex-col space-y-1 text-[11px] font-mono border-t border-tokyo-border border-opacity-20 pt-2">
-        <span className="text-[10px] text-tokyo-muted uppercase font-semibold">Inicialização dos Pesos</span>
-        <select
-          value={initialization}
-          onChange={(e) => setInitialization(e.target.value as 'linear' | 'random')}
-          className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-xs font-bold focus:outline-none focus:border-tokyo-blue cursor-pointer"
-        >
-          <option value="linear">Linear (PCA - Autovalores)</option>
-          <option value="random">Aleatória</option>
-        </select>
       </div>
 
       {/* Active Settings Summary Footer */}
@@ -240,12 +242,11 @@ export function SOMParamControls() {
               : `Plana (${lattice})`}
           </span>
         </div>
-        <div className="flex justify-between">
-          <span>Configuração Recomendada:</span>
-          <span className="text-tokyo-green font-bold">80% → 1n, 500 épocas, Batch, PCA</span>
+        <div className="flex justify-between border-t border-tokyo-border border-opacity-20 pt-1 mt-1">
+          <span>Padronização do Treino:</span>
+          <span className="text-tokyo-green font-bold">Batch Síncrono (Kohonen 2013) · Inicialização Linear PCA</span>
         </div>
       </div>
-
     </div>
   );
 }

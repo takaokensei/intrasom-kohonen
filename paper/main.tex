@@ -1,0 +1,331 @@
+\documentclass[10pt,journal,compsoc,twocolumn]{IEEEtran}
+
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{cite}
+\usepackage{microtype}
+\usepackage{xcolor}
+
+\graphicspath{{figures/}}
+
+\begin{document}
+
+\title{Engenharia de Software Científica e Auditoria Metodológica em Mapas Auto-Organizáveis: O Caso \textit{IntraSOM Kohonen Maps Analyzer}}
+
+\author{Cau\~a~Vitor
+\thanks{C. Vitor \'e graduando em Engenharia El\'etrica e pesquisador na Universidade Federal do Rio Grande do Norte (UFRN), Natal, RN, Brasil. E-mail: caua.vitor@ufrn.br.}%
+\thanks{Supervis\~ao Acad\^emica: Prof. Dr. Jos\'e Alfredo Ferreira Costa (Departamento de Engenharia El\'etrica, UFRN).}%
+}
+
+\markboth{Artigo de Auditoria e Engenharia de Software Cient\'ifica,~Vol.~18, No.~2,~Julho~2026}%
+{Vitor: Engenharia de Software Cient\'ifica e Auditoria Metodol\'ogica em Mapas Auto-Organiz\'aveis}
+
+\maketitle
+
+\begin{abstract}
+Mapas Auto-Organiz\'aveis de Kohonen (SOM) constituem uma ferramenta fundamental para visualiza\c{c}\~ao topol\'ogica e agrupamento de dados de alta dimens\~ao. No entanto, a integra\c{c}\~ao de bibliotecas de aprendizado de m\'aquina em dashboards interativos web frequentemente oculta inconsist\^encias metodol\'ogicas e diverg\^encias em rela\c{c}\~ao \`a literatura cl\'assica. Este artigo apresenta um estudo de caso rigoroso de engenharia de software cient\'ifica e auditoria metodol\'ogica sobre a aplica\c{c}\~ao \textit{IntraSOM Kohonen Maps Analyzer}. O trabalho documenta a unifica\c{c}\~ao do motor de treinamento sob a biblioteca IntraSOM 1.1.1, a auditoria de quatro variantes topol\'ogicas (Hexagonal e Retangular, nas modalidades Plana e Toroidal) em seis dimens\~oes de grade ($5\times5$ a $20\times20$), e a corre\c{c}\~ao de seis anomalias de execu\c{c}\~ao e exporta\c{c}\~ao (incluindo travamento do erro de quantiza\c{c}\~ao ap\'os desserializa\c{c}\~ao, contagem de arestas da U-Matrix expandida e patches obsoletos de dist\^ancia). Adicionalmente, realiza-se uma an\'alise formal comparando a formula\c{c}\~ao te\'orica cl\'assica da U-matrix (Ultsch, 1993; Costa \& Netto, 2007) e o comportamento observado no c\'alculo da matriz de dist\^ancias da biblioteca IntraSOM 1.1.1, evidenciando o impacto da aus\^encia do fator de escala $1/\sqrt{2}$ nas dist\^ancias diagonais. Os resultados demonstram a import\^ancia da auditoria de software para a reprodutibilidade cient\'ifica em aprendizado de m\'aquina.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Mapas Auto-Organiz\'aveis, U-Matrix, Auditoria Metodol\'ogica, Engenharia de Software Cient\'ifica, IntraSOM, Visualiza\c{c}\~ao de Dados.
+\end{IEEEkeywords}
+
+\section{Introdu\c{c}\~ao}
+\IEEEPARstart{O}{s} Mapas Auto-Organiz\'aveis de Kohonen (\textit{Self-Organizing Maps} --- SOM) \cite{kohonen2001self, kohonen2013essentials} destacam-se entre os algoritmos de aprendizado n\~ao supervisionado pela capacidade de mapear dados multidimensionais em grades de baixa dimens\~ao (habitualmente bidimensionais ou tridimensionais), preservando a topologia e a vizinhan\c{c}a dos dados originais. Uma das representa\c{c}\~oes visuais mais consagradas para a interpreta\c{c}\~ao espacial de mapas de Kohonen \'e a Matriz de Dist\^ancias Unificada (\textit{U-matrix}) \cite{ultsch1993self, costa2007segmentacao}, que converte as dist\^ancias entre vetores de c\'odigo em relevos tridimensionais onde vales representam agrupamentos homog\^eneos e cristas marcam fronteiras entre classes.
+
+Com o avan\c{c}o de ferramentas de intelig\^encia artificial aplicadas \`a engenharia de software e ao desenvolvimento web, torna-se cada vez mais comum a constru\c{c}\~ao de dashboards interativos que consomem modelos treinados por bibliotecas externas em linguagens como Python e exportam resultados para interfaces em TypeScript/React. Contudo, essa separa\c{c}\~ao entre a camada de modelagem num\'erica e a camada de visualiza\c{c}\~ao no cliente pode introduzir falhas sutis de fidelidade metodol\'ogica.
+
+Este trabalho n\~ao tem por objetivo propor uma nova variante te\'orica ao algoritmo SOM, mas sim registrar uma contribui\c{c}\~ao rigorosa de \textbf{engenharia de software cient\'ifica e auditoria metodol\'ogica}. Documenta-se o processo de desenvolvimento, auditoria de c\'odigo e corre\c{c}\~ao efetuado no reposit\'orio \textit{intrasom-kohonen}, voltado \`a an\'alise comparativa de s\'eries temporais s\'inteticas e agrupamento sem\^antico de textos.
+
+As principais contribui\c{c}\~oes deste trabalho incluem:
+\begin{enumerate}
+    \item \textbf{Unifica\c{c}\~ao e Paridade de Motor}: A transi\c{c}\~ao de uma arquitetura h\'ibrida (MiniSom para grades retangulares e IntraSOM para hexagonais) para uma infraestrutura unificada no motor IntraSOM 1.1.1, garantindo paridade metodol\'ogica completa entre quatro variantes ($2 \text{ geometrias} \times 2 \text{ topologias}$).
+    \item \textbf{Auditoria e Corre\c{c}\~ao de Erros Metodol\'ogicos}: A identifica\c{c}\~ao e resolu\c{c}\~ao de bugs cr\'iticos na camada de exporta\c{c}\~ao e avalia\c{c}\~ao, incluindo o congelamento do Erro de Quantiza\c{c}\~ao ($QE$) em zero ap\'os o recarregamento de modelos desserializados, a contagem incorreta de arestas na U-Matrix expandida para grades de 8 vizinhos e a remo\c{c}\~ao de \textit{monkey-patches} de dist\^ancia obsoletos.
+    \item \textbf{An\'alise de Diverg\^encia Te\'orica na Biblioteca}: A investiga\c{c}\~ao anal\'itica e emp\'irica da implementa\c{c}\~ao do c\'alculo da U-matrix na biblioteca IntraSOM 1.1.1 em confronto com a formula\c{c}\~ao cl\'assica de Ultsch \cite{ultsch1993self} e Costa \& Netto \cite{costa2007segmentacao}, detalhando a omiss\~ao do fator de escala $1/\sqrt{2}$ nas dist\^ancias diagonais retangulares.
+\end{enumerate}
+
+O restante deste artigo est\'a estruturado da seguinte forma: a Se\c{c}\~ao~\ref{sec:fundamentacao} revisa a fundamenta\c{c}\~ao te\'orica do SOM e da U-matrix; a Se\c{c}\~ao~\ref{sec:arquitetura} descreve a arquitetura do sistema; a Se\c{c}\~ao~\ref{sec:auditoria} detalha o processo de auditoria e os sete achados metodol\'ogicos; a Se\c{c}\~ao~\ref{sec:resultados} apresenta a avalia\c{c}\~ao quantitativa experimental; a Se\c{c}\~ao~\ref{sec:discussao} discute as implica\c{c}\~oes para a reprodutibilidade cient\'ifica; e a Se\c{c}\~ao~\ref{sec:conclusao} encerra o artigo.
+
+\section{Fundamenta\c{c}\~ao Te\'orica}
+\label{sec:fundamentacao}
+
+\subsection{O Algoritmo do Mapa Auto-Organiz\'avel (SOM)}
+O SOM de Kohonen consiste em uma rede de $M$ neur\^onios dispostos em uma grade regular de dimens\~ao $d_g \in \{1, 2, 3\}$. A cada neur\^onio $i$ est\'a associado um vetor de pesos (ou vetor de c\'odigo) $\mathbf{w}_i = [w_{i1}, w_{i2}, \dots, w_{in}]^T \in \mathbb{R}^n$, onde $n$ \'e a dimens\~ao do espa\c{c}o de entrada.
+
+Durante a fase de treinamento, para cada vetor de amostra $\mathbf{x}(t) \in \mathbb{R}^n$, determina-se o Neur\^onio de Melho Ajuste (\textit{Best Matching Unit} --- BMU), denotado por $c$, que minimiza a dist\^ancia euclidiana no espa\c{c}o de entrada:
+\begin{equation}
+    c = \arg\min_i \{ \|\mathbf{x}(t) - \mathbf{w}_i(t)\| \}.
+\end{equation}
+
+Os vetores de c\'odigo do BMU e de seus vizinhos na grade s\~ao atualizados iterativamente segundo a regra de Kohonen:
+\begin{equation}
+    \mathbf{w}_i(t+1) = \mathbf{w}_i(t) + \alpha(t) h_{ci}(t) [\mathbf{x}(t) - \mathbf{w}_i(t)],
+\end{equation}
+em que $\alpha(t) \in (0, 1)$ representa a taxa de aprendizado e $h_{ci}(t)$ \'e a fun\c{c}\~ao de vizinhan\c{c}a topol\'ogica na grade, usualmente modelada como uma gaussiana:
+\begin{equation}
+    h_{ci}(t) = \exp\left( -\frac{d_g(c, i)^2}{2 \sigma(t)^2} \right),
+\end{equation}
+sendo $d_g(c, i)$ a dist\^ancia geom\'etrica na grade de sa\'ida e $\sigma(t)$ o raio de vizinhan\c{c}a que decai ao longo das \'epocas. No algoritmo em lote (\textit{Batch SOM}), utilizado como padr\~ao de treino neste projeto, o ajuste dos pesos ocorre de forma s\'incrona ao final de cada \'epoca ponderando a m\'edia das amostras atribu\'idas a cada regi\~ao de vizinhan\c{c}a.
+
+\subsection{Formula\c{c}\~ao Cl\'assica da U-Matrix}
+A Matriz de Dist\^ancias Unificada (\textit{U-matrix}) traduz as dist\^ancias no espa\c{c}o de atributos $\mathbb{R}^n$ entre neur\^onios vizinhos na grade de sa\'ida \cite{ultsch1993self}. Em uma grade retangular bidimensional, a vizinhan\c{c}a de um neur\^onio na posi\c{c}\~ao $(i, j)$ compreende conex\~oes ortogonais e diagonais.
+
+Conforme formalizado em Costa \& Netto (2007) \cite{costa2007segmentacao}, a U-matrix inter-neur\^onios calcula as dist\^ancias euclidianas no espa\c{c}o de c\'odigos entre o neur\^onio $(i,j)$ e seus vizinhos imediatos nas dire\c{c}\~oes horizontal ($dx$), vertical ($dy$) e diagonais ($dxy_1, dxy_2$):
+\begin{align}
+    dx(i, j) &= \|\mathbf{w}_{i, j} - \mathbf{w}_{i+1, j}\|, \label{eq:dx} \\
+    dy(i, j) &= \|\mathbf{w}_{i, j} - \mathbf{w}_{i, j+1}\|, \label{eq:dy} \\
+    dxy(i, j) &= \frac{\|\mathbf{w}_{i, j} - \mathbf{w}_{i+1, j+1}\| + \|\mathbf{w}_{i, j+1} - \mathbf{w}_{i+1, j}\|}{2\sqrt{2}}. \label{eq:dxy}
+\end{align}
+
+O aspecto cr\'itico da Equa\c{c}\~ao~(\ref{eq:dxy}) reside no fator de divis\~ao por $\sqrt{2}$. Em uma grade retangular regular, a dist\^ancia geom\'etrica entre vizinhos diagonais no espa\c{c}o da malha \'e $\sqrt{1^2 + 1^2} = \sqrt{2} \approx 1{,}4142$. Para garantir a isotropia do gradiente espacial ($\Delta \mathbf{w} / \Delta s$), a varia\c{c}\~ao de peso na diagonal deve ser normalizada pelo comprimento do passo espacial $\sqrt{2}$ antes de ser combinada com os passos unit\'arios $dx$ e $dy$.
+
+\subsection{M\'etricas de Avalia\c{c}\~ao Topol\'ogica e Quantiza\c{c}\~ao}
+A qualidade da representa\c{c}\~ao do SOM \'e quantificada por duas m\'etricas fundamentais:
+\begin{enumerate}
+    \item \textbf{Erro de Quantiza\c{c}\~ao ($QE$)}: Mede a precis\~ao da representa\c{c}\~ao das amostras pelos seus respectivos BMUs:
+    \begin{equation}
+        QE = \frac{1}{N} \sum_{k=1}^N \|\mathbf{x}_k - \mathbf{w}_{c(\mathbf{x}_k)}\|.
+    \end{equation}
+    \item \textbf{Erro Topogr\'afico ($TE$)}: Mede a preserva\c{c}\~ao da topologia calculando a propor\c{c}\~ao de amostras para as quais o primeiro e o segundo BMUs n\~ao s\~ao vizinhos adjacentes na grade:
+    \begin{equation}
+        TE = \frac{1}{N} \sum_{k=1}^N u(\mathbf{x}_k),
+    \end{equation}
+    em que $u(\mathbf{x}_k) = 0$ se os dois primeiros BMUs s\~ao vizinhos na grade, e $1$ caso contr\'ario.
+\end{enumerate}
+
+\section{Arquitetura do Sistema e Metodologia}
+\label{sec:arquitetura}
+
+O projeto \textit{intrasom-kohonen} adota uma arquitetura em duas camadas projetada para separar o processamento num\'erico intensivo da renderiza\c{c}\~ao gr\'afica em tempo real (Fig.~\ref{fig:dashboard_interface}).
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{fig4_dashboard_interface.pdf}
+    \caption{Interface do dashboard interativo \textit{IntraSOM Kohonen Maps Analyzer} (dispon\'ivel em \protect\url{https://intrasom-kohonen.vercel.app}). A esquerda exibe o mapa tridimensional com U-Matrix e s\'eries temporais; a direita exibe o painel de controles e os detalhes do neur\^onio selecionado.}
+    \label{fig:dashboard_interface}
+\end{figure}
+
+\subsection{Pipeline de Treinamento e Exporta\c{c}\~ao}
+A camada backend e o pipeline de modelos s\~ao desenvolvidos em Python 3.14, integrados \`a biblioteca IntraSOM 1.1.1. O processo compreende:
+\begin{enumerate}
+    \item \textbf{Carregamento e Pr\'e-processamento}:
+    \begin{itemize}
+        \item \textit{S\'eries Temporais Sint\'eticas}: Dataset de controle sint\'etico composto por 600 s\'eries de tempo divididas em 6 classes morfol\'ogicas ($N=60$), com 60 passos temporais cada.
+        \item \textit{Dados Textuais}: Datasets \textit{20 Newsgroups} (400 artigos) e \textit{Base Acad\^emica 6-Classes} (317 artigos), vetorizados via TF-IDF e via modelos de linguagem transformadores \textit{Sentence-BERT} (\texttt{all-MiniLM-L6-v2}) \cite{reimers2019sentence}.
+    \end{itemize}
+    \item \textbf{Treinamento de Modelos SOM}: Treinamento sistem\'atico para 6 dimens\~oes de grade ($5\times5$, $7\times7$, $10\times10$, $12\times12$, $15\times15$, $20\times20$) cruzando 2 geometrias (HEX e RECT) e 2 topologias (Plana e Toroide), perfazendo 24 modelos base.
+    \item \textbf{Exporta\c{c}\~ao Est\'atica de Estruturas JSON}: O script \texttt{src/export\_data\_for\_frontend.py} compila os modelos treinados, matrizes U-Matrix expandidas e m\'etricas de avalia\c{c}\~ao em arquivos JSON est\'aticos servidos diretamente ao frontend.
+\end{enumerate}
+
+\subsection{Frontend React/TypeScript}
+O frontend consiste em uma aplica\c{c}\~ao React/TypeScript constru\'ida com Vite, TailwindCSS (sistema de design Tokyo Night) e Three.js para renderiza\c{c}\~ao 3D WebGL. Os componentes principais incluem:
+\begin{itemize}
+    \item \texttt{HexGrid.tsx}: Renderiza a malha 2D/3D com ilumina\c{c}\~ao din\^amica e controle de curvatura toroidal.
+    \item \texttt{UMatrixTorus.tsx} / \texttt{UMatrix3D.tsx}: Visualiza\c{c}\~ao geom\'etrica toroidal em coordenadas de rosca.
+    \item \texttt{SOMParamControls.tsx}: Painel transparente de rotas de modelo e estudo de sensibilidade.
+    \item \texttt{ParameterStudyPanel.tsx}: Tabela de destaque comparativo de hiperpar\^ametros.
+\end{itemize}
+
+\section{Processo de Auditoria e Achados Metodol\'ogicos}
+\label{sec:auditoria}
+
+Esta se\c{c}\~ao constitui o n\'ucleo deste trabalho, apresentando os sete achados de auditoria investigados, fundamentados e corrigidos no reposit\'orio.
+
+\subsection{Achado 1: Migra\c{c}\~ao de Motor Duplo para Motor \'Unico (IntraSOM 1.1.1)}
+\textbf{Problema}: Em vers\~oes iniciais do projeto, devido a inconsist\^encias observadas na dist\^ancia toroidal retangular de vers\~oes anteriores do IntraSOM, o reposit\'orio utilizava um motor h\'ibrido: os modelos hexagonais eram treinados com o IntraSOM e os modelos retangulares eram treinados com a biblioteca MiniSom. Essa dualidade comprometia a comparabilidade direta entre geometrias de malha.
+
+\textbf{Evid\^encia}: An\'alise do script \texttt{train\_som\_rect.py} e commit \texttt{2614693}, onde constava a substitui\c{c}\~ao da instacia\c{c}\~ao do MiniSom pelo \texttt{intrasom.SOMFactory.create\_som()}.
+
+\textbf{Resolu\c{c}\~ao}: Todos os scripts de treinamento foram refatorados para utilizar exclusivamente a classe \texttt{intrasom.SOMFactory}, garantindo que as 4 variantes compartilhem exatamente o mesmo algoritmo de atualiza\c{c}\~ao em lote (\textit{Batch SOM}) e a mesma inicializa\c{c}\~ao por An\'alise de Componentes Principais (PCA).
+
+\subsection{Achado 2: Corre\c{c}\~ao de Dist\^ancia Toroidal Upstream na Biblioteca}
+\textbf{Problema}: A fun\c{c}\~ao interna \texttt{\_rect\_dist\_tor} e o m\'etodo \texttt{calculate\_map\_dist} em vers\~oes legadas do IntraSOM calculavam dist\^ancias peri\'odicas em malhas retangulares utilizando m\'etricas de fronteira que distorciam a continuidade nos limites da rosca.
+
+\textbf{Evid\^encia}: Inspe\c{c}\~ao do c\'odigo-fonte do pacote \texttt{intrasom} vers\~ao 1.1.1 (arquivo \texttt{intrasom/codebook.py}), onde a fun\c{c}\~ao \texttt{\_rect\_dist\_tor} utiliza a diferen\c{c}a modular m\'inima:
+\begin{equation}
+    \Delta r = \min(|r_1 - r_2|, \text{rows} - |r_1 - r_2|),
+\end{equation}
+combinada isometricamente em norma euclidiana $\sqrt{\Delta r^2 + \Delta c^2}$.
+
+\textbf{Resolu\c{c}\~ao}: Valida\c{c}\~ao da atualiza\c{c}\~ao upstream da biblioteca para a vers\~ao 1.1.1 em \texttt{requirements.txt} e re-execu\c{c}\~ao da su\'ite de testes de contorno toroidal.
+
+\subsection{Achado 3: Paridade de Arestas na U-Matrix Expandida (6 vs 8 Vizinhos)}
+\textbf{Problema}: No U-Matrix expandido (usado para desenhar arestas com gradiente de cor entre neur\^onios vizinhos), a grade hexagonal possui 6 vizinhos por neur\^onio, enquanto a grade retangular possui 8 vizinhos (4 ortogonais e 4 diagonais). Originalmente, o script \texttt{src/export\_data\_for\_frontend.py} utilizava o mesmo iterador de 6 deslocamentos hexagonais para ambas as geometrias, omitindo as 4 conex\~oes diagonais nos modelos RECT.
+
+\textbf{Evid\^encia}: Para um mapa toroidal retangular $10\times10$ ($N=10, M=10$), a contagem teoricamente exata de arestas \'e:
+\begin{equation}
+    E_{\text{RECT,toroid}} = \frac{8 \times N \times M}{2} = 4 N M = 400 \text{ arestas}.
+\end{equation}
+Enquanto para o mapa hexagonal toroidal $10\times10$:
+\begin{equation}
+    E_{\text{HEX,toroid}} = \frac{6 \times N \times M}{2} = 3 N M = 300 \text{ arestas}.
+\end{equation}
+Antes da corre\c{c}\~ao, a exporta\c{c}\~ao gerava apenas 300 arestas para o mapa RECT.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{fig2_edge_counts.pdf}
+    \caption{Contagem emp\'irica de arestas da U-Matrix expandida exportadas em \texttt{som\_models.json} ap\'os a corre\c{c}\~ao metodol\'ogica. Malhas RECT toroidais contabilizam 8 vizinhos ($4NM$ arestas) e HEX toroidais contabilizam 6 vizinhos ($3NM$ arestas).}
+    \label{fig:edge_counts}
+\end{figure}
+
+\textbf{Resolu\c{c}\~ao}: A fun\c{c}\~ao \texttt{build\_expanded\_umatrix\_grid} em \texttt{src/export\_data\_for\_frontend.py} foi corrigida (commit \texttt{ad876a3}) para verificar a geometria do modelo: se \texttt{lattice == 'rect'}, utiliza a tabela de 8 deslocamentos relativos s\'incronos com a IntraSOM 1.1.1 (Fig.~\ref{fig:edge_counts}).
+
+\subsection{Achado 4: Remo\c{c}\~ao de Monkey-Patch Manhattan Obsoleto em Reproducibility}
+\textbf{Problema}: O arquivo \texttt{src/reproducibility.py} continha historicamente a sobrescrita din\^amica da fun\c{c}\~ao \texttt{Codebook.\_rect\_dist\_plan} por uma implementa\c{c}\~ao baseada em dist\^ancia Manhattan ($|dx| + |dy|$), criada para contornar limita\c{c}\~oes de vers\~oes legadas. Ao importar o m\'odulo, essa altera\c{c}\~ao afetava silenciosamente o treinamento de modelos RECT\_planar.
+
+\textbf{Evid\^encia}: Inspe\c{c}\~ao de \texttt{src/reproducibility.py} e re-avalia\c{c}\~ao do m\'etodo original da biblioteca IntraSOM 1.1.1, que j\'a utiliza dist\^ancia euclidiana isotr\'opica.
+
+\textbf{Resolu\c{c}\~ao}: O patch foi modificado para verificar a vers\~ao da biblioteca (\texttt{intrasom.\_\_version\_\_ >= '1.1.1'}) e desativar a sobrescrita em vers\~oes atualizadas (commit \texttt{2614693}). Todos os modelos RECT\_planar foram subsequentemente retreinados.
+
+\subsection{Achado 5: Diverg\^encia de Dimens\~ao em Tamanhos \'Impares (HEX vs RECT)}
+\textbf{Problema}: Na geometria hexagonal, o esquema de altern\^ancia de linhas (\textit{odd-r stagger}) da biblioteca IntraSOM exige um n\'umero par de linhas para manter o fechamento peri\'odico toroidal. Assim, ao solicitar um mapa de tamanho $5\times5$ HEX, a biblioteca ajusta internamente a dimens\~ao para $5\times6$ (30 neur\^onios). Na geometria retangular, o mapa permanece rigorosamente $5\times5$ (25 neur\^onios).
+
+\textbf{Evid\^encia}: Leitura direta dos arquivos JSON em \texttt{frontend/public/data/som\_models.json}:
+\begin{itemize}
+    \item \texttt{5x5 HEX\_toroid}: \texttt{cols=5, rows=6} (30 neur\^onios).
+    \item \texttt{5x5 RECT\_toroid}: \texttt{cols=5, rows=5} (25 neur\^onios).
+    \item \texttt{7x7 HEX\_toroid}: \texttt{cols=7, rows=8} (56 neur\^onios).
+    \item \texttt{7x7 RECT\_toroid}: \texttt{cols=7, rows=7} (49 neur\^onios).
+    \item \texttt{15x15 HEX\_toroid}: \texttt{cols=15, rows=16} (240 neur\^onios).
+    \item \texttt{15x15 RECT\_toroid}: \texttt{cols=15, rows=15} (225 neur\^onios).
+\end{itemize}
+
+\textbf{Resolu\c{c}\~ao}: Documenta\c{c}\~ao expl\'icita da diverg\^encia na interface do usu\'ario atrav\'es do r\'otulo informativo ``Dimens\~ao Efetiva (Motor)'', evitando confus\~ao visual para o usu\'ario final.
+
+\subsection{Achado 6: Rec\'alculo do Erro de Quantiza\c{c}\~ao ($QE$) Travado em Zero}
+\textbf{Problema}: No m\'odulo \texttt{src/evaluate\_clusters.py}, a m\'etrica de Erro de Quantiza\c{c}\~ao ($QE$) para os modelos de s\'eries temporais retornava sistematicamente o valor \texttt{0.0} ap\'os o carregamento dos modelos salvos em disco.
+
+\textbf{Evid\^encia}: No c\'odigo da biblioteca IntraSOM 1.1.1, \texttt{calculate\_quantization\_error} \'e uma \texttt{@property} que retorna o atributo \texttt{self.QE}. Este atributo \'e inicializado em \texttt{0.0} no construtor e atualizado apenas durante a execu\c{c}\~ao das fun\c{c}\~oes de treino (\texttt{train\_rough}/\texttt{train\_finetune}). Ao desserializar um modelo com \texttt{SOMFactory.load\_som()}, o atributo \texttt{self.QE} n\~ao \'e recomputado automaticamente, permanecendo em \texttt{0.0}.
+
+\textbf{Resolu\c{c}\~ao}: Implementa\c{c}\~ao do rec\'alculo manual de $QE$ em \texttt{src/evaluate\_clusters.py} (commit \texttt{688a02f}) calculando a m\'edia da norma euclidiana entre cada amostra normalizada $\mathbf{x}_i$ e o vetor de c\'odigo de seu respectivo BMU $\mathbf{w}_{c(i)}$:
+\begin{equation}
+    QE = \frac{1}{N} \sum_{i=1}^N \|\mathbf{x}_i - \mathbf{w}_{c(i)}\|_2.
+\end{equation}
+Os valores corrigidos de $QE$ passaram a refletir a realidade num\'erica, variando entre $3{,}23$ e $4{,}93$.
+
+\subsection{Achado 7: Diverg\^encia na Normaliza\c{c}\~ao da Dist\^ancia Diagonal da U-Matrix RECT}
+\textbf{Problema (Diverg\^encia Metodol\'ogica)}: O c\'alculo da U-matrix reduzida (m\'edia das dist\^ancias de vizinhan\c{c}a por neur\^onio) na biblioteca IntraSOM 1.1.1 difere da formula\c{c}\~ao cl\'assica da literatura \cite{ultsch1993self, costa2007segmentacao} no tratamento da escala espacial das conex\~oes diagonais.
+
+\textbf{Evid\^encia no C\'odigo-Fonte}: Inspe\c{c}\~ao da fun\c{c}\~ao \texttt{build\_umatrix} em \texttt{intrasom/intrasom.py} (linhas 135--205):
+\begin{verbatim}
+elif self.lattice == "rect":
+    offsets = np.array([
+        [1, 0],   [1, 1],   [0, 1],
+        [-1, 1],  [-1, 0],  [-1, -1],
+        [0, -1],  [1, -1]
+    ], dtype=int)
+    n_neighbors = 8
+...
+for k in range(n_neighbors):
+    um[:, :, k] = np.linalg.norm(
+        weights - neighbor_weights, axis=2)
+...
+umat = np.nanmean(um, axis=2)
+\end{verbatim}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{fig3_diagonal_scaling.pdf}
+    \caption{Compara\c{c}\~ao geom\'etrica entre (a) a formula\c{c}\~ao cl\'assica (Ultsch 1993; Costa \& Netto 2007), que normaliza dist\^ancias diagonais pelo fator de escala espacial $1/\sqrt{2} \approx 0{,}7071$, e (b) a implementa\c{c}\~ao da IntraSOM 1.1.1, que utiliza a norma euclidiana bruta sem pondera\c{c}\~ao espacial.}
+    \label{fig:diagonal_scaling}
+\end{figure}
+
+Como evidenciado no trecho de c\'odigo acima e ilustrado na Fig.~\ref{fig:diagonal_scaling}, a IntraSOM 1.1.1 calcula a norma euclidiana bruta dos pesos para as 8 dire\c{c}\~oes sem aplicar o fator de divis\~ao por $\sqrt{2}$ nas 4 dire\c{c}\~oes diagonais ($k \in \{1, 3, 5, 7\}$). Em seguida, efetua a m\'edia simples \texttt{np.nanmean(um, axis=2)}.
+
+\textbf{An\'alise do Impacto}: Como as diferen\c{c}as de peso ao longo das diagonais em um mapa cont\'inuo s\~ao, em m\'edia, $\sqrt{2} \approx 1{,}414$ vezes maiores do que nas dire\c{c}\~oes ortogonais, a m\'edia simples n\~ao ponderada atribui um peso implicitamente maior \`as varia\c{c}\~oes diagonais. Essa diverg\^encia n\~ao invalida a ferramenta, mas representa uma escolha de implementa\c{c}\~ao da biblioteca que difere da norma consagrada na literatura.
+
+\section{Resultados Experimentais}
+\label{sec:resultados}
+
+A Tabela~\ref{tab:resultados_completos} sintetiza os resultados emp\'iricos de avalia\c{c}\~ao quantitativa obtidos ap\'os a aplica\c{c}\~ao das corre\c{c}\~oes metodol\'ogicas para as 4 variantes do SOM em 6 dimens\~oes de grade no dataset \textit{Synthetic Control}, comparando-os a algoritmos de agrupamento baseline.
+
+\begin{table*}[htbp]
+\centering
+\caption{Avalia\c{c}\~ao Quantitativa Comparativa das 4 Variantes do SOM e Algoritmos Baseline (Dataset Synthetic Control)}
+\label{tab:resultados_completos}
+\small
+\begin{tabular}{lcccccccc}
+\toprule
+\textbf{Modelo / Algoritmo} & \textbf{Lattice} & \textbf{Topologia} & \textbf{ARI $\uparrow$} & \textbf{NMI $\uparrow$} & \textbf{Silh. $\uparrow$} & \textbf{DB $\downarrow$} & \textbf{QE $\downarrow$} & \textbf{TE $\downarrow$} \\
+\midrule
+SOM $5\times5$ HEX\_toroid & HEX & Toroide & 0.5910 & 0.7580 & 0.1519 & 1.8201 & 4.7402 & 0.0750 \\
+SOM $5\times5$ HEX\_planar & HEX & Plana & 0.5966 & 0.7504 & 0.1906 & 1.5930 & 4.3354 & 0.1050 \\
+SOM $5\times5$ RECT\_planar & RECT & Plana & 0.6318 & 0.8150 & 0.1473 & 1.6079 & 4.3082 & \textbf{0.0033} \\
+SOM $5\times5$ RECT\_toroid & RECT & Toroide & \textbf{0.6674} & \textbf{0.8280} & 0.0798 & 2.4477 & 4.9337 & 0.0367 \\
+\midrule
+SOM $7\times7$ HEX\_toroid & HEX & Toroide & 0.6300 & 0.7767 & 0.1993 & 1.5732 & 4.2821 & 0.1100 \\
+SOM $7\times7$ HEX\_planar & HEX & Plana & 0.6145 & 0.7562 & 0.2097 & 1.5765 & 4.0174 & 0.0183 \\
+SOM $7\times7$ RECT\_planar & RECT & Plana & 0.6122 & 0.7670 & 0.1855 & 1.6393 & 4.0572 & 0.0150 \\
+SOM $7\times7$ RECT\_toroid & RECT & Toroide & 0.6340 & 0.7640 & 0.0737 & 2.3770 & 4.3494 & 0.0483 \\
+\midrule
+SOM $10\times10$ HEX\_toroid & HEX & Toroide & 0.6405 & 0.7980 & 0.1946 & 1.5797 & 3.8989 & 0.0733 \\
+SOM $10\times10$ HEX\_planar & HEX & Plana & 0.6630 & 0.7983 & 0.2026 & 1.5532 & 3.7628 & 0.0117 \\
+SOM $10\times10$ RECT\_planar & RECT & Plana & \textbf{0.6719} & \textbf{0.8107} & 0.2039 & 1.6173 & \textbf{3.7118} & \textbf{0.0017} \\
+SOM $10\times10$ RECT\_toroid & RECT & Toroide & 0.5852 & 0.7436 & 0.1754 & 1.6286 & 3.9143 & 0.0700 \\
+\midrule
+SOM $12\times12$ HEX\_toroid & HEX & Toroide & 0.6542 & 0.8017 & 0.2081 & 1.5873 & 3.7323 & 0.0533 \\
+SOM $12\times12$ HEX\_planar & HEX & Plana & 0.6588 & 0.7941 & 0.2071 & 1.5592 & 3.6128 & 0.0033 \\
+SOM $12\times12$ RECT\_planar & RECT & Plana & 0.5970 & 0.7694 & \textbf{0.2590} & \textbf{1.2055} & 3.5950 & 0.0067 \\
+SOM $12\times12$ RECT\_toroid & RECT & Toroide & 0.6040 & 0.7592 & 0.1967 & 1.6233 & 3.7368 & 0.0500 \\
+\midrule
+SOM $15\times15$ HEX\_toroid & HEX & Toroide & 0.6419 & 0.7795 & 0.2048 & 1.5627 & 3.5130 & 0.0217 \\
+SOM $15\times15$ HEX\_planar & HEX & Plana & 0.5902 & 0.7613 & \textbf{0.2618} & \textbf{1.2028} & \textbf{3.4250} & 0.0067 \\
+SOM $15\times15$ RECT\_planar & RECT & Plana & 0.5981 & 0.7764 & 0.2584 & 1.2157 & 3.4583 & 0.0050 \\
+SOM $15\times15$ RECT\_toroid & RECT & Toroide & 0.6533 & 0.7913 & 0.2057 & 1.6090 & 3.5464 & 0.0283 \\
+\midrule
+SOM $20\times20$ HEX\_toroid & HEX & Toroide & 0.6571 & 0.7887 & 0.2050 & 1.5567 & 3.3196 & 0.0267 \\
+SOM $20\times20$ HEX\_planar & HEX & Plana & 0.5926 & 0.7675 & 0.2587 & 1.2149 & \textbf{3.2357} & 0.0117 \\
+SOM $20\times20$ RECT\_planar & RECT & Plana & 0.6594 & 0.7980 & 0.2043 & 1.6010 & 3.2420 & \textbf{0.0033} \\
+SOM $20\times20$ RECT\_toroid & RECT & Toroide & 0.6507 & 0.7893 & 0.2053 & 1.5427 & 3.3192 & 0.0267 \\
+\midrule
+\textbf{Baselines} & & & & & & & & \\
+K-Means (Direto) & N/A & N/A & 0.5681 & 0.7411 & 0.2710 & 1.2105 & N/A & N/A \\
+PCA + K-Means & N/A & N/A & 0.6096 & 0.7189 & 0.1481 & 1.9505 & N/A & N/A \\
+Agglomerative ($K=6$) & N/A & N/A & 0.6160 & 0.8008 & 0.2510 & 1.2021 & N/A & N/A \\
+DBSCAN & N/A & N/A & 0.1418 & 0.4019 & 0.1819 & 2.3495 & N/A & N/A \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Como observado na Fig.~\ref{fig:qe_te_comp}, o Erro de Quantiza\c{c}\~ao ($QE$) decresce monotonicamente com o aumento do n\'umero de neur\^onios da grade, caindo de $\approx 4{,}93$ no mapa $5\times5$ para $\approx 3{,}24$ no mapa $20\times20$. Por outro lado, a topologia toroidal apresenta Erro Topogr\'afico ($TE$) ligeiramente superior em dimens\~oes intermedi\'arias devido \`a press\~ao de fechamento das bordas peri\'odicas.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{fig1_qe_te_comparison.pdf}
+    \caption{Evolu\c{c}\~ao comparativa das m\'etricas de desempenho ao longo das dimens\~oes de grade: (a) Erro de Quantiza\c{c}\~ao ($QE$) e (b) Erro Topogr\'afico ($TE$) para as 4 variantes do SOM.}
+    \label{fig:qe_te_comp}
+\end{figure}
+
+\section{Discuss\~ao e Implica\c{c}\~oes para Reprodutibilidade}
+\label{sec:discussao}
+
+A realiza\c{c}\~ao deste trabalho traz reflex\~oes importantes para a pr\'atica de engenharia de software em projetos de intelig\^encia artificial e aprendizado de m\'aquina:
+
+1. \textbf{A Ilus\~ao da Confian\c{c}a Cega em Bibliotecas Terceirizadas}: A presen\c{c}a do atributo \texttt{QE} congelado em zero ap\'os desserializa\c{c}\~ao na biblioteca IntraSOM 1.1.1 demonstra que mesmo bibliotecas publicadas em reposit\'orios oficiais (como o PyPI) podem conter comportamentos inesperados que silenciosamente afetam relatrios cient\'ificos se n\~ao forem submetidas a testes de regress\~ao rigorosos.
+
+2. \textbf{Fidelidade Matem\'atica vs. Praticidade de C\'odigo}: O Achado 7 evidencia como simplifica\c{c}\~oes de implementa\c{c}\~ao (como omitir o fator $1/\sqrt{2}$ nas dist\^ancias diagonais para reutilizar \texttt{np.nanmean} de forma vetorizada) alteram sutilmente a geom\'etrica da U-matrix. Recomendamos que mantenedores de bibliotecas documentem explicitamente essas op\c{c}\~oes de projeto.
+
+\section{Conclus\~ao e Trabalhos Futuros}
+\label{sec:conclusao}
+
+Este trabalho apresentou um estudo de caso de engenharia de software cient\'ifica e auditoria metodol\'ogica no desenvolvimento da ferramenta \textit{IntraSOM Kohonen Maps Analyzer}. Foram identificadas e corrigidas seis anomalias de software e documentada uma diverg\^encia metodol\'ogica te\'orica referente \`a normaliza\c{c}\~ao de dist\^ancias diagonais em malhas retangulares.
+
+Como trabalhos futuros, prop\~oe-se:
+\begin{enumerate}
+    \item Submeter uma contribui\c{c}\~ao (\textit{Pull Request} / \textit{Issue}) ao reposit\'orio oficial da biblioteca IntraSOM propondo um argumento opcional \texttt{normalize\_diagonals=True} no m\'etodo \texttt{build\_umatrix}.
+    \item Expandir a visualiza\c{c}\~ao interativa do dashboard para suportar sa\'idas em espa\c{c}o 3-D atrav\'es da estrutura U-array proposta por Costa \& Netto (2007) \cite{costa2007segmentacao}.
+\end{enumerate}
+
+\section*{Agradecimentos}
+O autor expressa seu sincero agradecimento ao Prof. Dr. Jos\'e Alfredo Ferreira Costa (UFRN) pela orienta\c{c}\~ao acad\^emica e pelas contribui\c{c}\~oes te\'oricas sobre a estrutura da U-matrix.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

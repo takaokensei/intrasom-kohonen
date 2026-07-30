@@ -177,7 +177,7 @@ def run_multi_seed_experiment():
                     mapshape=top,
                     lattice='rect',
                     normalization='var',
-                    initialization='pca',
+                    initialization='random',
                     neighborhood='gaussian',
                     training='batch',
                     name=f"SOM_{size_name}_RECT_{top}",

@@ -99,8 +99,17 @@ def evaluate_models():
             # Average neuron purity (non-clustered, just winner neurons)
             purity = compute_average_neuron_purity(results_df, y)
 
-            # Error metrics from SOM instance
-            qe = float(som.calculate_quantization_error() if callable(getattr(som, 'calculate_quantization_error', None)) else getattr(som, 'calculate_quantization_error', 0.0))
+            # QE não é recalculado automaticamente por load_som() (self.QE fica travado
+            # em 0 do __init__, só é atualizado durante o loop de treinamento). Recomputamos
+            # manualmente: distância euclidiana média entre cada amostra normalizada e o
+            # vetor de código (codebook) do seu BMU.
+            normalized_data = som.get_data
+            bmu_indices = results_df['BMU'].values.astype(int) - 1
+            codebook_matrix = np.asarray(som.codebook.matrix)
+            bmu_vectors = codebook_matrix[bmu_indices]
+            qe = float(np.mean(np.linalg.norm(normalized_data - bmu_vectors, axis=1)))
+
+            # Erro topográfico: método real, recalcula ao vivo, não sofre do mesmo problema.
             te = float(som.topographic_error() if callable(getattr(som, 'topographic_error', None)) else getattr(som, 'topographic_error', 0.0))
 
             som_results.append({

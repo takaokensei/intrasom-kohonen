@@ -176,3 +176,30 @@ def test_umatrix_edges_export():
                 assert 1 <= edge["to"] <= num_neurons
                 assert isinstance(edge["distance"], (int, float))
 
+
+def test_quantization_error_non_zero():
+    """Regression test: verifies that all non-baseline SOM rows in model_comparison_results.csv
+    and frontend public/data/metrics.json have a positive non-zero Quantization Error (> 0.0).
+    """
+    workspace = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    csv_path = os.path.join(workspace, "outputs", "metrics", "model_comparison_results.csv")
+    json_path = os.path.join(workspace, "frontend", "public", "data", "metrics.json")
+
+    if os.path.exists(csv_path):
+        df = pd.read_csv(csv_path)
+        som_rows = df[df["Modelo"].str.startswith("SOM")]
+        assert len(som_rows) > 0, "No SOM rows found in model_comparison_results.csv"
+        for _, row in som_rows.iterrows():
+            qe = row["Erro Quantização"]
+            assert float(qe) > 0.0, f"SOM model '{row['Modelo']}' has QE == 0.0 in CSV"
+
+    if os.path.exists(json_path):
+        with open(json_path, encoding="utf-8") as f:
+            metrics = json.load(f)
+        som_entries = [m for m in metrics if m.get("Modelo", "").startswith("SOM")]
+        assert len(som_entries) > 0, "No SOM entries found in metrics.json"
+        for entry in som_entries:
+            qe = entry.get("Erro Quantização")
+            assert qe is not None and float(qe) > 0.0, f"SOM model '{entry.get('Modelo')}' has invalid/zero QE in metrics.json: {qe}"
+
+

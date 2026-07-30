@@ -38,3 +38,15 @@ This checklist documents the 100% verification pass performed on all 17 citation
 - **Table I & Paper Verification**: Updated Table I in `paper/main.tex` with real non-zero standard deviations across 5 seeds.
 - **IntraSOM `build_umatrix` Line Citation**: Corrected line citation to line **2626** in `intrasom/intrasom.py` (v1.1.1).
 - **Scope & Limitations**: Enframed manuscript as `[Nota Técnica]` / Technical Note and added an explicit "Limitações" subsection detailing geometric scope (RECT), single dataset (*Synthetic Control*), and random initialization methodology.
+
+---
+
+## Round 4 Audit Tracking Checklist
+
+- [x] **Scope Decision Documented**: Created [`paper/SCOPE_DECISION.md`](file:///c:/IntraSOM_Kohonen_Synthetic_Control_Visual_Law/paper/SCOPE_DECISION.md) establishing Route A selection.
+- [x] **Statistical Rigor Expansion**: Extended evaluation to $N=30$ seeds (42..71), 95% Bootstrap CIs (1,000 resamples), paired Wilcoxon signed-rank tests, and Benjamini-Hochberg FDR correction.
+- [x] **Multi-Dataset Benchmarking**: Trained 1,080 SOM models across *Synthetic Control*, *Wine*, and *Digits* datasets.
+- [x] **Literature Expansion**: Added related works (Ultsch 1993, Costa & Netto 2007, Vesanto 2000, Flexer 2001, Venna & Kaski 2007, Peng 2011, Stodden 2014, Sculley 2015, Sandve 2013, Benjamini-Hochberg 1995, Efron 1994, Wilcoxon 1945).
+- [x] **Manuscript Reformatting**: Expanded [`paper/main.tex`](file:///c:/IntraSOM_Kohonen_Synthetic_Control_Visual_Law/paper/main.tex) from a 5-page Technical Note into a 6-page full journal manuscript with cross-dataset generalization, SOM Library Compliance Framework, declared limitations, and expanded Future Work.
+- [x] **LaTeX Compilation**: Successfully built PDF artifact [`paper/main.pdf`](file:///c:/IntraSOM_Kohonen_Synthetic_Control_Visual_Law/paper/main.pdf) (6 pages, 420 KB).
+- [x] **Git Workflow**: Executed 5 granular Conventional Commits and pushed to GitHub main branch.

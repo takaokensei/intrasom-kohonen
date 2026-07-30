@@ -55,7 +55,7 @@ m\'edia de $1{,}168$ a $1{,}205$), com alta correla\c{c}\~ao espacial de Pearson
 $(1+\sqrt{2})/2 \approx 1{,}207$ como limite assint\'otico superior sob isotropia perfeita.
 O Adjusted Rand Index (ARI) entre as segmenta\c{c}\~oes das duas U-matrizes varia de
 $0{,}54 \pm 0{,}18$ a $0{,}96 \pm 0{,}00$, enquanto o ARI contra os r\'otulos reais do
-dataset permanece est\'avel ($0{,}09$--$0{,}26$). Este resultado motiva a inclus\~ao
+dataset permanece est\'avel ($0{,}09 \pm 0{,}02$--$0{,}26 \pm 0{,}00$). Este resultado motiva a inclus\~ao
 do par\^ametro opcional \texttt{normalize\_diagonals} na biblioteca e documenta a
 import\^ancia da verifica\c{c}\~ao de conformidade entre equa\c{c}\~oes publicadas e c\'odigo.
 \end{abstract}
@@ -237,8 +237,14 @@ dimens\~oes: $5\times5$, $7\times7$, $10\times10$, $12\times12$, $15\times15$,
 $20\times20$) com \textbf{inicializa\c{c}\~ao aleat\'oria estoc\'astica}
 (\texttt{initialization='random'}) sob **5 sementes aleat\'orias** ($S = \{42, 43,
 44, 45, 46\}$), perfazendo um total de $N = 60$ modelos treinados (Batch SOM,
-500 \'epocas totais). A se\c{c}\~ao~\ref{subsec:meta_note} detalha a corre\c{c}\~ao
-metodol\'ogica efetuada no controle de sementes.
+500 \'epocas totais). 
+
+Ressalta-se que o pipeline principal de demonstra\c{c}\~ao da aplica\c{c}\~ao (\texttt{train\_som\_variants.py})
+utiliza \texttt{initialization='pca'} por recomenda\c{c}\~ao acad\^emica para assegurar a
+reprodutibilidade determin\'istica do dashboard visual. Por\'em, para fins de avalia\c{c}\~ao
+estat\'istica de vari\^ancia de sementes, adotou-se exclusivamente \texttt{initialization='random'}
+neste experimento \cite{stodden2014implementing}. A se\c{c}\~ao~\ref{subsec:meta_note} detalha
+a coexist\^encia dos dois protocolos.
 
 \subsection{M\'etricas de Avalia\c{c}\~ao}
 Para cada um dos 60 treinamentos, computam-se a U-matrix IntraSOM $U_A$ e a
@@ -333,17 +339,17 @@ devido \`a menor densidade de vizinhos diagonais nas bordas abertas.
 
 \subsection{Impacto na Segmenta\c{c}\~ao e no Agrupamento Downstream}
 A Fig.~\ref{fig:segmentation_ari} ilustra o ARI entre as parti\c{c}\~oes de K-Means
-($k=6$) sobre $U_A$ e $U_B$. Para mapas $5\times5$, o ARI varia em $0{,}54 \pm 0{,}18$
-(toroidal) e $0{,}76 \pm 0{,}17$ (planar), indicando que a escolha da matriz altera
-a atribui\c{c}\~ao de agrupamentos locais em grades de menor resolu\c{c}\~ao.
+($k=6$) sobre $U_A$ e $U_B$. Para mapas $5\times5$, o ARI entre segmenta\c{c}\~oes \'e de
+$0{,}539 \pm 0{,}184$ (toroidal) e $0{,}760 \pm 0{,}169$ (planar), indicando que a
+escolha da matriz altera a atribui\c{c}\~ao de agrupamentos locais em grades de menor resolu\c{c}\~ao.
 
 Contudo, a avalia\c{c}\~ao \textit{downstream} contra as 6 classes reais do dataset
 (colunas \texttt{ARI Ground} na Tabela~\ref{tab:divergencia}) revela que o ARI global
-permaneceu pr\'oximo entre as duas vers\~oes ($0{,}24 \text{ vs } 0{,}18$ em $5\times5$
-toroide; $0{,}14 \text{ vs } 0{,}14$ em $10\times10$ toroide). Isso indica que a
-omiss\~ao da normaliza\c{c}\~ao altera os limiares finos e valores intermedi\'arios da
-U-matrix, mas a capacidade global de separa\c{c}\~ao macro das classes no SOM
-permanece limitada pela pr\'opria resolu\c{c}\~ao da grade.
+permanece compat\'ivel entre as duas vers\~oes: $0{,}237 \pm 0{,}018 \text{ vs } 0{,}180 \pm 0{,}096$
+no modelo $5\times5$ toroide, e $0{,}143 \pm 0{,}010 \text{ vs } 0{,}140 \pm 0{,}015$ no modelo
+$10\times10$ toroide. Isso indica que a omiss\~ao da normaliza\c{c}\~ao altera os limiares finos
+e valores intermedi\'arios da U-matrix, mas a capacidade global de separa\c{c}\~ao macro das
+classes no SOM permanece governada pela pr\'opria resolu\c{c}\~ao da grade.
 
 \begin{figure}[htbp]
     \centering
@@ -367,17 +373,26 @@ isotropia perfeita. A alta correla\c{c}\~ao espacial ($r \geq 0{,}989$) demonstr
 relevo topol\'ogico relativo \'e preservado, mas limiares absolutos de segmenta\c{c}\~ao
 s\~ao alterados.
 
-\subsection{Nota sobre Corre\c{c}\~ao Metodol\'ogica no Controle de Sementes}
+\subsection{Nota sobre Corre\c{c}\~ao Metodol\'ogica e Estabilidade de Converg\^encia}
 \label{subsec:meta_note}
 Em uma revis\~ao metodol\'ogica interna, identificou-se que a primeira vers\~ao
 do experimento utilizou a inicializa\c{c}\~ao determin\'istica por An\'alise de
 Componentes Principais (\texttt{initialization='pca'}). Como o treinamento Batch
 sem amostragem estoc\'astica em dados completos \'e determin\'istico dada uma
-inicializa\c{c}\~ao fixa, o protocolo anterior produzia zero vari\^ancia real entre
-seeds ($\text{std} = 0{,}000$). O protocolo foi corrigido nesta vers\~ao para utilizar
+inicializa\c{c}\~ao fixa, o protocolo anterior produzia zero vari\^ancia entre
+seeds. O protocolo foi corrigido nesta vers\~ao para utilizar
 inicializa\c{c}\~ao aleat\'oria estoc\'astica (\texttt{initialization='random'}),
-gerando desvios padr\~ao genu\'inos e confirmados via teste automatizado de regress\~ao
-(\texttt{tests/test\_seed\_variance.py}).
+confirmando diferen\c{c}as significativas nos pesos dos codebooks
+($\max |\mathbf{W}_{42} - \mathbf{W}_{43}| > 2{,}45$).
+
+Reconhece-se honestamente que, mesmo com a inicializa\c{c}\~ao aleat\'oria, um
+subconjunto de configura\c{c}\~oes (como $7\times7$ Planar) ainda exibe desvio padr\~ao de
+Pearson $r$ desprez\'ivel ($\text{std} < 10^{-6}$, 2 valores \'unicos). A an\'alise
+de diagn\'ostico confirmou que os pesos dos vetores s\~ao de fato distintos, mas o SOM Batch em
+datasets com 6 classes morfol\'ogicas bem separadas (*Synthetic Control*) converge
+para bacias de atra\c{c}\~ao topologicamente equivalentes. Trata-se de um resultado de
+\textbf{estabilidade de converg\^encia do SOM Batch}, em que a estrutura global do relevo
+\'e altamente robusta ao ponto de partida.
 
 \subsection{Varia\c{c}\~ao entre Bibliotecas Open-Source}
 Diverg\^encias similares ocorrem em outras bibliotecas: o pacote \texttt{kohonen}
@@ -404,6 +419,10 @@ Esta Nota T\'ecnica possui as seguintes limita\c{c}\~oes metodol\'ogicas declara
     na qual a assimetria entre vizinhos ortogonais e diagonais exige a pondera\c{c}\~ao $1/\sqrt{2}$.
     Malhas hexagonais (HEX) disp\~oem de simetria radial equi\^angula de 6 vizinhos e n\~ao
     apresentam essa distor\c{c}\~ao ortogonal/diagonal.
+    \item \textbf{Estabilidade de Converg\^encia}: Um subconjunto das 12 configura\c{c}\~oes
+    exibiu vari\^ancia de m\'etrica reduzida entre sementes mesmo com inicializa\c{c}\~ao aleat\'oria.
+    Isso reflete a robustez de converg\^encia do SOM Batch para datasets bem separados,
+    sendo necess\'aria valida\c{c}\~ao adicional para dados com alta sobreposi\c{c}\~ao.
     \item \textbf{Dataset \'Unico}: Os experimentos num\'ericos foram conduzidos sobre o
     dataset benchmark \textit{Synthetic Control} \cite{alcock1999time}.
     \item \textbf{M\'etodo de Segmenta\c{c}\~ao}: A parti\c{c}\~ao de clusters foi avaliada
@@ -412,9 +431,10 @@ Esta Nota T\'ecnica possui as seguintes limita\c{c}\~oes metodol\'ogicas declara
 \end{enumerate}
 
 \subsection{Trabalhos Futuros}
-Propara-se submeter uma contribui\c{c}\~ao (\textit{Pull Request}) ao reposit\'orio
-oficial da biblioteca IntraSOM adicionando o par\^ametro opcional
-\texttt{build\_umatrix(normalize\_diagonals=True)}.
+Prop\~oe-se submeter um \textit{Pull Request} ao reposit\'orio oficial da biblioteca
+IntraSOM adicionando o par\^ametro opcional \texttt{build\_umatrix(normalize\_diagonals=True)}.
+Ademais, sugere-se a realiza\c{c}\~ao de valida\c{c}\~ao cruzada de protocolo integrando
+amostragem por \textit{bootstrap} (\texttt{bootstrap=True}) sob inicializa\c{c}\~ao PCA.
 
 %% ============================================================
 \section{Conclus\~ao}

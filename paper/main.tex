@@ -398,17 +398,17 @@ serve apenas para contextualizar a categoria geral de d\'evida t\'ecnica em sist
 
 \subsection{Limita\c{c}\~oes do Estudo}
 \label{subsec:limitacoes}
-Esta Nota T\'ecnica possui as seguintes limita\c{c}\~oes declaradas:
+Esta Nota T\'ecnica possui as seguintes limita\c{c}\~oes metodol\'ogicas declaradas:
 \begin{enumerate}
-    \item \textbf{Escopo Geom\'etrico}: A an\'alise \'e restrita \`a malha retangular (RECT),
-    onde a diferen\c{c}a geom\'etrica entre vizinhos ortogonais e diagonais exige o fator
-    $1/\sqrt{2}$. Malhas hexagonais (HEX) possuem simetria radial de 6 vizinhos equidistantes
-    e n\~ao apresentam essa assimetria ortogonal/diagonal.
-    \item \textbf{Dataset \'Unico}: Os experimentos num\'ericos foram conduzidos sobre
-    o dataset benchmark \textit{Synthetic Control} \cite{alcock1999time}.
+    \item \textbf{Escopo Geom\'etrico}: A an\'alise \'e estrita \`a malha retangular (RECT),
+    na qual a assimetria entre vizinhos ortogonais e diagonais exige a pondera\c{c}\~ao $1/\sqrt{2}$.
+    Malhas hexagonais (HEX) disp\~oem de simetria radial equi\^angula de 6 vizinhos e n\~ao
+    apresentam essa distor\c{c}\~ao ortogonal/diagonal.
+    \item \textbf{Dataset \'Unico}: Os experimentos num\'ericos foram conduzidos sobre o
+    dataset benchmark \textit{Synthetic Control} \cite{alcock1999time}.
     \item \textbf{M\'etodo de Segmenta\c{c}\~ao}: A parti\c{c}\~ao de clusters foi avaliada
-    via K-Means ($k=6$) sobre os valores da U-matrix; algoritmos topo-dependente como
-    \textit{watershed} podem apresentar sensibilidades distintas.
+    via K-Means ($k=6$) sobre a U-matrix; m\'etodos topo-dependente (ex: \textit{watershed})
+    podem apresentar sensibilidades distintas.
 \end{enumerate}
 
 \subsection{Trabalhos Futuros}

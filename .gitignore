@@ -33,6 +33,8 @@ Thumbs.db
 
 # LaTeX build outputs
 *.aux
+*.bbl
+*.blg
 *.fdb_latexmk
 *.fls
 *.log
@@ -41,6 +43,9 @@ Thumbs.db
 *.snm
 *.toc
 *.synctex.gz
+
+# Scratch / temporary files
+scratch/
 
 # IntraSOM temporary build outputs
 Results/

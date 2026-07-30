@@ -1,181 +1,264 @@
+"""
+generate_figures.py
+===================
+Gera todas as figuras científicas do artigo reformulado "Efeito da Normalização
+Diagonal na U-Matrix de SOMs Retangulares", com base nos dados reais do projeto.
+
+Figuras produzidas:
+  Fig 1 — Par de heatmaps da U-matrix (IntraSOM vs. Classical) para o modelo
+           SOM_10x10_RECT_toroid (melhor exemplo: alta correlação, alta divergência).
+  Fig 2 — Histograma + mapa de calor da diferença relativa entre as duas versões,
+           com estatísticas resumo por modelo.
+  Fig 3 — Divergência sistemática (rel_diff e scale_ratio) em função do tamanho
+           da grade, para RECT_planar e RECT_toroid.
+  Fig 4 — ARI da segmentação (comparação entre as duas versões) vs. tamanho da grade,
+           evidenciando quando a escolha de implementação muda a partição de clusters.
+
+Requisitos:
+  outputs/umatrices/SOM_*_intrasom.npy   (gerado por src/umatrix_comparison.py)
+  outputs/umatrices/SOM_*_classical.npy
+  outputs/umatrices/SOM_*_diff.npy
+  outputs/metrics/umatrix_divergence.csv
+"""
+
 import os
-import pandas as pd
+import sys
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
+import matplotlib.gridspec as gridspec
+from matplotlib.colors import Normalize
+from matplotlib.cm import ScalarMappable
 
-# Set publication-quality style
-plt.rcParams['font.family'] = 'DejaVu Sans'
-plt.rcParams['font.size'] = 10
-plt.rcParams['axes.labelsize'] = 11
-plt.rcParams['axes.titlesize'] = 12
-plt.rcParams['legend.fontsize'] = 9
-plt.rcParams['xtick.labelsize'] = 9
-plt.rcParams['ytick.labelsize'] = 9
-plt.rcParams['figure.dpi'] = 300
+# ─── Publication style ──────────────────────────────────────────────────────
+plt.rcParams.update({
+    'font.family':       'DejaVu Sans',
+    'font.size':         9,
+    'axes.labelsize':    10,
+    'axes.titlesize':    10,
+    'axes.titleweight':  'bold',
+    'legend.fontsize':   8,
+    'xtick.labelsize':   8,
+    'ytick.labelsize':   8,
+    'figure.dpi':        150,
+    'axes.spines.top':   False,
+    'axes.spines.right': False,
+})
 
-fig_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "figures")
-os.makedirs(fig_dir, exist_ok=True)
+WORKSPACE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+UMAT_DIR  = os.path.join(WORKSPACE, "outputs", "umatrices")
+MET_DIR   = os.path.join(WORKSPACE, "outputs", "metrics")
+FIG_DIR   = os.path.join(WORKSPACE, "paper",   "figures")
+os.makedirs(FIG_DIR, exist_ok=True)
 
-# -------------------------------------------------------------
-# Figure 1: QE and TE Across Map Sizes & Variants
-# -------------------------------------------------------------
-csv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "outputs", "metrics", "model_comparison_results.csv")
-df = pd.read_csv(csv_path)
+# Colormap consistente com o artigo
+CMAP      = "magma"
+CMAP_DIFF = "YlOrRd"
 
-# Filter SOM rows
-som_df = df[df['variant'].isin(['HEX_toroid', 'HEX_planar', 'RECT_planar', 'RECT_toroid'])].copy()
+# ─────────────────────────────────────────────────────────────────────────────
+# Load divergence table
+# ─────────────────────────────────────────────────────────────────────────────
+div_csv = os.path.join(MET_DIR, "umatrix_divergence.csv")
+df_div  = pd.read_csv(div_csv)
 
-# Extract map size as integer dimension
-som_df['size_dim'] = som_df['Modelo'].apply(lambda x: int(x.split()[1].split('x')[0]))
-som_df = som_df.sort_values('size_dim')
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4.2))
+def _dim(size_str: str) -> int:
+    return int(size_str.split("x")[0])
 
-colors = {
-    'HEX_toroid': '#2b5c8f',  # Dark Blue
-    'HEX_planar': '#d95f02',  # Orange/Red
-    'RECT_planar': '#7570b3', # Purple
-    'RECT_toroid': '#1b9e77'  # Teal/Green
-}
 
-markers = {
-    'HEX_toroid': 'o',
-    'HEX_planar': 's',
-    'RECT_planar': '^',
-    'RECT_toroid': 'D'
-}
+df_div["dim"] = df_div["size"].apply(_dim)
 
-labels = {
-    'HEX_toroid': 'HEX Toroide',
-    'HEX_planar': 'HEX Plana',
-    'RECT_planar': 'RECT Plana',
-    'RECT_toroid': 'RECT Toroide'
-}
+# ─────────────────────────────────────────────────────────────────────────────
+# FIGURE 1 — Heatmaps comparativos para SOM_10x10_RECT_toroid
+# ─────────────────────────────────────────────────────────────────────────────
+MODEL = "SOM_10x10_RECT_toroid"
 
-for var in ['HEX_toroid', 'HEX_planar', 'RECT_planar', 'RECT_toroid']:
-    sub = som_df[som_df['variant'] == var]
-    ax1.plot(sub['size_dim'], sub['Erro Quantização'], label=labels[var], color=colors[var], marker=markers[var], linewidth=1.8, markersize=6)
-    ax2.plot(sub['size_dim'], sub['Erro Topográfico'], label=labels[var], color=colors[var], marker=markers[var], linewidth=1.8, markersize=6)
+umat_a  = np.load(os.path.join(UMAT_DIR, f"{MODEL}_intrasom.npy"))
+umat_b  = np.load(os.path.join(UMAT_DIR, f"{MODEL}_classical.npy"))
+umat_df = np.load(os.path.join(UMAT_DIR, f"{MODEL}_diff.npy"))
 
-ax1.set_xlabel('Dimensão da Grade ($N \\times N$)')
-ax1.set_ylabel('Erro de Quantização (QE)')
-ax1.set_title('(a) Erro de Quantização ($QE \\downarrow$)')
-ax1.grid(True, linestyle='--', alpha=0.5)
-ax1.set_xticks([5, 7, 10, 12, 15, 20])
-ax1.legend(frameon=True, facecolor='white', framealpha=0.9)
+# Shared color scale across both heatmaps
+vmin = min(umat_a.min(), umat_b.min())
+vmax = max(umat_a.max(), umat_b.max())
 
-ax2.set_xlabel('Dimensão da Grade ($N \\times N$)')
-ax2.set_ylabel('Erro Topográfico (TE)')
-ax2.set_title('(b) Erro Topográfico ($TE \\downarrow$)')
-ax2.grid(True, linestyle='--', alpha=0.5)
-ax2.set_xticks([5, 7, 10, 12, 15, 20])
-ax2.legend(frameon=True, facecolor='white', framealpha=0.9)
+fig1, axes = plt.subplots(1, 3, figsize=(12, 3.8),
+                           gridspec_kw={"width_ratios": [1, 1, 1]})
 
-plt.tight_layout()
-fig1_path = os.path.join(fig_dir, "fig1_qe_te_comparison.pdf")
-fig1_png = os.path.join(fig_dir, "fig1_qe_te_comparison.png")
-plt.savefig(fig1_path, bbox_inches='tight')
-plt.savefig(fig1_png, bbox_inches='tight', dpi=300)
-plt.close()
-print(f"Saved Figure 1 to {fig1_path}")
+im0 = axes[0].imshow(umat_a, cmap=CMAP, vmin=vmin, vmax=vmax, origin="upper")
+axes[0].set_title("(a) IntraSOM 1.1.1\n(norma bruta, sem $1/\\sqrt{2}$)")
+axes[0].set_xlabel("Coluna")
+axes[0].set_ylabel("Linha")
+plt.colorbar(im0, ax=axes[0], fraction=0.046, pad=0.04, label="U-matrix")
 
-# -------------------------------------------------------------
-# Figure 2: Edge Count & Neighborhood Topology (HEX vs RECT)
-# -------------------------------------------------------------
-fig, ax = plt.subplots(figsize=(6.5, 4.0))
+im1 = axes[1].imshow(umat_b, cmap=CMAP, vmin=vmin, vmax=vmax, origin="upper")
+axes[1].set_title("(b) Formulação Clássica\n(Costa \\& Netto 2007, Eq. 3)")
+axes[1].set_xlabel("Coluna")
+plt.colorbar(im1, ax=axes[1], fraction=0.046, pad=0.04, label="U-matrix")
 
-sizes = ['5x5', '7x7', '10x10', '12x12', '15x15', '20x20']
-hex_edges = [3*5*6, 3*7*8, 3*10*10, 3*12*12, 3*15*16, 3*20*20] # 3*N*M for Toroid HEX
-rect_edges = [4*5*5, 4*7*7, 4*10*10, 4*12*12, 4*15*15, 4*20*20] # 4*N*M for Toroid RECT 8-conn
+# Difference map with its own color scale
+im2 = axes[2].imshow(umat_df, cmap=CMAP_DIFF, origin="upper")
+axes[2].set_title("(c) Diferença Absoluta\n$|U_{\\mathrm{IntraSOM}} - U_{\\mathrm{Class}}|$")
+axes[2].set_xlabel("Coluna")
+plt.colorbar(im2, ax=axes[2], fraction=0.046, pad=0.04, label="$|\\Delta U|$")
 
-x = np.arange(len(sizes))
-width = 0.35
-
-rects1 = ax.bar(x - width/2, hex_edges, width, label='HEX Toroide (6 vizinhos, $3NM$)', color='#2b5c8f')
-rects2 = ax.bar(x + width/2, rect_edges, width, label='RECT Toroide (8 vizinhos, $4NM$)', color='#d95f02')
-
-ax.set_xlabel('Tamanho da Grade Solicitada')
-ax.set_ylabel('Número Total de Arestas Únicas na U-Matrix')
-ax.set_title('Contagem de Arestas da U-Matrix Expandida por Geometria')
-ax.set_xticks(x)
-ax.set_xticklabels(['5×5 (30 vs 25 neurônios)', '7×7 (56 vs 49 neurônios)', '10×10 (100 neurônios)', '12×12 (144 neurônios)', '15×15 (240 vs 225 neurônios)', '20×20 (400 neurônios)'], rotation=15, ha='right', fontsize=8)
-ax.legend(frameon=True)
-ax.grid(True, linestyle='--', alpha=0.4, axis='y')
-
-# Annotate 10x10 values
-ax.annotate('300 arestas', xy=(2 - width/2, 300), xytext=(2 - width/2 - 0.2, 420),
-            arrowprops=dict(facecolor='#2b5c8f', shrink=0.08, width=1.5, headwidth=6),
-            fontsize=8, fontweight='bold', color='#2b5c8f')
-
-ax.annotate('400 arestas (8-conn)', xy=(2 + width/2, 400), xytext=(2 + width/2 + 0.1, 550),
-            arrowprops=dict(facecolor='#d95f02', shrink=0.08, width=1.5, headwidth=6),
-            fontsize=8, fontweight='bold', color='#d95f02')
+# Row from divergence table for annotation
+row = df_div[df_div["model"] == MODEL].iloc[0]
+fig1.suptitle(
+    f"Modelo: {MODEL.replace('_', '\\_')}    |    "
+    f"$r$ = {row.pearson_r:.4f}    |    "
+    f"Dif. Rel. Média = {row.rel_diff_pct:.1f}\\%    |    "
+    f"Razão de Escala = {row.scale_ratio:.4f}",
+    fontsize=9, y=1.01
+)
 
 plt.tight_layout()
-fig2_path = os.path.join(fig_dir, "fig2_edge_counts.pdf")
-fig2_png = os.path.join(fig_dir, "fig2_edge_counts.png")
-plt.savefig(fig2_path, bbox_inches='tight')
-plt.savefig(fig2_png, bbox_inches='tight', dpi=300)
+path1 = os.path.join(FIG_DIR, "fig1_umatrix_comparison.pdf")
+plt.savefig(path1, bbox_inches="tight")
+plt.savefig(path1.replace(".pdf", ".png"), bbox_inches="tight", dpi=300)
 plt.close()
-print(f"Saved Figure 2 to {fig2_path}")
+print(f"[OK] Fig 1 saved -> {path1}")
 
-# -------------------------------------------------------------
-# Figure 3: U-Matrix Diagonal Normalization Comparison Diagram
-# -------------------------------------------------------------
-fig, (ax_ultsch, ax_intrasom) = plt.subplots(1, 2, figsize=(9.5, 4.0))
 
-# Ultsch / Costa & Netto (2007) Diagram
-ax_ultsch.set_xlim(-0.5, 2.5)
-ax_ultsch.set_ylim(-0.5, 2.5)
-ax_ultsch.set_aspect('equal')
-ax_ultsch.axis('off')
-ax_ultsch.set_title('Formulação Clássica (Ultsch 1993 / Costa & Netto 2007)\nPonderação Isotrópica: $d_{diag} / \\sqrt{2}$', fontsize=10, fontweight='bold')
+# ─────────────────────────────────────────────────────────────────────────────
+# FIGURE 2 — Distribuição da diferença relativa por neurônio + resumo global
+# ─────────────────────────────────────────────────────────────────────────────
+fig2, (ax_hist, ax_bar) = plt.subplots(1, 2, figsize=(11, 4.0))
 
-# Draw grid points
-grid_x = [0, 1, 2, 0, 1, 2, 0, 1, 2]
-grid_y = [0, 0, 0, 1, 1, 1, 2, 2, 2]
-ax_ultsch.scatter(grid_x, grid_y, color='#24283b', s=120, zorder=5)
+# Left: histogram for the 10x10 RECT_toroid model
+rel_diff_per_neuron = (umat_a - umat_b) / umat_b * 100  # in percent
+flat = rel_diff_per_neuron.flatten()
+ax_hist.hist(flat, bins=20, color="#3b82f6", edgecolor="white", linewidth=0.6)
+ax_hist.axvline(np.mean(flat), color="#dc2626", linestyle="--", linewidth=1.5,
+                label=f"Média = {np.mean(flat):.1f}%")
+ax_hist.axvline(np.median(flat), color="#16a34a", linestyle=":", linewidth=1.5,
+                label=f"Mediana = {np.median(flat):.1f}%")
+ax_hist.set_xlabel("Diferença Relativa por Neurônio (%)\n$(U_{\\mathrm{IntraSOM}} - U_{\\mathrm{Class}}) / U_{\\mathrm{Class}} \\times 100$")
+ax_hist.set_ylabel("Frequência")
+ax_hist.set_title(f"(a) Distribuição: {MODEL.replace('_', ' ')}\n($n = {umat_a.size}$ neurônios)")
+ax_hist.legend(frameon=False)
 
-# Center neuron (1,1)
-ax_ultsch.scatter([1], [1], color='#7aa2f7', s=250, zorder=6)
-ax_ultsch.text(1, 1, '$w_{i,j}$', color='white', fontsize=10, fontweight='bold', ha='center', va='center', zorder=7)
+# Right: rel_diff_pct per model (grouped bar)
+colors_var = {"RECT_planar": "#2563eb", "RECT_toroid": "#ea580c"}
+labels_var = {"RECT_planar": "RECT Plana", "RECT_toroid": "RECT Toroide"}
+sizes_ordered = ["5x5", "7x7", "10x10", "12x12", "15x15", "20x20"]
+x = np.arange(len(sizes_ordered))
+width = 0.38
 
-# Orthogonal lines
-ortho_coords = [(1, 2), (2, 1), (1, 0), (0, 1)]
-for cx, cy in ortho_coords:
-    ax_ultsch.plot([1, cx], [1, cy], color='#2b5c8f', linewidth=2.5, zorder=3)
-    ax_ultsch.text((1+cx)/2, (1+cy)/2, '1.0', color='#2b5c8f', fontsize=8, fontweight='bold', ha='center', va='center', bbox=dict(boxstyle='round,pad=0.2', facecolor='white', edgecolor='#2b5c8f', alpha=0.9))
+for i, (var, color) in enumerate(colors_var.items()):
+    sub = df_div[df_div["variant"] == var].set_index("size")
+    vals = [sub.loc[s, "rel_diff_pct"] if s in sub.index else 0 for s in sizes_ordered]
+    ax_bar.bar(x + (i - 0.5) * width, vals, width, label=labels_var[var],
+               color=color, alpha=0.85, edgecolor="white", linewidth=0.5)
 
-# Diagonal lines
-diag_coords = [(2, 2), (2, 0), (0, 0), (0, 2)]
-for cx, cy in diag_coords:
-    ax_ultsch.plot([1, cx], [1, cy], color='#d95f02', linestyle='--', linewidth=2.0, zorder=3)
-    ax_ultsch.text((1+cx)/2 + (0.1 if cx>1 else -0.1), (1+cy)/2 + (0.1 if cy>1 else -0.1), '$1/\\sqrt{2} \\approx 0.707$', color='#d95f02', fontsize=7.5, fontweight='bold', ha='center', va='center', bbox=dict(boxstyle='round,pad=0.15', facecolor='#fff5eb', edgecolor='#d95f02', alpha=0.9))
-
-# IntraSOM 1.1.1 Diagram
-ax_intrasom.set_xlim(-0.5, 2.5)
-ax_intrasom.set_ylim(-0.5, 2.5)
-ax_intrasom.set_aspect('equal')
-ax_intrasom.axis('off')
-ax_intrasom.set_title('Implementação IntraSOM 1.1.1 (build_umatrix)\nNorma Euclidiana Bruta: sem fator $1/\\sqrt{2}$', fontsize=10, fontweight='bold')
-
-ax_intrasom.scatter(grid_x, grid_y, color='#24283b', s=120, zorder=5)
-ax_intrasom.scatter([1], [1], color='#bb9af7', s=250, zorder=6)
-ax_intrasom.text(1, 1, '$w_{i,j}$', color='white', fontsize=10, fontweight='bold', ha='center', va='center', zorder=7)
-
-for cx, cy in ortho_coords:
-    ax_intrasom.plot([1, cx], [1, cy], color='#2b5c8f', linewidth=2.5, zorder=3)
-    ax_intrasom.text((1+cx)/2, (1+cy)/2, '1.0', color='#2b5c8f', fontsize=8, fontweight='bold', ha='center', va='center', bbox=dict(boxstyle='round,pad=0.2', facecolor='white', edgecolor='#2b5c8f', alpha=0.9))
-
-for cx, cy in diag_coords:
-    ax_intrasom.plot([1, cx], [1, cy], color='#e0af68', linewidth=2.5, zorder=3)
-    ax_intrasom.text((1+cx)/2 + (0.1 if cx>1 else -0.1), (1+cy)/2 + (0.1 if cy>1 else -0.1), '1.0 (bruto)', color='#e0af68', fontsize=7.5, fontweight='bold', ha='center', va='center', bbox=dict(boxstyle='round,pad=0.15', facecolor='#fefae0', edgecolor='#e0af68', alpha=0.9))
+ax_bar.set_xticks(x)
+ax_bar.set_xticklabels(sizes_ordered)
+ax_bar.set_xlabel("Tamanho da Grade")
+ax_bar.set_ylabel("Diferença Relativa Média (%)")
+ax_bar.set_title("(b) Divergência Média entre as Duas\nImplementações por Modelo")
+ax_bar.legend(frameon=False)
+ax_bar.set_ylim(0, 25)
+# Reference line at theoretical ~14.6% (sqrt(2)-1 for purely diagonal)
+ax_bar.axhline(((np.sqrt(2) - 1) / (0.5 * (1 + 1/np.sqrt(2))) * 100) / 2,
+               color="#6b7280", linestyle="--", linewidth=1.0, alpha=0.7,
+               label="Limite teórico ($\\sqrt{2}-1 \\approx 41.4\\%$ das diag.)")
 
 plt.tight_layout()
-fig3_path = os.path.join(fig_dir, "fig3_diagonal_scaling.pdf")
-fig3_png = os.path.join(fig_dir, "fig3_diagonal_scaling.png")
-plt.savefig(fig3_path, bbox_inches='tight')
-plt.savefig(fig3_png, bbox_inches='tight', dpi=300)
+path2 = os.path.join(FIG_DIR, "fig2_divergence_distribution.pdf")
+plt.savefig(path2, bbox_inches="tight")
+plt.savefig(path2.replace(".pdf", ".png"), bbox_inches="tight", dpi=300)
 plt.close()
-print(f"Saved Figure 3 to {fig3_path}")
+print(f"[OK] Fig 2 saved -> {path2}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# FIGURE 3 — Divergência sistemática em função do tamanho da grade
+# ─────────────────────────────────────────────────────────────────────────────
+fig3, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4.2))
+
+dims = [_dim(s) for s in sizes_ordered]
+
+for var, color, label in [
+    ("RECT_planar",  "#2563eb", "RECT Plana"),
+    ("RECT_toroid",  "#ea580c", "RECT Toroide"),
+]:
+    sub = df_div[df_div["variant"] == var].set_index("size")
+    rd  = [sub.loc[s, "rel_diff_pct"]  if s in sub.index else np.nan for s in sizes_ordered]
+    sr  = [sub.loc[s, "scale_ratio"]   if s in sub.index else np.nan for s in sizes_ordered]
+
+    ax1.plot(dims, rd, marker="o", color=color, label=label,
+             linewidth=1.8, markersize=6)
+    ax2.plot(dims, sr, marker="s", color=color, label=label,
+             linewidth=1.8, markersize=6)
+
+ax1.set_xlabel("Dimensão $N$ da Grade ($N \\times N$)")
+ax1.set_ylabel("Diferença Relativa Média (%)")
+ax1.set_title("(a) Divergência Relativa\n$\\overline{|U_A - U_B|} / \\overline{U_B} \\times 100$")
+ax1.set_xticks(dims)
+ax1.set_ylim(0, 25)
+ax1.legend(frameon=False)
+ax1.grid(True, linestyle="--", alpha=0.4)
+
+ax2.set_xlabel("Dimensão $N$ da Grade ($N \\times N$)")
+ax2.set_ylabel("Razão de Escala $\\overline{U_A} / \\overline{U_B}$")
+ax2.set_title("(b) Inflação Sistemática de Valores\nIntraSOM vs. Formulação Clássica")
+ax2.set_xticks(dims)
+ax2.axhline(1.0, color="#6b7280", linestyle="--", linewidth=1.0, alpha=0.7, label="Igualdade")
+ax2.set_ylim(0.9, 1.35)
+ax2.legend(frameon=False)
+ax2.grid(True, linestyle="--", alpha=0.4)
+
+plt.tight_layout()
+path3 = os.path.join(FIG_DIR, "fig3_systematic_divergence.pdf")
+plt.savefig(path3, bbox_inches="tight")
+plt.savefig(path3.replace(".pdf", ".png"), bbox_inches="tight", dpi=300)
+plt.close()
+print(f"[OK] Fig 3 saved -> {path3}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# FIGURE 4 — ARI da segmentação: impacto na partição de clusters
+# ─────────────────────────────────────────────────────────────────────────────
+fig4, ax = plt.subplots(figsize=(7.5, 4.0))
+
+for var, color, label, marker in [
+    ("RECT_planar",  "#2563eb", "RECT Plana",   "o"),
+    ("RECT_toroid",  "#ea580c", "RECT Toroide", "s"),
+]:
+    sub = df_div[df_div["variant"] == var].set_index("size")
+    ari = [sub.loc[s, "seg_ari"] if s in sub.index else np.nan for s in sizes_ordered]
+    ax.plot(dims, ari, marker=marker, color=color, label=label,
+            linewidth=1.8, markersize=6)
+
+ax.axhline(1.0, color="#16a34a", linestyle="--", linewidth=1.0, alpha=0.6,
+           label="ARI = 1 (segmentações idênticas)")
+ax.axhline(0.8, color="#f59e0b", linestyle=":", linewidth=1.0, alpha=0.6,
+           label="ARI = 0.8 (referência)")
+
+ax.fill_between(dims, [0]*6, [0.8]*6, alpha=0.04, color="#dc2626")
+ax.set_xlabel("Dimensão $N$ da Grade ($N \\times N$)")
+ax.set_ylabel("ARI entre segmentações IntraSOM vs. Clássica")
+ax.set_title("Impacto da Escolha de Implementação na Segmentação da U-Matrix\n"
+             "(ARI entre cluster labels gerados pelas duas versões)")
+ax.set_xticks(dims)
+ax.set_ylim(0, 1.05)
+ax.legend(frameon=True, facecolor="white", framealpha=0.9, fontsize=8)
+ax.grid(True, linestyle="--", alpha=0.4)
+
+# Annotate 5x5 models (most affected)
+row_55p = df_div[(df_div["size"]=="5x5") & (df_div["variant"]=="RECT_planar")].iloc[0]
+row_55t = df_div[(df_div["size"]=="5x5") & (df_div["variant"]=="RECT_toroid")].iloc[0]
+ax.annotate(f"ARI={row_55p.seg_ari:.2f}\n(5×5 Plana)",
+            xy=(5, row_55p.seg_ari), xytext=(6, row_55p.seg_ari - 0.15),
+            arrowprops=dict(arrowstyle="->", color="#2563eb"), fontsize=8, color="#2563eb")
+ax.annotate(f"ARI={row_55t.seg_ari:.2f}\n(5×5 Toroide)",
+            xy=(5, row_55t.seg_ari), xytext=(6.5, row_55t.seg_ari - 0.25),
+            arrowprops=dict(arrowstyle="->", color="#ea580c"), fontsize=8, color="#ea580c")
+
+plt.tight_layout()
+path4 = os.path.join(FIG_DIR, "fig4_segmentation_ari.pdf")
+plt.savefig(path4, bbox_inches="tight")
+plt.savefig(path4.replace(".pdf", ".png"), bbox_inches="tight", dpi=300)
+plt.close()
+print(f"[OK] Fig 4 saved -> {path4}")
+
+print("\n[ALL FIGURES GENERATED SUCCESSFULLY]")

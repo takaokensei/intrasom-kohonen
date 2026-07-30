@@ -29,3 +29,12 @@ This checklist documents the 100% verification pass performed on all 17 citation
 2. `sculley2015hidden` and `sandve2013ten` are cited strictly for general technical debt and ML reproducibility, NOT as sources for `ENGINEERING_AUDIT.md`.
 3. `ultsch1990innc` is renamed from `ultsch2003maps` to match its actual publication year (INNC'90).
 4. `gouvea2023intrasom` replaces `intrasom2026pypi`, citing the peer-reviewed *Software Impacts* paper.
+5. MiniSom attribution is removed from `vesanto2000clustering`; MiniSom is by Giuseppe Vettigli, whereas R `kohonen` (`wehrens2007self`) and IntraSOM (`gouvea2023intrasom`) are cited as package references.
+
+---
+
+## Round 2 Audit Corrections (July 2026 Pass)
+- **Deterministic PCA Initialization Notice**: Added `paper/CRITICAL_BUG_NOTICE.md` documenting that `initialization='pca'` produced zero seed variance (`std=0.000`), and verified that switching to `initialization='random'` produces true non-zero standard deviations.
+- **Table I & Paper Verification**: Updated Table I in `paper/main.tex` with real non-zero standard deviations across 5 seeds.
+- **IntraSOM `build_umatrix` Line Citation**: Corrected line citation to line **2626** in `intrasom/intrasom.py` (v1.1.1).
+- **Scope & Limitations**: Enframed manuscript as `[Nota Técnica]` / Technical Note and added an explicit "Limitações" subsection detailing geometric scope (RECT), single dataset (*Synthetic Control*), and random initialization methodology.

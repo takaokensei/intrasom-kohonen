@@ -1,4 +1,5 @@
 import { useDashboardStore } from '../store/useDashboardStore';
+import { matchParamStudyEntry } from '../lib/paramStudyMatch';
 import { Settings, Sliders, Layers, RefreshCw, Filter, ArrowDownCircle } from 'lucide-react';
 
 export function SOMParamControls() {
@@ -16,11 +17,15 @@ export function SOMParamControls() {
     activeTab,
     selectedMapSize,
     setSelectedMapSize,
-    getActiveSOMModel
+    getActiveSOMModel,
+    paramStudyResults
   } = useDashboardStore();
 
   const isTextTab = activeTab === 'text';
   const activeSOMModel = getActiveSOMModel();
+
+  // Match live selected parameters against pre-computed parameter study table
+  const matchedStudyEntry = matchParamStudyEntry(paramStudyResults, initialRadius, finalRadius, epochs);
 
   return (
     <div className="glass-panel rounded-2xl p-5 flex flex-col space-y-5 text-tokyo-text">
@@ -215,11 +220,35 @@ export function SOMParamControls() {
           </div>
         </div>
 
-        {/* Link / Visual indicator to table below */}
-        <div className="flex items-center gap-1.5 pt-1 text-[9.5px] font-mono text-tokyo-purple font-semibold">
-          <ArrowDownCircle size={12} className="animate-bounce" />
-          <span>Realça a linha ativa na tabela "📊 Estudo de Parâmetros" abaixo</span>
-        </div>
+        {/* Immediate Live Summary Line (Item 1) */}
+        {matchedStudyEntry ? (
+          <div className="bg-tokyo-purple bg-opacity-15 border border-tokyo-purple border-opacity-40 p-2 rounded-lg text-[10px] font-mono flex items-center justify-between text-tokyo-purple">
+            <span>Configuração Selecionada:</span>
+            <span className="font-bold">
+              QE: <strong className="text-tokyo-text">{matchedStudyEntry.quantization_error.toFixed(4)}</strong> · TE: <strong className="text-tokyo-text">{matchedStudyEntry.topographic_error.toFixed(4)}</strong>
+            </span>
+          </div>
+        ) : (
+          <div className="bg-tokyo-dark bg-opacity-50 border border-tokyo-border border-opacity-30 p-2 rounded-lg text-[10px] font-mono text-tokyo-muted italic">
+            Nenhuma combinação pré-computada para estes valores.
+          </div>
+        )}
+
+        {/* Functional Scroll-to-Link with Highlight Trigger (Item 2) */}
+        <button
+          type="button"
+          onClick={() => {
+            const el = document.getElementById('parameter-study-panel');
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              window.dispatchEvent(new CustomEvent('highlight-parameter-study'));
+            }
+          }}
+          className="w-full flex items-center justify-center gap-2 p-2 rounded-lg bg-tokyo-purple bg-opacity-20 border border-tokyo-purple border-opacity-40 text-tokyo-purple hover:bg-opacity-30 hover:border-opacity-60 text-[10px] font-mono font-bold transition active-press-scale cursor-pointer"
+        >
+          <ArrowDownCircle size={14} className="animate-bounce" />
+          <span>Rolar até a tabela "Estudo de Parâmetros" & destacar linha</span>
+        </button>
       </div>
 
       {/* Active Settings Summary Footer */}

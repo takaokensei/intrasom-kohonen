@@ -88,5 +88,20 @@ This section documents the 100% paragraph-by-paragraph verification pass compari
 - **Effect Size & Overlap Relation**: Documented that effect detectability and $r_{\text{effect}}$ decrease as dataset class overlap increases (SC $75\%$ > Wine $67\%$ > Digits $25\%$).
 - **Cohen's $d_z$ & Rosenthal's $r_{\text{effect}}$ Alignment**: Confirmed that 19 of 20 significant cases show strict qualitative/quantitative agreement between $|d_z|$ ($d_z \in [0.35, 2.01]$) and $r_{\text{effect}} \in [0.39, 0.93]$. Documented the single boundary case (*Wine*, SOM $7\times7$ toroidal) where zero difference variance ($\text{std}=0$) causes $d_z$ to collapse to $0.000$ by definition while $r_{\text{effect}} = 1.000$ due to maximum evidence consistency against $H_0$ ($p_{\text{fdr}} = 5.18 \times 10^{-7}$).
 
+---
+
+## Round 7 Audit Tracking Checklist (Polishing & Enhancements Pass)
+
+- [x] **A1: Author Email Correction**: Updated to `caua.vitor.016@ufrn.edu.br`.
+- [x] **A2 & A3: Table Formatting & Layout**: Converted Table 1 and Table 2 to full-width `table*` environments with explicit `\footnotesize` and `\tabcolsep{5pt}`/`8pt`, eliminating text font compression and table column overflow.
+- [x] **A4 & A5: Figure Citations & Alignment**: Redesigned `paper/scripts/generate_figures.py` to produce 3 clean IEEE figures (`fig1_umatrix_comparison.pdf`, `fig2_systematic_divergence.pdf`, `fig3_segmentation_ari.pdf`). All 3 figures are referenced in exact numerical order in `paper/main.tex` with no orphaned figure files.
+- [x] **A6: Table Footnote for Boundary Case**: Added explicit footnote $\dagger$ in Table 2 referencing Section 7.3 for the Wine $7\times7$ toroidal $d_z=0$ / $r_{\text{eff}}=1.000$ boundary case.
+- [x] **B1-B3: Aesthetic Figure Audit**: Applied `font.family = 'serif'` (Computer Modern math font), unified IEEE color palette (`#1f77b4` blue for IntraSOM/Planar, `#d62728` red for Classical/Toroidal), and concise IEEE figure captions.
+- [x] **C1-C3: 3-D U-Array Theoretical Extension**: Verified that IntraSOM 1.1.1 supports strictly `'rect'` or `'hexa'` 2-D lattices. Added Section 4.3 deriving the 3-D theoretical inflation ratio $(6+12\sqrt{2}+8\sqrt{3})/26 \approx 1.4164$ ($41.64\%$) citing Costa & Netto (2007) Eqs. 5-11, declaring 3-D empirical validation as Future Work.
+- [x] **D1: Executable Compliance Framework**: Created `src/conformance_check.py` implementing the 4-step SOM compliance test and referenced it in Section 7.2 of `main.tex`.
+- [x] **D2: Dataset Selection Justification**: Added explicit methodology justification in Section 5.1 explaining *Wine* and *Digits* selection based on class overlap levels (low, medium, high).
+- [x] **PDF & Log Quality Assurance**: Verified 0 LaTeX errors, 0 overfull warnings in `main.log`, and inspected generated 7-page PDF rendering.
+
+
 
 

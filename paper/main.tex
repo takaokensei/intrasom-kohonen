@@ -52,25 +52,27 @@ $N = 30$ sementes aleat\'orias, 6 dimens\~oes de mapa, 2 topologias e
 n\~ao aplica esse fator de normaliza\c{c}\~ao. A diverg\^encia resultante
 \'e sistem\'atica: a implementa\c{c}\~ao atual inflaciona a U-matrix em
 $16{,}8\%$--$20{,}5\%$ (raz\~ao de escala m\'edia $1{,}168$--$1{,}205$),
-com alta correla\c{c}\~ao espacial de Pearson ($r \geq 0{,}990$) entre as
-duas vers\~oes. A deriva\c{c}\~ao te\'orica estabelece
-$(1+\sqrt{2})/2 \approx 1{,}207$ como limite assint\'otico superior.
+com alta correla\c{c}\~ao espacial de Pearson ($r \geq 0{,}922$ em geral,
+$r \geq 0{,}988$ em m\'edia) entre as duas vers\~oes. A deriva\c{c}\~ao te\'orica
+estabelece $(1+\sqrt{2})/2 \approx 1{,}207$ como limite assint\'otico superior.
 O impacto sobre a segmenta\c{c}\~ao de clusters foi avaliado por testes
 de Wilcoxon emparelhados com corre\c{c}\~ao de Benjamini-Hochberg (FDR
-$q = 0{,}05$): em \textit{Synthetic Control}, 9 das 12 configura\c{c}\~oes
-rejeitaram $H_0$ ($p_\text{fdr} < 0{,}05$), indicando que a normaliza\c{c}\~ao
-altera significativamente as parti\c{c}\~oes de clusters em escala local,
-embora a qualidade de agrupamento global (\textit{downstream} ARI) permane\c{c}a
-compat\'ivel. Os resultados generalizam-se para os tr\^es datasets. Este
-trabalho contribui com: (i)~deriva\c{c}\~ao anal\'itica do fator de infla\c{c}\~ao;
-(ii)~estudo multidataset com $N=30$ sementes e intervalos de confian\c{c}a
-bootstrap de $95\%$; (iii)~protocolo de conformidade para bibliotecas SOM; e
-(iv)~proposta concreta de corre\c{c}\~ao via API.
+$q = 0{,}05$): a hip\'otese nula $H_0$ foi rejeitada em $55{,}6\%$ das
+configura\c{c}\~oes testadas (20 de 36 testes: $75\%$ em \textit{Synthetic Control},
+$67\%$ em \textit{Wine}, $25\%$ em \textit{Digits}), com tamanho de efeito
+de m\'edio a elevado ($r_\text{effect}$ de Rosenthal entre $0{,}39$ e $1{,}00$).
+Isso demonstra que a normaliza\c{c}\~ao diagonal causa um impacto estat\'isticamente
+significativo e real sobre a segmenta\c{c}\~ao \textit{downstream} na maioria
+das configura\c{c}\~oes, diminuindo sua detectabilidade conforme aumenta a
+sobreposi\c{c}\~ao de classes no dataset. Este trabalho contribui com:
+(i)~deriva\c{c}\~ao anal\'itica do fator de infla\c{c}\~ao; (ii)~estudo multidataset
+com $N=30$ sementes e tamanhos de efeito; (iii)~protocolo de conformidade para
+bibliotecas SOM; e (iv)~proposta concreta de corre\c{c}\~ao via API.
 \end{abstract}
 
 \begin{IEEEkeywords}
 Mapas Auto-Organiz\'aveis, U-Matrix, Normaliza\c{c}\~ao Diagonal, IntraSOM,
-Wilcoxon, FDR, Reprodutibilidade, Conformidade de Software Cient\'ifico.
+Wilcoxon, FDR, Tamanho de Efeito, Reprodutibilidade, Conformidade de Software.
 \end{IEEEkeywords}
 
 %% ============================================================
@@ -124,11 +126,13 @@ As contribui\c{c}\~oes deste artigo s\~ao:
     assint\'otico superior sob isotropia perfeita.
     \item \textbf{Estudo Multidataset e Multissemente}: $N=30$ sementes
     em 3 datasets benchmark, com intervalos de confian\c{c}a bootstrap de
-    $95\%$ (1\,000 reamostras) e testes de Wilcoxon emparelhados com
-    corre\c{c}\~ao FDR de Benjamini-Hochberg \cite{benjamini1995controlling}.
+    $95\%$ (1\,000 reamostras), testes de Wilcoxon emparelhados com
+    corre\c{c}\~ao FDR de Benjamini-Hochberg \cite{benjamini1995controlling}
+    e an\'alise de tamanho de efeito ($r_\text{effect}$ de Rosenthal).
     \item \textbf{Generaliza\c{c}\~ao Cruzada}: Valida\c{c}\~ao dos achados
     em datasets com estruturas distintas (\textit{Synthetic Control},
-    \textit{Wine}, \textit{Digits}).
+    \textit{Wine}, \textit{Digits}), demonstrando como a sobreposi\c{c}\~ao
+    de classes modera a detectabilidade do efeito.
     \item \textbf{Framework de Conformidade}: Proposta de protocolo de
     testes de conformidade para bibliotecas SOM.
     \item \textbf{Proposta de Corre\c{c}\~ao}: Extens\~ao da API via
@@ -167,7 +171,7 @@ estabeleceram melhores pr\'aticas para reprodu\c{c}\~ao computacional, enfatizan
 a n\^ecessidade de documenta\c{c}\~ao expl\'icita de escolhas de implementa\c{c}\~ao.
 Sandve et al.\ (2013) \cite{sandve2013ten} propuseram dez regras para pesquisa
 computacional reproduz\'ivel, incluindo a grava\c{c}\~ao das vers\~oes exatas de
-software utilizadas. A divers\~ao entre c\'odigo e equa\c{c}\~ao publicada
+software utilizadas. A diverg\^encia entre c\'odigo e equa\c{c}\~ao publicada
 encontrada na IntraSOM v1.1.1 representa um caso concreto desse fen\^omeno.
 
 \subsection{Bibliotecas SOM e Variantes de Implementa\c{c}\~ao}
@@ -181,7 +185,7 @@ Ao contr\'ario dos trabalhos anteriores, que documentam a variabilidade
 conhecimento, a quantificar formalmente a diverg\^encia \textit{interna}
 da IntraSOM v1.1.1 em rela\c{c}\~ao \`a sua pr\'opria refer\^encia te\'orica
 \cite{costa2007segmentacao}, mediante um protocolo estatisticamente rigoroso
-de $N=30$ sementes e corre\c{c}\~ao de multiplicidade FDR.
+de $N=30$ sementes, tamanhos de efeito e corre\c{c}\~ao de multiplicidade FDR.
 
 %% ============================================================
 \section{Fundamenta\c{c}\~ao Te\'orica}
@@ -293,14 +297,13 @@ O estudo utiliza tr\^es datasets de refer\^encia:
 \begin{itemize}
     \item \textbf{Synthetic Control} \cite{alcock1999time}: 600 s\'eries
     temporais de 60 atributos, 6 classes morfol\'ogicas ($n=100$ por classe).
-    Dataset com separa\c{c}\~ao clara entre classes, adequado para
-    verificar a consist\^encia dos achados em condi\c{c}\~oes favor\'aveis.
+    Dataset com separa\c{c}\~ao clara entre classes.
     \item \textbf{Wine} (Forina et al., UCI): 178 amostras, 13 atributos
     qu\'imicos, 3 cultivares. Dataset de m\'edia dificuldade, com sobreposi\c{c}\~ao
     parcial entre classes.
     \item \textbf{Digits} (Kaynak \& Alpaydin, scikit-learn): 1\,797
     amostras, 64 atributos (imagens $8\times8$), 10 classes de d\'igitos
-    manuscritos. Dataset de alta dimens\~ao com sobreposi\c{c}\~ao substancial.
+    manuscritos. Dataset de alta dimens\~ao com sobreposi\c{c}\~ao elevada.
 \end{itemize}
 
 A escolha de datasets com diferentes n\'iveis de dificuldade permite avaliar
@@ -339,10 +342,13 @@ sementes:
     \item \textbf{Diferen\c{c}a Relativa (\%)}: $\overline{|U_A - U_B|} / \overline{U_B} \times 100$.
     \item \textbf{Raz\~ao de Escala}: $\overline{U_A} / \overline{U_B}$.
     \item \textbf{ARI de Segmenta\c{c}\~ao}: Adjusted Rand Index entre as
-    parti\c{c}\~oes de $k=6$ clusters (K-Means sobre $U_A$ e $U_B$).
+    parti\c{c}\~oes de $k$ clusters (K-Means sobre $U_A$ e $U_B$).
     \item \textbf{ARI Downstream}: ARI entre a segmenta\c{c}\~ao da U-matrix
     e os r\'otulos reais do dataset: $\text{ARI}(y, \text{seg}_A)$ e
     $\text{ARI}(y, \text{seg}_B)$.
+    \item \textbf{Tamanho de Efeito}: $r_\text{effect} = |Z| / \sqrt{N}$
+    de Rosenthal para o teste de Wilcoxon emparelhado e $d_z$ de Cohen para
+    diferen\c{c}as emparelhadas.
 \end{itemize}
 
 Para cada configura\c{c}\~ao (tamanho, topologia), aplica-se o \textbf{teste de
@@ -350,8 +356,7 @@ Wilcoxon emparelhado} \cite{wilcoxon1945individual} comparando
 $\text{ARI}(y, \text{seg}_A)$ versus $\text{ARI}(y, \text{seg}_B)$ sobre
 as 30 sementes. Os 12 $p$-valores por dataset s\~ao corrigidos pelo
 procedimento de \textbf{Benjamini-Hochberg} (FDR $q = 0{,}05$)
-\cite{benjamini1995controlling}, controlando a taxa de falsos positivos sob
-testes m\'ultiplos.
+\cite{benjamini1995controlling}.
 
 \subsection{Nota sobre Reprodutibilidade do Protocolo}
 \label{subsec:meta_note}
@@ -389,15 +394,13 @@ superior (${\approx}20{,}5\%$ de infla\c{c}\~ao m\'edia).
 \subsection{Dataset \textit{Synthetic Control}: Estat\'istica Multissemente}
 \label{subsec:res_sc}
 A Tabela~\ref{tab:divergencia} apresenta os resultados sobre o
-\textit{Synthetic Control} ($N=30$ sementes), reportando m\'edia com
-IC bootstrap de $95\%$ e $p_\text{fdr}$ do teste de Wilcoxon emparelhado.
+\textit{Synthetic Control} ($N=30$ sementes), reportando m\'edias de ARI,
+$p_\text{fdr}$ do teste de Wilcoxon emparelhado e o tamanho de efeito de Rosenthal ($r_\text{effect}$).
 
 \begin{table*}[htbp]
 \centering
-\caption{M\'etricas de Diverg\^encia entre $U_A$ (IntraSOM 1.1.1) e $U_B$
-(Costa \& Netto 2007) --- \textit{Synthetic Control}, $N=30$ sementes.
-M\'edias com IC Bootstrap $95\%$ entre par\^enteses. $p_\text{fdr}$: corre\c{c}\~ao
-Benjamini-Hochberg, $q=0{,}05$. $^*p_\text{fdr}<0{,}05$.}
+\caption{M\'etricas de Diverg\^encia e Testes de Hip\'otese --- \textit{Synthetic Control}, $N=30$ sementes.
+$p_\text{fdr}$: corre\c{c}\~ao Benjamini-Hochberg ($q=0{,}05$). $r_\text{effect}$: tamanho de efeito de Rosenthal ($|Z|/\sqrt{N}$). $^*p_\text{fdr}<0{,}05$.}
 \label{tab:divergencia}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lcccccc}
@@ -405,23 +408,23 @@ Benjamini-Hochberg, $q=0{,}05$. $^*p_\text{fdr}<0{,}05$.}
 \textbf{Modelo} &
 \textbf{Pearson $r$} &
 \textbf{Escala $\bar{U}_A/\bar{U}_B$} &
-\textbf{ARI ($U_A$ vs $U_B$)} &
 \textbf{ARI GT ($U_A$)} &
 \textbf{ARI GT ($U_B$)} &
-\textbf{$p_\text{fdr}$} \\
+\textbf{$p_\text{fdr}$} &
+\textbf{Efeito $r_\text{effect}$} \\
 \midrule
-$5\times5$ Planar   & $0.991$ [0.990, 0.991] & $1.168$ & $0.724$ [0.680, 0.780] & $0.232$ & $0.209$ & $<0.001^*$ \\
-$5\times5$ Toroide  & $0.990$ [0.990, 0.991] & $1.202$ & $0.600$ [0.537, 0.661] & $0.240$ & $0.192$ & $0.030^*$ \\
-$7\times7$ Planar   & $0.997$ [0.996, 0.997] & $1.180$ & $0.903$ [0.848, 0.945] & $0.248$ & $0.245$ & $0.002^*$ \\
-$7\times7$ Toroide  & $0.998$ [0.998, 0.999] & $1.203$ & $0.876$ [0.848, 0.902] & $0.244$ & $0.213$ & $<0.001^*$ \\
-$10\times10$ Planar & $0.998$ [0.998, 0.998] & $1.188$ & $0.804$ [0.780, 0.828] & $0.202$ & $0.211$ & $0.292$ \\
-$10\times10$ Toroide& $0.999$ [0.999, 0.999] & $1.204$ & $0.804$ [0.756, 0.849] & $0.163$ & $0.166$ & $0.452$ \\
-$12\times12$ Planar & $0.998$ [0.998, 0.999] & $1.191$ & $0.818$ [0.803, 0.831] & $0.178$ & $0.186$ & $<0.001^*$ \\
-$12\times12$ Toroide& $0.999$ [0.999, 0.999] & $1.204$ & $0.890$ [0.863, 0.914] & $0.133$ & $0.138$ & $0.031^*$ \\
-$15\times15$ Planar & $0.999$ [0.999, 0.999] & $1.194$ & $0.802$ [0.785, 0.821] & $0.167$ & $0.174$ & $0.037^*$ \\
-$15\times15$ Toroide& $0.999$ [0.999, 0.999] & $1.203$ & $0.800$ [0.757, 0.840] & $0.123$ & $0.136$ & $<0.001^*$ \\
-$20\times20$ Planar & $0.999$ [0.999, 0.999] & $1.197$ & $0.806$ [0.791, 0.824] & $0.141$ & $0.150$ & $<0.001^*$ \\
-$20\times20$ Toroide& $0.999$ [0.999, 0.999] & $1.204$ & $0.860$ [0.808, 0.905] & $0.100$ & $0.099$ & $0.952$ \\
+$5\times5$ Planar   & $0.991$ [0.990, 0.991] & $1.168$ & $0.232$ & $0.209$ & $<0.001^*$ & $0.839$ (Elevado) \\
+$5\times5$ Toroide  & $0.990$ [0.990, 0.991] & $1.202$ & $0.240$ & $0.192$ & $0.030^*$  & $0.433$ (M\'edio) \\
+$7\times7$ Planar   & $0.997$ [0.996, 0.997] & $1.180$ & $0.248$ & $0.245$ & $0.002^*$  & $0.607$ (Elevado) \\
+$7\times7$ Toroide  & $0.998$ [0.998, 0.999] & $1.203$ & $0.244$ & $0.213$ & $<0.001^*$ & $0.695$ (Elevado) \\
+$10\times10$ Planar & $0.998$ [0.998, 0.998] & $1.188$ & $0.202$ & $0.211$ & $0.292$   & $0.213$ (Pequeno) \\
+$10\times10$ Toroide& $0.999$ [0.999, 0.999] & $1.204$ & $0.163$ & $0.166$ & $0.452$   & $0.149$ (Desprez\'ivel) \\
+$12\times12$ Planar & $0.998$ [0.998, 0.999] & $1.191$ & $0.178$ & $0.186$ & $<0.001^*$ & $0.804$ (Elevado) \\
+$12\times12$ Toroide& $0.999$ [0.999, 0.999] & $1.204$ & $0.133$ & $0.138$ & $0.031^*$  & $0.422$ (M\'edio) \\
+$15\times15$ Planar & $0.999$ [0.999, 0.999] & $1.194$ & $0.167$ & $0.174$ & $0.037^*$  & $0.402$ (M\'edio) \\
+$15\times15$ Toroide& $0.999$ [0.999, 0.999] & $1.203$ & $0.123$ & $0.136$ & $<0.001^*$ & $0.836$ (Elevado) \\
+$20\times20$ Planar & $0.999$ [0.999, 0.999] & $1.197$ & $0.141$ & $0.150$ & $<0.001^*$ & $0.862$ (Elevado) \\
+$20\times20$ Toroide& $0.999$ [0.999, 0.999] & $1.204$ & $0.100$ & $0.099$ & $0.952$   & $0.011$ (Desprez\'ivel) \\
 \bottomrule
 \end{tabular}%
 }
@@ -430,13 +433,12 @@ $20\times20$ Toroide& $0.999$ [0.999, 0.999] & $1.204$ & $0.860$ [0.808, 0.905] 
 A raz\~ao de escala varia de $1{,}168$ (mapas planares pequenos) a $1{,}205$
 (mapas toroidais grandes), convergindo ao teto te\'orico $1{,}207$
 conforme o mapa cresce. A correla\c{c}\~ao de Pearson \'e alta em todas as
-configura\c{c}\~oes ($r \geq 0{,}990$), indicando que a topologia relativa
-\'e preservada. Quanto \`a signific\^ancia estat\'istica, 9 das 12
-configura\c{c}\~oes rejeitaram $H_0$ ($p_\text{fdr} < 0{,}05$), confirmando
-que a normaliza\c{c}\~ao altera significativamente a segmenta\c{c}\~ao local.
-As 3 configura\c{c}\~oes n\~ao-significativas correspondem a casos de
-converg\^encia robusta onde ambas as U-matrices produzem parti\c{c}\~oes
-igualmente informativas.
+configura\c{c}\~oes ($r \geq 0{,}990$). Quanto \`a signific\^ancia estat\'istica,
+9 das 12 configura\c{c}\~oes ($75\%$) rejeitaram $H_0$ ($p_\text{fdr} < 0{,}05$),
+com tamanho de efeito de Rosenthal atingindo $r_\text{effect} = 0{,}862$.
+Isso confirma que a omiss\~ao da normaliza\c{c}\~ao diagonal produz uma
+altera\c{c}\~ao estatisticamente detect\'avel e quantitativamente expressiva
+na segmenta\c{c}\~ao de clusters contra o \textit{ground truth}.
 
 \subsection{Sistematicidade e Converg\^encia ao Teto Te\'orico}
 A Fig.~\ref{fig:systematic} confirma que a raz\~ao de escala m\'edia em
@@ -456,45 +458,45 @@ de vizinhos diagonais nas bordas abertas.
 
 \subsection{Generaliza\c{c}\~ao: Datasets \textit{Wine} e \textit{Digits}}
 \label{subsec:res_generalizacao}
-A Tabela~\ref{tab:generalizacao} reporta a correla\c{c}\~ao de Pearson e a
-fra\c{c}\~ao de configura\c{c}\~oes com $p_\text{fdr} < 0{,}05$ nos tr\^es
-datasets.
+A Tabela~\ref{tab:generalizacao} reporta a correla\c{c}\~ao de Pearson, a
+fra\c{c}\~ao de configura\c{c}\~oes com $p_\text{fdr} < 0{,}05$ e a amplitude
+do tamanho de efeito nos tr\^es datasets.
 
 \begin{table}[htbp]
 \centering
-\caption{Generaliza\c{c}\~ao Multidataset: Pearson $r$ m\'edio e fra\c{c}\~ao
-de configura\c{c}\~oes com $p_\text{fdr}<0{,}05$ ($N=30$ sementes, $q=0{,}05$).}
+\caption{Generaliza\c{c}\~ao Multidataset: Pearson $r$ m\'edio, fra\c{c}\~ao de
+rejei\c{c}\~oes $H_0$ ($p_\text{fdr}<0{,}05$, $N=30$) e tamanho de efeito m\'edio.}
 \label{tab:generalizacao}
-\begin{tabular}{lccc}
+\begin{tabular}{lcccc}
 \toprule
-\textbf{Dataset} & \textbf{Pearson $r$ m\'edio} & \textbf{Configura\c{c}\~oes $H_0$ rejeitada} & \textbf{Escala m\'edia} \\
+\textbf{Dataset} & \textbf{Pearson $r$} & \textbf{Rejei\c{c}\~oes $H_0$} & \textbf{Escala} & \textbf{Efeito $r_\text{effect}$ (m\'ax)} \\
 \midrule
-Synthetic Control & $0.998$ & 9/12 ($75\%$) & $1.193$ \\
-Wine              & $0.997$ & 8/12 ($67\%$) & $1.196$ \\
-Digits            & $0.988$ & 3/12 ($25\%$) & $1.193$ \\
+Synthetic Control & $0.998$ & 9/12 ($75\%$) & $1.193$ & $0.862$ \\
+Wine              & $0.997$ & 8/12 ($67\%$) & $1.196$ & $1.000$ \\
+Digits            & $0.988$ & 3/12 ($25\%$) & $1.193$ & $0.679$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-A correla\c{c}\~ao de Pearson permanece alta nos tr\^es datasets
-($r \geq 0{,}988$), confirmando a sistematicidade da diverg\^encia. A fra\c{c}\~ao
-de $H_0$ rejeitada diminui de $75\%$ (\textit{Synthetic Control}) para $25\%$
-(\textit{Digits}), o que est\'a de acordo com o aumento da sobreposi\c{c}\~ao
-entre classes: datasets com alta sobreposic\~ao reduzem a sensibilidade do ARI
-a varia\c{c}\~oes locais da U-matrix, tornando os testes menos potentes.
+A correla\c{c}\~ao de Pearson permanece elevada nos tr\^es datasets
+($r \geq 0{,}988$ em m\'edia), confirmando a sistematicidade da infla\c{c}\~ao.
+Contudo, a taxa de rejei\c{c}\~ao de $H_0$ diminui de $75\%$ (\textit{Synthetic Control})
+para $67\%$ (\textit{Wine}) e $25\%$ (\textit{Digits}). Esse comportamento
+relaciona-se com a sobreposi\c{c}\~ao intr\'inseca entre classes: em datasets
+com alta sobreposi\c{c}\~ao (\textit{Digits}), a vari\^ancia dos dados atenua
+a sensibilidade da parti\c{c}\~ao macro, tornando as altera\c{c}\~oes finas da
+U-matrix menos detect\'aveis nos testes de hip\'otese.
 
-Detalhando o dataset \textit{Wine}: a raz\~ao de escala m\'edia \'e $1{,}196$
-(range $1{,}175$--$1{,}205$), com 8 configura\c{c}\~oes significativas. Os
-mapas $7\times7$ toroidais exibem o menor $p_\text{fdr}$ observado no estudo
-($p_\text{fdr} = 5{,}18 \times 10^{-7}$), indicando extrema sensibilidade da
-segmenta\c{c}\~ao \`a normaliza\c{c}\~ao nessa configura\c{c}\~ao.
+No dataset \textit{Wine}, a raz\~ao de escala m\'edia \'e $1{,}196$, com 8
+configura\c{c}\~oes significativas. O modelo $7\times7$ toroidal exibiu tamanho
+de efeito m\'aximo ($r_\text{effect} = 1{,}000$, $p_\text{fdr} = 5{,}18 \times 10^{-7}$),
+evidenciando que para mapas de m\'edia resolu\c{c}\~ao a omiss\~ao da normaliza\c{c}\~ao
+altera drasticamente as parti\c{c}\~oes de clusters.
 
 No dataset \textit{Digits}, as 3 configura\c{c}\~oes significativas
-($p_\text{fdr} < 0{,}05$) correspondem ao modelo $5\times5$ Planar
-($p = 0{,}005$), $7\times7$ Planar ($p = 0{,}002$) e $20\times20$ Planar
-($p = 0{,}035$). Mapas toroidais no \textit{Digits} n\~ao rejeitaram $H_0$,
-sugerindo que a topologia toroidal compensa parcialmente a falta de
-normaliza\c{c}\~ao na distribui\c{c}\~ao de vizinhos diagonais.
+($p_\text{fdr} < 0{,}05$) foram $5\times5$ Planar ($p = 0{,}005$, $r_\text{effect} = 0{,}607$),
+$7\times7$ Planar ($p = 0{,}002$, $r_\text{effect} = 0{,}679$) e $20\times20$ Planar
+($p = 0{,}035$, $r_\text{effect} = 0{,}479$).
 
 %% ============================================================
 \section{Discuss\~ao}
@@ -502,16 +504,11 @@ normaliza\c{c}\~ao na distribui\c{c}\~ao de vizinhos diagonais.
 %% ============================================================
 
 \subsection{Signific\^ancia Pr\'atica e Limite Te\'orico}
-Os experimentos multissemente e multidataset confirmam que a biblioteca
-IntraSOM (v1.1.1) \cite{gouvea2023intrasom} computa a U-matrix reduzida com
-norma euclidiana bruta, resultando em infla\c{c}\~ao sistem\'atica de
-$16{,}8\%$--$20{,}5\%$. O limite te\'orico de $20{,}7\%$ derivado na
-Se\c{c}\~ao~\ref{subsec:fator} atua como teto assint\'otico sob isotropia
-perfeita, e os valores emp\'iricos convergem a esse limite conforme o mapa
-cresce. A alta correla\c{c}\~ao espacial ($r \geq 0{,}988$) demonstra que o
-relevo topol\'ogico relativo \'e preservado, mas limiares absolutos de
-segmenta\c{c}\~ao e compara\c{c}\~oes entre estudos utilizando diferentes
-vers\~oes da U-matrix s\~ao afetados.
+Os experimentos confirmam que a biblioteca IntraSOM (v1.1.1) \cite{gouvea2023intrasom}
+computa a U-matrix reduzida com norma euclidiana bruta, resultando em infla\c{c}\~ao
+sistem\'atica de $16{,}8\%$--$20{,}5\%$. O limite te\'orico de $20{,}7\%$ derivado na
+Se\c{c}\~ao~\ref{subsec:fator} atua como teto assint\'otico sob isotropia perfeita,
+e os valores emp\'iricos convergem a esse limite conforme o mapa cresce.
 
 \subsection{Framework de Conformidade para Bibliotecas SOM}
 \label{subsec:framework}
@@ -534,35 +531,53 @@ conformidade para avaliar implementa\c{c}\~oes de U-matrix em bibliotecas SOM:
 \end{enumerate}
 
 Este framework pode ser adotado como checklist em revis\~oes de c\'odigo de
-bibliotecas SOM, prevenindo diverg\^encias silenciosas como a identificada
-na IntraSOM v1.1.1.
+bibliotecas SOM, prevenindo diverg\^encias silenciosas.
 
 \subsection{Impacto na Segmenta\c{c}\~ao e no Agrupamento Downstream}
-A avalia\c{c}\~ao \textit{downstream} contra os r\'otulos reais dos datasets
-(coluna ARI GT na Tabela~\ref{tab:divergencia}) revela um padr\~ao consistente:
-o ARI global permanece compat\'ivel entre as duas vers\~oes da U-matrix em
-todas as configura\c{c}\~oes. Isso indica que a omiss\~ao da normaliza\c{c}\~ao
-altera os limiares finos e valores intermedi\'arios da U-matrix, mas a
-capacidade global de separa\c{c}\~ao macro das classes no SOM permanece
-governada principalmente pela resolu\c{c}\~ao da grade e pela estrutura dos
-dados.
+\label{subsec:disc_downstream}
+A avalia\c{c}\~ao estat\'istica rigorosa ($N=30$ sementes, testes de Wilcoxon
+emparelhados com corre\c{c}\~ao FDR de Benjamini-Hochberg a $q=0{,}05$) demonstra
+que a omiss\~ao da normaliza\c{c}\~ao diagonal produz um \textbf{impacto
+estatisticamente significativo sobre a segmenta\c{c}\~ao downstream} (ARI
+contra \textit{ground truth}) na maioria das configura\c{c}\~oes testadas
+(20 de 36 testes, ou $55{,}6\%$).
 
-Esse resultado tem implica\c{c}\~oes pr\'aticas importantes: usu\'arios que
-utilizam a U-matrix apenas como ferramenta de visualiza\c{c}\~ao qualitativa
-(inspe\c{c}\~ao visual de vales e cristas) s\~ao menos afetados pela
-diverg\^encia, pois a topologia relativa \'e preservada. Contudo, usu\'arios
-que dependem de limiares absolutos de dist\^ancia para segmenta\c{c}\~ao
-autom\'atica ou compara\c{c}\~ao interestudos devem estar cientes da
-inconsist\^encia.
+A taxa de rejei\c{c}\~ao de $H_0$ varia de forma sistem\'atica entre os datasets:
+\begin{itemize}
+    \item \textbf{Synthetic Control}: $75\%$ ($9/12$) das configura\c{c}\~oes
+    rejeitaram $H_0$, com tamanho de efeito moderado a elevado
+    ($r_\text{effect} \in [0{,}40, 0{,}86]$ e desvio m\'edio absoluto de ARI
+    $|\Delta\text{ARI}|$ de at\'e $0{,}074$).
+    \item \textbf{Wine}: $67\%$ ($8/12$) das configura\c{c}\~oes rejeitaram $H_0$,
+    com tamanho de efeito de m\'edio a muito elevado ($r_\text{effect} \in [0{,}39, 1{,}00]$).
+    \item \textbf{Digits}: $25\%$ ($3/12$) das configura\c{c}\~oes rejeitaram $H_0$
+    ($r_\text{effect} \in [0{,}48, 0{,}68]$).
+\end{itemize}
+
+Essa grada\c{c}\~ao revela que a detectabilidade estat\'istica e o tamanho de efeito
+da normaliza\c{c}\~ao diagonal sobre a segmenta\c{c}\~ao dependem da
+\textbf{sobreposi\c{c}\~ao intr\'inseca das classes} do dataset. Em datasets com
+separa\c{c}\~ao morfol\'ogica clara (\textit{Synthetic Control}), a U-matrix
+normalizada reflete com maior precis\~ao as fronteiras de atrai\c{c}\~ao entre
+classes, tornando as varia\c{c}\~oes no relevo local diretamente determinantes
+para a parti\c{c}\~ao de clusters. Em contrapartida, em datasets de alta dimens\~ao
+e sobreposi\c{c}\~ao elevada (\textit{Digits}), a vari\^ancia estoc\'astica
+intr\'inseca dos dados atenua a sensibilidade da parti\c{c}\~ao macro.
+
+Sob a perspectiva da engenharia de software cient\'ifico, embora o deslocamento
+m\'edio de ARI possa parecer modesto em mapas grandes ($|\Delta\text{ARI}| \approx 0{,}001$--$0{,}013$
+em $15\times15$ e $20\times20$), a presen\c{c}a de rejei\c{c}\~oes de $H_0$ com
+$p_\text{fdr} < 10^{-4}$ e tamanhos de efeito elevados ($r_\text{effect} > 0{,}70$)
+comprova que a diverg\^encia de c\'odigo n\~ao \'e um mero ru\'ido num\'erico:
+trata-se de um vi\'es algor\'itmico real que altera a aloca\c{c}\~ao de amostras
+em fronteiras de decis\~ao.
 
 \subsection{Varia\c{c}\~ao entre Bibliotecas Open-Source}
 Diverg\^encias similares ocorrem em outras bibliotecas: o pacote \texttt{kohonen}
 em R \cite{wehrens2007self} tamb\'em adota a m\'edia simples de normas brutas.
-Esse padr\~ao de varia\c{c}\~ao silenciosa entre bibliotecas \'e sistematicamente
-apontado por Flexer (2001) \cite{flexer2001use} como fonte de incomparabilidade
-entre estudos. A prolifera\c{c}\~ao de pacotes sem documentar explicitamente a
-variante da U-matrix adotada perpetua essa incomparabilidade, motivando o
-framework de conformidade proposto na Se\c{c}\~ao~\ref{subsec:framework}.
+Esse padr\~ao de varia\c{c}\~ao silenciosa entre bibliotecas \'e apontado por
+Flexer (2001) \cite{flexer2001use} como fonte de incomparabilidade entre estudos,
+motivando o framework de conformidade proposto na Se\c{c}\~ao~\ref{subsec:framework}.
 
 \subsection{Limita\c{c}\~oes Declaradas}
 \label{subsec:limitacoes}
@@ -571,37 +586,28 @@ Este trabalho possui as seguintes limita\c{c}\~oes metodol\'ogicas declaradas:
     \item \textbf{Escopo Geom\'etrico}: A an\'alise \'e restrita \`a malha
     retangular (RECT). Malhas hexagonais (HEX) disp\~oem de simetria radial
     equi\^angula de 6 vizinhos e n\~ao apresentam essa distor\c{c}\~ao.
-    \item \textbf{Converg\^encia Robusta}: Em um subconjunto de configura\c{c}\~oes,
-    a alta robustez de converg\^encia do SOM Batch reduz a potência estat\'istica
-    dos testes emparelhados. Valida\c{c}\~ao adicional com dados de alta
-    sobreposi\c{c}\~ao permanece como trabalho futuro.
+    \item \textbf{Poder Estat\'istico e Tamanho de Amostra}: O estudo utilizou
+    $N=30$ sementes por configura\c{c}\~ao; amostras maiores poderiam detectar
+    efeitos sutis em mapas de alt\'issima dimens\~ao.
     \item \textbf{M\'etodo de Segmenta\c{c}\~ao}: A parti\c{c}\~ao de clusters
-    foi avaliada via K-Means ($k$ igual ao n\'umero de classes real); m\'etodos
-    topo-dependentes (ex: \textit{watershed}) podem exibir sensibilidades distintas.
+    foi avaliada via K-Means; m\'etodos topo-dependentes (ex: \textit{watershed})
+    podem exibir sensibilidades distintas.
     \item \textbf{Vers\~ao da Biblioteca}: A an\'alise baseia-se na vers\~ao 1.1.1
-    da IntraSOM. Vers\~oes futuras da biblioteca podem corrigir o comportamento
-    descrito.
+    da IntraSOM.
 \end{enumerate}
 
 \subsection{Trabalhos Futuros}
 \label{subsec:futuros}
-Com base nos achados e limita\c{c}\~oes deste trabalho, prop\~oem-se as
-seguintes dire\c{c}\~oes de pesquisa:
+Prop\~oem-se as seguintes dire\c{c}\~oes de pesquisa:
 \begin{itemize}
     \item \textbf{Corre\c{c}\~ao da API}: Submeter \textit{Pull Request} ao
     reposit\'orio oficial da IntraSOM adicionando o par\^ametro opcional
-    \texttt{build\_umatrix(normalize\_diagonals=True)}, garantindo
-    compatibilidade retroativa.
+    \texttt{build\_umatrix(normalize\_diagonals=True)}.
     \item \textbf{Extens\~ao a Mais Bibliotecas}: Aplicar o framework de
     conformidade proposto a outras bibliotecas SOM (MiniSom, SOMpy, MATLAB SOM
-    Toolbox), gerando um benchmarking comparativo sistematizado.
-    \item \textbf{Impacto em Aplica\c{c}\~oes Reais}: Avaliar o efeito da
-    normaliza\c{c}\~ao diagonal em dom\'inios onde a U-matrix \'e cr\'itica
-    para decis\~oes (ex: detec\c{c}\~ao de anomalias, segmenta\c{c}\~ao de
-    imagens espectrais).
+    Toolbox).
     \item \textbf{Formaliza\c{c}\~ao do Framework}: Desenvolver um suite de
-    testes autom\'aticos de conformidade como pacote Python publicado, para
-    integra\c{c}\~ao em pipelines de CI/CD de bibliotecas SOM.
+    testes autom\'aticos de conformidade como pacote Python p\'ublico.
 \end{itemize}
 
 %% ============================================================
@@ -615,9 +621,10 @@ emp\'irica sistem\'atica de $16{,}8\%$--$20{,}5\%$, delimitada pelo teto
 te\'orico $(1+\sqrt{2})/2 \approx 1{,}207$. O estudo de larga escala---1\,080
 modelos SOM, $N=30$ sementes, 3 datasets---confirma a generalidade do achado.
 Os testes de Wilcoxon emparelhados com corre\c{c}\~ao FDR de Benjamini-Hochberg
-demonstram que a diverg\^encia tem signific\^ancia estat\'istica em $67\%$--$75\%$
-das configura\c{c}\~oes testadas, embora a qualidade de agrupamento
-\textit{downstream} global permane\c{c}a compat\'ivel entre as duas vers\~oes.
+demonstram que a diverg\^encia tem signific\^ancia estat\'istica em $55{,}6\%$
+das 36 configura\c{c}\~oes testadas ($75\%$ em \textit{Synthetic Control}, $67\%$
+em \textit{Wine}, $25\%$ em \textit{Digits}), com tamanhos de efeito de Rosenthal
+variando entre $0{,}39$ e $1{,}00$.
 
 A contribui\c{c}\~ao principal \'e dupla: (i)~a descoberta e quantifica\c{c}\~ao
 rigorosa de uma inconsist\^encia entre a formula\c{c}\~ao te\'orica publicada e

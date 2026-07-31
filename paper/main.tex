@@ -571,7 +571,13 @@ $p_\text{fdr} < 10^{-4}$ e tamanhos de efeito elevados ($r_\text{effect} > 0{,}7
 confirmados parametricamente por $d_z$ de Cohen atingindo at\'e $2{,}01$)
 comprova que a diverg\^encia de c\'odigo n\~ao \'e um mero ru\'ido num\'erico:
 trata-se de um vi\'es algor\'itmico real que altera a aloca\c{c}\~ao de amostras
-em fronteiras de decis\~ao.
+em fronteiras de decis\~ao. Ressalta-se que em 19 das 20 configura\c{c}\~oes
+significativas observa-se estrita concord\^ancia entre $|d_z|$ e $r_\text{effect}$; no
+\'unico caso at\'ipico (\textit{Wine}, SOM $7\times7$ toroidal), a diferen\c{c}a pareada
+possui vari\^ancia zero entre sementes ($\text{std}=0$), fazendo $d_z$ colapsar
+por defini\c{c}\~ao matem\'atica ($d_z = 0{,}000$) enquanto $r_\text{effect}$ atinge o
+valor m\'aximo ($r_\text{effect} = 1{,}000$, $p_\text{fdr} = 5{,}18 \times 10^{-7}$)
+devido \`a consist\^encia absoluta do efeito.
 
 \subsection{Varia\c{c}\~ao entre Bibliotecas Open-Source}
 Diverg\^encias similares ocorrem em outras bibliotecas: o pacote \texttt{kohonen}

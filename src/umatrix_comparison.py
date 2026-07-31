@@ -302,6 +302,14 @@ def run_experiment_for_dataset(ds_name, X, y, n_classes, seeds=SEEDS):
         p_adj = p_val_dict[m_key]
         p_raw = raw_p_dict[m_key]
 
+        diffs = group["ari_ground_a"].values - group["ari_ground_b"].values
+        mean_diff = float(np.mean(diffs))
+        mean_abs_diff = float(np.mean(np.abs(diffs)))
+        std_diff = float(np.std(diffs, ddof=1))
+        cohen_d = mean_diff / std_diff if std_diff > 0 else 0.0
+        z_stat = float(norm.ppf(1 - p_raw / 2)) if (p_raw > 0 and p_raw < 1) else 0.0
+        rosenthal_r = z_stat / np.sqrt(len(diffs))
+
         summary_list.append({
             "dataset":            ds_name,
             "model":              m_key,
@@ -324,6 +332,10 @@ def run_experiment_for_dataset(ds_name, X, y, n_classes, seeds=SEEDS):
             "ari_ground_a_std":   group["ari_ground_a"].std(),
             "ari_ground_b_mean":  group["ari_ground_b"].mean(),
             "ari_ground_b_std":   group["ari_ground_b"].std(),
+            "ari_diff_mean":      mean_diff,
+            "ari_abs_diff_mean":  mean_abs_diff,
+            "cohen_d":            cohen_d,
+            "rosenthal_r":        rosenthal_r,
             "wilcoxon_p_raw":     p_raw,
             "wilcoxon_p_fdr":     p_adj,
             "h0_rejected_fdr":    p_adj < 0.05,
@@ -399,6 +411,10 @@ def run_multi_seed_experiment():
                 "model": row["model"],
                 "ari_gt_a_mean": row["ari_ground_a_mean"],
                 "ari_gt_b_mean": row["ari_ground_b_mean"],
+                "ari_diff_mean": row["ari_diff_mean"],
+                "ari_abs_diff_mean": row["ari_abs_diff_mean"],
+                "cohen_d": row["cohen_d"],
+                "rosenthal_r": row["rosenthal_r"],
                 "wilcoxon_p_raw": row["wilcoxon_p_raw"],
                 "wilcoxon_p_fdr": row["wilcoxon_p_fdr"],
                 "h0_rejected_fdr": row["h0_rejected_fdr"]

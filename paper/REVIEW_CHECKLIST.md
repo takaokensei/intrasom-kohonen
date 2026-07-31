@@ -86,4 +86,6 @@ This section documents the 100% paragraph-by-paragraph verification pass compari
 ### Sec. 7 (Discussão & Impacto Downstream)
 - **Contradiction Resolution**: Eliminated residual claims of "compatibilidade em todas as configurações". Replaced with precise breakdown: $H_0$ rejected in $55.6\%$ of tests ($20/36$), proving a statistically significant and real effect on downstream segmentation.
 - **Effect Size & Overlap Relation**: Documented that effect detectability and $r_{\text{effect}}$ decrease as dataset class overlap increases (SC $75\%$ > Wine $67\%$ > Digits $25\%$).
+- **Cohen's $d_z$ & Rosenthal's $r_{\text{effect}}$ Alignment**: Confirmed that parametric Cohen's $d_z$ ($d_z \in [0.35, 2.01]$ for rejections) aligns with non-parametric Rosenthal's $r_{\text{effect}} \in [0.39, 1.00]$, providing dual parametric/non-parametric confirmation of medium-to-large effect sizes with zero unreferenced metrics.
+
 

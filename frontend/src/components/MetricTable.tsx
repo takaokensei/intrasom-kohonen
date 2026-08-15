@@ -1,11 +1,19 @@
 import { memo, useMemo } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { Maximize2, Minimize2 } from 'lucide-react';
 import { FullscreenPanel } from './FullscreenPanel';
 
 export const MetricTable = memo(function MetricTable() {
-  const { metrics, loadingSynthetic, lattice, getServedTopology } = useDashboardStore();
+  const { metrics, loadingSynthetic, lattice, getServedTopology } = useDashboardStore(
+    useShallow((s) => ({
+      metrics: s.metrics,
+      loadingSynthetic: s.loadingSynthetic,
+      lattice: s.lattice,
+      getServedTopology: s.getServedTopology,
+    }))
+  );
   const { isFullscreen, toggleFullscreen } = useFullscreen();
 
   const activeLattice = lattice;
@@ -62,7 +70,7 @@ export const MetricTable = memo(function MetricTable() {
           <h2 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">
             Comparativo Quantitativo de Modelos (Séries Sintéticas)
           </h2>
-          <span className="text-[10px] text-tokyo-muted font-mono">
+          <span className="text-2xs text-tokyo-muted font-mono">
             Variante ativa: <strong className="text-tokyo-cyan">{activeLattice}</strong> · <strong className="text-tokyo-magenta">{activeTopology === 'toroid' ? 'Toroide' : 'Plana'}</strong>
           </span>
         </div>
@@ -79,7 +87,7 @@ export const MetricTable = memo(function MetricTable() {
       <div className="rounded-lg border border-tokyo-border border-opacity-40">
         <table className="w-full text-left border-collapse min-w-[700px]">
           <thead>
-            <tr className="bg-tokyo-dark bg-opacity-70 text-[10px] text-[#9aa5ce] font-semibold uppercase font-mono border-b border-tokyo-border">
+            <tr className="bg-tokyo-dark bg-opacity-70 text-2xs text-tokyo-textDim font-semibold uppercase font-mono border-b border-tokyo-border">
               <th className="px-4 py-3 font-semibold sticky top-0 bg-[#16161e]">Modelo</th>
               <th className="px-4 py-3 font-semibold text-right sticky top-0 bg-[#16161e]">ARI</th>
               <th className="px-4 py-3 font-semibold text-right sticky top-0 bg-[#16161e]">NMI</th>
@@ -97,7 +105,7 @@ export const MetricTable = memo(function MetricTable() {
                 <tr 
                   key={idx} 
                   className={`hover:bg-tokyo-panel hover:bg-opacity-40 transition-colors ${
-                    isSOM ? 'text-tokyo-text' : 'text-[#9aa5ce] text-opacity-80 bg-tokyo-dark bg-opacity-20'
+                    isSOM ? 'text-tokyo-text' : 'text-tokyo-textDim text-opacity-80 bg-tokyo-dark bg-opacity-20'
                   }`}
                 >
                   <td className="px-4 py-3 font-semibold">{row.Modelo}</td>
@@ -119,7 +127,7 @@ export const MetricTable = memo(function MetricTable() {
         </table>
       </div>
       
-      <div className="mt-4 p-3 bg-tokyo-dark bg-opacity-40 rounded-lg border border-tokyo-border border-opacity-35 text-[10px] text-[#9aa5ce] leading-relaxed flex justify-between items-center">
+      <div className="mt-4 p-3 bg-tokyo-dark bg-opacity-40 rounded-lg border border-tokyo-border border-opacity-35 text-2xs text-tokyo-textDim leading-relaxed flex justify-between items-center">
         <span>
           <strong>Análise dos Baselines:</strong> Agglomerative e DBSCAN foram calculados no espaço de Z-Score. O SOM 5x5 e 10x10 superam todos os algoritmos tradicionais em ARI/NMI.
         </span>

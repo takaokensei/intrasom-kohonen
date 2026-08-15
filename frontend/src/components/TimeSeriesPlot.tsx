@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { Maximize2, Minimize2, Download } from 'lucide-react';
@@ -14,7 +15,16 @@ const CLASS_COLORS: Record<string, string> = {
 };
 
 export const TimeSeriesPlot = memo(function TimeSeriesPlot() {
-  const { selectedNeuronId, highlightedClass, setHighlightedClass, series, loadingSynthetic, getActiveSOMModel } = useDashboardStore();
+  const { selectedNeuronId, highlightedClass, setHighlightedClass, series, loadingSynthetic, getActiveSOMModel } = useDashboardStore(
+    useShallow((s) => ({
+      selectedNeuronId: s.selectedNeuronId,
+      highlightedClass: s.highlightedClass,
+      setHighlightedClass: s.setHighlightedClass,
+      series: s.series,
+      loadingSynthetic: s.loadingSynthetic,
+      getActiveSOMModel: s.getActiveSOMModel,
+    }))
+  );
   const { isFullscreen, toggleFullscreen } = useFullscreen();
 
   if (loadingSynthetic) {
@@ -95,14 +105,14 @@ export const TimeSeriesPlot = memo(function TimeSeriesPlot() {
           <h2 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">
             {selectedNeuronId !== null ? `Padrões no Neurônio N${selectedNeuronId}` : 'Visualizador de Sinais Temporais'}
           </h2>
-          <p className="text-[10px] text-tokyo-muted font-mono mt-0.5">
+          <p className="text-2xs text-tokyo-muted font-mono mt-0.5">
             {selectedNeuronId !== null 
               ? `${selectedNeuronInfo?.total_samples} amostras mapeadas` 
               : 'Séries temporais sintéticas do Synthetic Control (UCI)'}
           </p>
         </div>
         
-        <div className="flex items-center space-x-2 text-[10px]">
+        <div className="flex items-center space-x-2 text-2xs">
           {selectedNeuronId !== null && selectedNeuronInfo && (
             <div className="flex space-x-2 mr-2">
               <span className="px-2 py-0.5 bg-tokyo-panel rounded border border-tokyo-border font-bold text-tokyo-text uppercase font-mono">
@@ -117,7 +127,7 @@ export const TimeSeriesPlot = memo(function TimeSeriesPlot() {
           {/* Export SVG */}
           <button 
             onClick={downloadSVG}
-            className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-[#9aa5ce] hover:text-tokyo-text active-press-scale"
+            className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-tokyo-textDim hover:text-tokyo-text active-press-scale"
             title="Exportar SVG"
           >
             <Download size={16} />
@@ -126,7 +136,7 @@ export const TimeSeriesPlot = memo(function TimeSeriesPlot() {
           {/* Fullscreen */}
           <button 
             onClick={toggleFullscreen}
-            className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-[#9aa5ce] hover:text-tokyo-text active-press-scale"
+            className="p-1.5 hover:bg-tokyo-panel rounded-lg transition-colors text-tokyo-textDim hover:text-tokyo-text active-press-scale"
             title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"}
           >
             {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
@@ -200,7 +210,7 @@ export const TimeSeriesPlot = memo(function TimeSeriesPlot() {
       {/* Footer controls */}
       {selectedNeuronId === null ? (
         <div className="flex flex-wrap gap-1.5 mt-3">
-          <span className="text-[10px] text-[#9aa5ce] uppercase font-mono self-center mr-1 font-semibold">Filtrar por Classe:</span>
+          <span className="text-2xs text-tokyo-textDim uppercase font-mono self-center mr-1 font-semibold">Filtrar por Classe:</span>
           {Object.keys(CLASS_COLORS).map(cname => {
             const isActive = highlightedClass === cname;
             return (
@@ -219,7 +229,7 @@ export const TimeSeriesPlot = memo(function TimeSeriesPlot() {
           })}
         </div>
       ) : (
-        <div className="flex justify-between items-center mt-3 text-[10px] text-[#9aa5ce] font-mono">
+        <div className="flex justify-between items-center mt-3 text-2xs text-tokyo-textDim font-mono">
           <span>Linhas coloridas: séries temporais reais associadas a este neurônio</span>
           <span className="flex items-center gap-1">
             <span className="w-4 h-0.5 bg-white shadow-lg inline-block" />

@@ -1,4 +1,5 @@
 import { useState, memo } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { useDashboardStore } from '../store/useDashboardStore';
 
 const MODEL_COLORS: Record<string, string> = {
@@ -11,7 +12,14 @@ const MODEL_COLORS: Record<string, string> = {
 };
 
 export const RadarChart = memo(function RadarChart() {
-  const { metrics, loadingSynthetic, lattice, getServedTopology } = useDashboardStore();
+  const { metrics, loadingSynthetic, lattice, getServedTopology } = useDashboardStore(
+    useShallow((s) => ({
+      metrics: s.metrics,
+      loadingSynthetic: s.loadingSynthetic,
+      lattice: s.lattice,
+      getServedTopology: s.getServedTopology,
+    }))
+  );
   const [hoveredModel, setHoveredModel] = useState<string | null>(null);
 
   const activeLattice = lattice;
@@ -147,8 +155,8 @@ export const RadarChart = memo(function RadarChart() {
         </div>
 
         {/* Legend Panel & Description */}
-        <div className="flex-1 flex flex-col justify-center space-y-2.5 ml-4 self-stretch text-[10px]">
-          <span className="text-[#9aa5ce] font-semibold uppercase font-mono tracking-wider">Selecione o Modelo:</span>
+        <div className="flex-1 flex flex-col justify-center space-y-2.5 ml-4 self-stretch text-2xs">
+          <span className="text-tokyo-textDim font-semibold uppercase font-mono tracking-wider">Selecione o Modelo:</span>
           
           <div className="grid grid-cols-2 gap-1.5">
             {somMetrics.map(row => {
@@ -175,7 +183,7 @@ export const RadarChart = memo(function RadarChart() {
             })}
           </div>
 
-          <p className="text-[10px] text-[#9aa5ce] leading-relaxed pt-2 border-t border-tokyo-border border-opacity-20">
+          <p className="text-2xs text-tokyo-textDim leading-relaxed pt-2 border-t border-tokyo-border border-opacity-20">
             Passe o mouse por cima do modelo para comparar o tradeoff: mapas maiores aumentam <strong>Pureza</strong> e <strong>Erro Topográfico</strong>, enquanto os intermediários (7x7, 10x10) otimizam o <strong>ARI</strong> e <strong>NMI</strong>.
           </p>
         </div>

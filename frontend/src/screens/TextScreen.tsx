@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { TextHexGrid } from '../components/TextHexGrid';
 import { ClassifierPanel } from '../components/ClassifierPanel';
@@ -15,7 +16,16 @@ export function TextScreen() {
     loadingText,
     errorText,
     loadTextData
-  } = useDashboardStore();
+  } = useDashboardStore(
+    useShallow((s) => ({
+      selectedTextDataset: s.selectedTextDataset,
+      textMetrics: s.textMetrics,
+      textModels: s.textModels,
+      loadingText: s.loadingText,
+      errorText: s.errorText,
+      loadTextData: s.loadTextData,
+    }))
+  );
 
   useEffect(() => {
     if (!textModels[selectedTextDataset] && !loadingText && !errorText) {

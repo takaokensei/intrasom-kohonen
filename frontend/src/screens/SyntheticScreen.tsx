@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { HexGrid } from '../components/HexGrid';
 import { TimeSeriesPlot } from '../components/TimeSeriesPlot';
@@ -18,7 +19,17 @@ export function SyntheticScreen() {
     errorSynthetic,
     loadSyntheticData,
     getActiveSOMModel,
-  } = useDashboardStore();
+  } = useDashboardStore(
+    useShallow((s) => ({
+      selectedNeuronId: s.selectedNeuronId,
+      setSelectedNeuronId: s.setSelectedNeuronId,
+      somModels: s.somModels,
+      loadingSynthetic: s.loadingSynthetic,
+      errorSynthetic: s.errorSynthetic,
+      loadSyntheticData: s.loadSyntheticData,
+      getActiveSOMModel: s.getActiveSOMModel,
+    }))
+  );
 
   useEffect(() => {
     if (Object.keys(somModels).length === 0 && !loadingSynthetic && !errorSynthetic) {
@@ -74,7 +85,7 @@ export function SyntheticScreen() {
           </h2>
           
           {loadingSynthetic ? (
-            <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-[#9aa5ce]">
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-tokyo-textDim">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-tokyo-blue mb-2"></div>
               <span className="text-xs font-mono">Carregando dados...</span>
             </div>
@@ -82,33 +93,33 @@ export function SyntheticScreen() {
             <div className="flex-1 flex flex-col space-y-3.5 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-tokyo-panel bg-opacity-40 p-2.5 rounded-lg border border-tokyo-border border-opacity-25">
-                  <span className="text-[9px] text-[#9aa5ce] font-semibold uppercase font-mono block">ID do Neurônio</span>
+                  <span className="text-[9px] text-tokyo-textDim font-semibold uppercase font-mono block">ID do Neurônio</span>
                   <span className="text-sm font-bold text-tokyo-text">N{selectedNeuron.id}</span>
-                  <span className="text-[10px] text-[#9aa5ce] font-mono block">Col: {selectedNeuron.col}, Row: {selectedNeuron.row}</span>
+                  <span className="text-2xs text-tokyo-textDim font-mono block">Col: {selectedNeuron.col}, Row: {selectedNeuron.row}</span>
                 </div>
                 
                 <div className="bg-tokyo-panel bg-opacity-40 p-2.5 rounded-lg border border-tokyo-border border-opacity-25">
-                  <span className="text-[9px] text-[#9aa5ce] font-semibold uppercase font-mono block">Distância U-Matrix</span>
+                  <span className="text-[9px] text-tokyo-textDim font-semibold uppercase font-mono block">Distância U-Matrix</span>
                   <span className="text-sm font-bold text-tokyo-magenta font-mono">{selectedNeuron.umatrix_value.toFixed(4)}</span>
                 </div>
               </div>
 
               <div className="bg-tokyo-panel bg-opacity-40 p-3 rounded-lg border border-tokyo-border border-opacity-25">
-                <span className="text-[9px] text-[#9aa5ce] font-semibold uppercase font-mono block">Análise Pós-Treinamento</span>
+                <span className="text-[9px] text-tokyo-textDim font-semibold uppercase font-mono block">Análise Pós-Treinamento</span>
                 <div className="flex justify-between items-center mt-1">
                   <div>
-                    <span className="text-[10px] text-[#9aa5ce] block">Classe Dominante</span>
+                    <span className="text-2xs text-tokyo-textDim block">Classe Dominante</span>
                     <span className="font-bold text-tokyo-blue">{selectedNeuron.dominant_class}</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] text-[#9aa5ce] block">Pureza Local</span>
+                    <span className="text-2xs text-tokyo-textDim block">Pureza Local</span>
                     <span className="font-bold text-tokyo-green">{(selectedNeuron.purity * 100).toFixed(0)}%</span>
                   </div>
                 </div>
               </div>
 
               <div className="bg-tokyo-panel bg-opacity-20 border border-tokyo-border border-opacity-20 rounded-lg p-3">
-                <span className="text-[9px] text-[#9aa5ce] font-semibold uppercase font-mono block mb-1.5">
+                <span className="text-[9px] text-tokyo-textDim font-semibold uppercase font-mono block mb-1.5">
                   Amostras Mapeadas ({selectedNeuron.total_samples})
                 </span>
                 <div className="flex flex-wrap gap-1">
@@ -122,7 +133,7 @@ export function SyntheticScreen() {
                       </span>
                     ))
                   ) : (
-                    <span className="text-[10px] text-[#9aa5ce] italic font-mono">Nenhuma amostra mapeada neste neurônio</span>
+                    <span className="text-2xs text-tokyo-textDim italic font-mono">Nenhuma amostra mapeada neste neurônio</span>
                   )}
                 </div>
               </div>
@@ -135,7 +146,7 @@ export function SyntheticScreen() {
               </button>
             </div>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-[#9aa5ce]">
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-tokyo-textDim">
               <Info size={32} className="mb-2 text-tokyo-border" />
               <p className="text-xs leading-relaxed max-w-[200px]">
                 Clique em qualquer hexágono do mapa para visualizar o perfil detalhado, os sinais temporais correspondentes e os pesos sinápticos do neurônio.

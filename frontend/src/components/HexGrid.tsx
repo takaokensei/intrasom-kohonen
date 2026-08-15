@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, memo } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { useDashboardStore, type NeuronItem } from '../store/useDashboardStore';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { Maximize2, Minimize2, Download } from 'lucide-react';
@@ -13,7 +14,18 @@ import { UMatrixTorus } from './UMatrixTorus';
 // Main HexGrid component
 // ──────────────────────────────────────────────────────────
 export const HexGrid = memo(function HexGrid() {
-  const { selectedMapSize, selectedNeuronId, setSelectedNeuronId, loadingSynthetic, lattice, getServedTopology, series, getActiveSOMModel } = useDashboardStore();
+  const { selectedMapSize, selectedNeuronId, setSelectedNeuronId, loadingSynthetic, lattice, getServedTopology, series, getActiveSOMModel } = useDashboardStore(
+    useShallow((s) => ({
+      selectedMapSize: s.selectedMapSize,
+      selectedNeuronId: s.selectedNeuronId,
+      setSelectedNeuronId: s.setSelectedNeuronId,
+      loadingSynthetic: s.loadingSynthetic,
+      lattice: s.lattice,
+      getServedTopology: s.getServedTopology,
+      series: s.series,
+      getActiveSOMModel: s.getActiveSOMModel,
+    }))
+  );
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   const servedTopology = getServedTopology();
   const [colorMode, setColorMode] = useState<'class' | 'umatrix'>('class');
@@ -468,28 +480,28 @@ export const HexGrid = memo(function HexGrid() {
 
         {/* Legend */}
         {colorMode === 'class' ? (
-          <div className="grid grid-cols-3 gap-2 mt-4 text-[10px] bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
+          <div className="grid grid-cols-3 gap-2 mt-4 text-2xs bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
             {Object.entries(CLASS_COLORS).map(([name, color]) => (
               <div key={name} className="flex items-center space-x-1.5 text-tokyo-text">
                 <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: color as string }} />
                 <span className="truncate">{name}</span>
               </div>
             ))}
-            <div className="flex items-center space-x-1.5 text-[#9aa5ce]">
+            <div className="flex items-center space-x-1.5 text-tokyo-textDim">
               <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-tokyo-panel border border-dashed border-tokyo-text border-opacity-45" />
               <span>Vazio</span>
             </div>
           </div>
         ) : (
-          <div className="flex justify-between items-center mt-4 text-[10px] bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
-            <span className="text-[#9aa5ce] font-semibold uppercase font-mono">Mais Similar (Valores baixos)</span>
+          <div className="flex justify-between items-center mt-4 text-2xs bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
+            <span className="text-tokyo-textDim font-semibold uppercase font-mono">Mais Similar (Valores baixos)</span>
             <div className="flex flex-col items-center space-y-1">
               <div className="w-24 h-2 rounded bg-gradient-to-r from-[#1a1b26] via-[#bb9af7] to-[#7dcfff] border border-tokyo-border" />
               {viewDimension === '3D' && (
                 <span className="text-[9px] text-tokyo-cyan font-mono">Altura Y = Descontinuidade U-Matrix</span>
               )}
             </div>
-            <span className="text-[#9aa5ce] font-semibold uppercase font-mono">Menos Similar (Fronteiras)</span>
+            <span className="text-tokyo-textDim font-semibold uppercase font-mono">Menos Similar (Fronteiras)</span>
           </div>
         )}
         </div>
@@ -528,33 +540,33 @@ export const HexGrid = memo(function HexGrid() {
             boxShadow: '0 10px 30px rgba(0,0,0,0.5), 0 0 10px rgba(122,162,247,0.1)'
           }}
         >
-          <div className="flex justify-between items-center text-[10px] font-mono border-b border-tokyo-border border-opacity-30 pb-1.5">
+          <div className="flex justify-between items-center text-2xs font-mono border-b border-tokyo-border border-opacity-30 pb-1.5">
             <span className="text-tokyo-text font-bold">Neurônio N{hoveredNeuron.id}</span>
-            <span className="text-[#9aa5ce]">({hoveredNeuron.col}, {hoveredNeuron.row})</span>
+            <span className="text-tokyo-textDim">({hoveredNeuron.col}, {hoveredNeuron.row})</span>
           </div>
 
-          <div className="text-[10px] space-y-0.5">
+          <div className="text-2xs space-y-0.5">
             <div className="flex justify-between space-x-4">
-              <span className="text-[#9aa5ce]">Dominante:</span>
+              <span className="text-tokyo-textDim">Dominante:</span>
               <span className="font-bold text-tokyo-blue">{hoveredNeuron.dominant_class}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#9aa5ce]">Amostras:</span>
+              <span className="text-tokyo-textDim">Amostras:</span>
               <span className="font-mono text-tokyo-text">{hoveredNeuron.total_samples}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#9aa5ce]">Pureza:</span>
+              <span className="text-tokyo-textDim">Pureza:</span>
               <span className="font-mono text-tokyo-green">{(hoveredNeuron.purity * 100).toFixed(0)}%</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#9aa5ce]">U-Dist:</span>
+              <span className="text-tokyo-textDim">U-Dist:</span>
               <span className="font-mono text-tokyo-magenta">{hoveredNeuron.umatrix_value.toFixed(4)}</span>
             </div>
           </div>
 
           {hoveredNeuron.total_samples > 0 && (
             <div className="flex flex-col border-t border-tokyo-border border-opacity-30 pt-1.5">
-              <span className="text-[8px] text-[#9aa5ce] uppercase font-mono mb-1">Perfil Sináptico (Codebook):</span>
+              <span className="text-[8px] text-tokyo-textDim uppercase font-mono mb-1">Perfil Sináptico (Codebook):</span>
               <svg width="120" height="40" className="bg-[#1f2335] bg-opacity-40 rounded">
                 <path
                   d={getSparklinePath(hoveredNeuron.codebook)}

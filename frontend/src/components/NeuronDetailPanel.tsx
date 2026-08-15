@@ -36,18 +36,18 @@ export function NeuronDetailPanel({ neuron, series, onClose }: NeuronDetailPanel
           <h3 className="text-base font-bold text-white uppercase font-mono tracking-wider">
             Padrões no Neurônio N{neuron.id}
           </h3>
-          <p className="text-[11px] text-[#9aa5ce] font-mono mt-0.5">
+          <p className="text-[11px] text-tokyo-textDim font-mono mt-0.5">
             {neuron.total_samples} amostras mapeadas
           </p>
         </div>
         <div className="flex items-center gap-2">
           <span
-            className="px-2 py-1 rounded text-[10px] font-bold font-mono uppercase border"
+            className="px-2 py-1 rounded text-2xs font-bold font-mono uppercase border"
             style={{ color: classColor, borderColor: classColor + '55', background: classColor + '15' }}
           >
             {neuron.dominant_class}
           </span>
-          <span className="px-2 py-1 rounded text-[10px] font-bold font-mono border border-tokyo-blue text-tokyo-blue bg-tokyo-blue bg-opacity-10">
+          <span className="px-2 py-1 rounded text-2xs font-bold font-mono border border-tokyo-blue text-tokyo-blue bg-tokyo-blue bg-opacity-10">
             Pureza: {(neuron.purity * 100).toFixed(0)}%
           </span>
           <button
@@ -114,11 +114,11 @@ export function NeuronDetailPanel({ neuron, series, onClose }: NeuronDetailPanel
       </div>
 
       {/* Footer legend */}
-      <div className="flex justify-between items-center mt-3 text-[10px] text-[#565f89] font-mono">
+      <div className="flex justify-between items-center mt-3 text-2xs text-[#565f89] font-mono">
         <span>Linhas coloridas: séries temporais reais associadas a este neurônio</span>
         <span className="flex items-center gap-1.5">
           <span className="w-5 h-0.5 bg-white rounded-full inline-block" />
-          <span className="text-[#9aa5ce] font-semibold">Vetor de Pesos (Codebook)</span>
+          <span className="text-tokyo-textDim font-semibold">Vetor de Pesos (Codebook)</span>
         </span>
       </div>
     </div>

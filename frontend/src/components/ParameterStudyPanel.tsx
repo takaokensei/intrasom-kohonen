@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { matchParamStudyEntry } from '../lib/paramStudyMatch';
 
@@ -20,7 +21,14 @@ function badge(value: number, min: number, max: number, lowerIsBetter = true): s
 }
 
 export const ParameterStudyPanel: React.FC = () => {
-  const { paramStudyResults, initialRadius, finalRadius, epochs } = useDashboardStore();
+  const { paramStudyResults, initialRadius, finalRadius, epochs } = useDashboardStore(
+    useShallow((s) => ({
+      paramStudyResults: s.paramStudyResults,
+      initialRadius: s.initialRadius,
+      finalRadius: s.finalRadius,
+      epochs: s.epochs,
+    }))
+  );
   const [isHighlighted, setIsHighlighted] = useState(false);
 
   useEffect(() => {
@@ -92,7 +100,7 @@ export const ParameterStudyPanel: React.FC = () => {
                   <td className="px-3 py-2 text-left font-medium text-white/80">
                     {entry.label}
                     {active && (
-                      <span className="ml-2 px-1.5 py-0.5 rounded text-[10px] bg-purple-600/70 text-purple-200 font-bold">
+                      <span className="ml-2 px-1.5 py-0.5 rounded text-2xs bg-purple-600/70 text-purple-200 font-bold">
                         ativo
                       </span>
                     )}
@@ -116,7 +124,7 @@ export const ParameterStudyPanel: React.FC = () => {
           </tbody>
         </table>
       </div>
-      <div className="px-4 py-2 border-t border-white/5 text-[10px] text-white/40 font-mono">
+      <div className="px-4 py-2 border-t border-white/5 text-2xs text-white/40 font-mono">
         QE (Erro de Quantização) e TE (Erro Topográfico): valores menores indicam melhor qualidade.
         Linha destacada em roxo = configuração atualmente selecionada nos controles acima.
       </div>

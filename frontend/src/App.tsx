@@ -1,9 +1,25 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { useDashboardStore } from './store/useDashboardStore';
 import { ErrorState } from './components/ErrorState';
-import { SyntheticScreen } from './screens/SyntheticScreen';
-import { TextScreen } from './screens/TextScreen';
 import { Brain, FileText, LineChart } from 'lucide-react';
+
+// F1: lazy-load both screens so Three.js/R3F (pulled in by the SOM
+// visualizations) is only fetched/parsed once a screen actually mounts,
+// instead of shipping in the initial bundle regardless of active tab.
+const SyntheticScreen = lazy(() =>
+  import('./screens/SyntheticScreen').then((m) => ({ default: m.SyntheticScreen }))
+);
+const TextScreen = lazy(() =>
+  import('./screens/TextScreen').then((m) => ({ default: m.TextScreen }))
+);
+
+function ScreenFallback() {
+  return (
+    <div className="flex flex-1 items-center justify-center py-24 text-tokyo-muted text-sm">
+      Carregando...
+    </div>
+  );
+}
 
 function App() {
   const {
@@ -32,7 +48,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#1a1b26] text-[#a9b1d6] flex flex-col relative overflow-x-hidden font-sans">
+    <div className="min-h-screen bg-tokyo-bg text-tokyo-text flex flex-col relative overflow-x-hidden font-sans">
       {/* Decorative neon ambient glows */}
       <div className="glow-spot-blue -top-20 -left-20" />
       <div className="glow-spot-purple bottom-10 right-10" />
@@ -47,7 +63,7 @@ function App() {
             <h1 className="text-lg font-bold text-tokyo-text flex items-center gap-2">
               IntraSOM Kohonen Maps Analyzer
             </h1>
-            <p className="text-[10px] text-[#9aa5ce] font-semibold font-mono tracking-wide uppercase">
+            <p className="text-2xs text-tokyo-textDim font-semibold font-mono tracking-wide uppercase">
               Projeto de NLP & Séries Temporais — Cauã Vitor (UFRN) — Prof. José Alfredo F. Costa
             </p>
           </div>
@@ -65,7 +81,7 @@ function App() {
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all active-press-scale ${
                 activeTab === 'synthetic'
                   ? 'bg-tokyo-blue text-tokyo-bg shadow-lg'
-                  : 'text-[#9aa5ce] hover:text-tokyo-text'
+                  : 'text-tokyo-textDim hover:text-tokyo-text'
               }`}
             >
               <LineChart size={14} />
@@ -80,7 +96,7 @@ function App() {
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all active-press-scale ${
                 activeTab === 'text'
                   ? 'bg-tokyo-blue text-tokyo-bg shadow-lg'
-                  : 'text-[#9aa5ce] hover:text-tokyo-text'
+                  : 'text-tokyo-textDim hover:text-tokyo-text'
               }`}
             >
               <FileText size={14} />
@@ -90,17 +106,26 @@ function App() {
         </nav>
       </header>
 
-      {/* Main content grid or Error handling */}
+      {/* Main content grid or Error handling.
+          Only the active tab's screen is mounted (F1) — the inactive one is
+          neither rendered nor lazy-imported, so its Three.js dependency is
+          not fetched until the user actually switches to it. Both tabpanel
+          elements stay in the DOM for correct ARIA structure; the inactive
+          one is simply empty rather than hidden-but-mounted. */}
       <div
         role="tabpanel"
         id="panel-synthetic"
         aria-labelledby="tab-synthetic"
         className={`grow flex flex-col ${activeTab === 'synthetic' ? 'animate-tab-change' : 'hidden'}`}
       >
-        {errorSynthetic ? (
-          <ErrorState message={errorSynthetic} onRetry={loadSyntheticData} />
-        ) : (
-          <SyntheticScreen />
+        {activeTab === 'synthetic' && (
+          errorSynthetic ? (
+            <ErrorState message={errorSynthetic} onRetry={loadSyntheticData} />
+          ) : (
+            <Suspense fallback={<ScreenFallback />}>
+              <SyntheticScreen />
+            </Suspense>
+          )
         )}
       </div>
 
@@ -110,15 +135,19 @@ function App() {
         aria-labelledby="tab-text"
         className={`grow flex flex-col ${activeTab === 'text' ? 'animate-tab-change' : 'hidden'}`}
       >
-        {errorText ? (
-          <ErrorState message={errorText} onRetry={loadTextData} />
-        ) : (
-          <TextScreen />
+        {activeTab === 'text' && (
+          errorText ? (
+            <ErrorState message={errorText} onRetry={loadTextData} />
+          ) : (
+            <Suspense fallback={<ScreenFallback />}>
+              <TextScreen />
+            </Suspense>
+          )
         )}
       </div>
 
       {/* Footer bar */}
-      <footer className="px-6 py-3 bg-tokyo-dark bg-opacity-90 border-t border-tokyo-border text-[9.5px] text-[#9aa5ce] font-semibold flex flex-col md:flex-row justify-between items-center gap-2 md:gap-0 text-center md:text-left z-10">
+      <footer className="px-6 py-3 bg-tokyo-dark bg-opacity-90 border-t border-tokyo-border text-3xs text-tokyo-textDim font-semibold flex flex-col md:flex-row justify-between items-center gap-2 md:gap-0 text-center md:text-left z-10">
         <span>
           Base de Dados: 600 séries temporais (Synthetic Control) | {selectedTextDataset === '20news' ? '400 notícias (20 Newsgroups)' : '317 notícias (Base Acadêmica 6 Classes)'}
         </span>

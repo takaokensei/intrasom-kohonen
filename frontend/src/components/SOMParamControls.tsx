@@ -1,3 +1,4 @@
+import { useShallow } from 'zustand/react/shallow';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { matchParamStudyEntry } from '../lib/paramStudyMatch';
 import { Settings, Sliders, Layers, RefreshCw, Filter, ArrowDownCircle } from 'lucide-react';
@@ -19,7 +20,25 @@ export function SOMParamControls() {
     setSelectedMapSize,
     getActiveSOMModel,
     paramStudyResults
-  } = useDashboardStore();
+  } = useDashboardStore(
+    useShallow((s) => ({
+      lattice: s.lattice,
+      topology: s.topology,
+      initialRadius: s.initialRadius,
+      finalRadius: s.finalRadius,
+      epochs: s.epochs,
+      setLattice: s.setLattice,
+      setTopology: s.setTopology,
+      setInitialRadius: s.setInitialRadius,
+      setFinalRadius: s.setFinalRadius,
+      setEpochs: s.setEpochs,
+      activeTab: s.activeTab,
+      selectedMapSize: s.selectedMapSize,
+      setSelectedMapSize: s.setSelectedMapSize,
+      getActiveSOMModel: s.getActiveSOMModel,
+      paramStudyResults: s.paramStudyResults,
+    }))
+  );
 
   const isTextTab = activeTab === 'text';
   const activeSOMModel = getActiveSOMModel();
@@ -35,7 +54,7 @@ export function SOMParamControls() {
           <Settings size={16} />
           Parâmetros do Algoritmo de Kohonen
         </h2>
-        <span className="text-[10px] font-mono bg-tokyo-dark px-2 py-0.5 rounded border border-tokyo-border text-tokyo-magenta font-semibold">
+        <span className="text-2xs font-mono bg-tokyo-dark px-2 py-0.5 rounded border border-tokyo-border text-tokyo-magenta font-semibold">
           IntraSOM Config
         </span>
       </div>
@@ -54,7 +73,7 @@ export function SOMParamControls() {
 
         {/* Map Size Selector */}
         <div className="flex flex-col space-y-1.5">
-          <label className="text-[10px] text-tokyo-muted font-semibold uppercase font-mono tracking-wider">
+          <label className="text-2xs text-tokyo-muted font-semibold uppercase font-mono tracking-wider">
             Dimensões da Grade (Solicitado)
           </label>
           <div className="grid grid-cols-3 gap-2">
@@ -80,13 +99,13 @@ export function SOMParamControls() {
             })}
           </div>
           {activeSOMModel && (
-            <div className="flex justify-between items-center text-[10px] font-mono text-tokyo-muted bg-tokyo-dark bg-opacity-60 px-2 py-1 rounded border border-tokyo-border border-opacity-30">
+            <div className="flex justify-between items-center text-2xs font-mono text-tokyo-muted bg-tokyo-dark bg-opacity-60 px-2 py-1 rounded border border-tokyo-border border-opacity-30">
               <span>Dimensão Efetiva (Motor): <strong className="text-tokyo-cyan">{activeSOMModel.cols}×{activeSOMModel.rows}</strong></span>
               <span className="font-bold text-tokyo-text">{activeSOMModel.cols * activeSOMModel.rows} neurônios</span>
             </div>
           )}
           {isTextTab && (
-            <span className="text-[10px] font-mono text-tokyo-muted italic">
+            <span className="text-2xs font-mono text-tokyo-muted italic">
               ℹ️ Modelos textuais são treinados exclusivamente na dimensão 10x10.
             </span>
           )}
@@ -94,7 +113,7 @@ export function SOMParamControls() {
 
         {/* Geometry / Lattice Selector */}
         <div className="flex flex-col space-y-1.5 pt-1">
-          <label className="text-[10px] text-tokyo-muted font-semibold uppercase font-mono tracking-wider flex items-center gap-1">
+          <label className="text-2xs text-tokyo-muted font-semibold uppercase font-mono tracking-wider flex items-center gap-1">
             <Sliders size={12} className="text-tokyo-green" />
             Geometria da Grade (Lattice)
           </label>
@@ -128,7 +147,7 @@ export function SOMParamControls() {
 
         {/* Topology Selector */}
         <div className="flex flex-col space-y-1.5 pt-1">
-          <label className="text-[10px] text-tokyo-muted font-semibold uppercase font-mono tracking-wider flex items-center gap-1">
+          <label className="text-2xs text-tokyo-muted font-semibold uppercase font-mono tracking-wider flex items-center gap-1">
             <RefreshCw size={12} className="text-tokyo-magenta" />
             Topologia do Mapa (Mapshape)
           </label>
@@ -172,7 +191,7 @@ export function SOMParamControls() {
           </span>
         </div>
 
-        <p className="text-[9.5px] font-mono text-tokyo-muted leading-relaxed">
+        <p className="text-3xs font-mono text-tokyo-muted leading-relaxed">
           ℹ️ Os seletores abaixo destacam a combinação correspondente na tabela <strong>Estudo de Parâmetros</strong> (não alteram o mapa exibido acima).
         </p>
 
@@ -222,14 +241,14 @@ export function SOMParamControls() {
 
         {/* Immediate Live Summary Line (Item 1) */}
         {matchedStudyEntry ? (
-          <div className="bg-tokyo-purple bg-opacity-15 border border-tokyo-purple border-opacity-40 p-2 rounded-lg text-[10px] font-mono flex items-center justify-between text-tokyo-purple">
+          <div className="bg-tokyo-purple bg-opacity-15 border border-tokyo-purple border-opacity-40 p-2 rounded-lg text-2xs font-mono flex items-center justify-between text-tokyo-purple">
             <span>Configuração Selecionada:</span>
             <span className="font-bold">
               QE: <strong className="text-tokyo-text">{matchedStudyEntry.quantization_error.toFixed(4)}</strong> · TE: <strong className="text-tokyo-text">{matchedStudyEntry.topographic_error.toFixed(4)}</strong>
             </span>
           </div>
         ) : (
-          <div className="bg-tokyo-dark bg-opacity-50 border border-tokyo-border border-opacity-30 p-2 rounded-lg text-[10px] font-mono text-tokyo-muted italic">
+          <div className="bg-tokyo-dark bg-opacity-50 border border-tokyo-border border-opacity-30 p-2 rounded-lg text-2xs font-mono text-tokyo-muted italic">
             Nenhuma combinação pré-computada para estes valores.
           </div>
         )}
@@ -244,7 +263,7 @@ export function SOMParamControls() {
               window.dispatchEvent(new CustomEvent('highlight-parameter-study'));
             }
           }}
-          className="w-full flex items-center justify-center gap-2 p-2 rounded-lg bg-tokyo-purple bg-opacity-20 border border-tokyo-purple border-opacity-40 text-tokyo-purple hover:bg-opacity-30 hover:border-opacity-60 text-[10px] font-mono font-bold transition active-press-scale cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 p-2 rounded-lg bg-tokyo-purple bg-opacity-20 border border-tokyo-purple border-opacity-40 text-tokyo-purple hover:bg-opacity-30 hover:border-opacity-60 text-2xs font-mono font-bold transition active-press-scale cursor-pointer"
         >
           <ArrowDownCircle size={14} className="animate-bounce" />
           <span>Rolar até a tabela "Estudo de Parâmetros" & destacar linha</span>
@@ -252,7 +271,7 @@ export function SOMParamControls() {
       </div>
 
       {/* Active Settings Summary Footer */}
-      <div className="bg-tokyo-dark bg-opacity-60 p-2.5 rounded-xl border border-tokyo-border border-opacity-30 text-[10px] font-mono leading-relaxed space-y-1 text-tokyo-muted">
+      <div className="bg-tokyo-dark bg-opacity-60 p-2.5 rounded-xl border border-tokyo-border border-opacity-30 text-2xs font-mono leading-relaxed space-y-1 text-tokyo-muted">
         <div className="flex justify-between">
           <span>Motor / Malha:</span>
           <span className={`font-bold ${lattice === 'RECT' ? 'text-tokyo-orange' : 'text-tokyo-text'}`}>

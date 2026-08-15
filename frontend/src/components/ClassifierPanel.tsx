@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { Sparkles, BrainCircuit, RefreshCw } from 'lucide-react';
 import { getTextStyle, getBgStyle } from '../lib/colors';
@@ -18,7 +19,23 @@ export function ClassifierPanel() {
     textMetrics,
     loadingText,
     backendOnline
-  } = useDashboardStore();
+  } = useDashboardStore(
+    useShallow((s) => ({
+      selectedTextDataset: s.selectedTextDataset,
+      setSelectedTextDataset: s.setSelectedTextDataset,
+      selectedTextRep: s.selectedTextRep,
+      setSelectedTextRep: s.setSelectedTextRep,
+      customTextQuery: s.customTextQuery,
+      setCustomTextQuery: s.setCustomTextQuery,
+      classificationResult: s.classificationResult,
+      classifyText: s.classifyText,
+      resetClassification: s.resetClassification,
+      newsSamples: s.newsSamples,
+      textMetrics: s.textMetrics,
+      loadingText: s.loadingText,
+      backendOnline: s.backendOnline,
+    }))
+  );
   
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -82,7 +99,7 @@ export function ClassifierPanel() {
           <select
             value={selectedTextDataset}
             onChange={(e) => setSelectedTextDataset(e.target.value as '20news' | '6class')}
-            className="bg-tokyo-dark border border-tokyo-border text-[10px] font-mono font-bold rounded p-1 text-tokyo-text focus:outline-none focus:border-tokyo-blue cursor-pointer"
+            className="bg-tokyo-dark border border-tokyo-border text-2xs font-mono font-bold rounded p-1 text-tokyo-text focus:outline-none focus:border-tokyo-blue cursor-pointer"
           >
             <option value="20news">20 Newsgroups (4 classes)</option>
             <option value="6class">Base 6News (6 classes)</option>
@@ -91,7 +108,7 @@ export function ClassifierPanel() {
           <select
             value={selectedTextRep}
             onChange={(e) => setSelectedTextRep(e.target.value as 'SBERT' | 'TF-IDF')}
-            className="bg-tokyo-dark border border-tokyo-border text-[10px] font-mono font-bold rounded p-1 text-tokyo-text focus:outline-none focus:border-tokyo-blue cursor-pointer"
+            className="bg-tokyo-dark border border-tokyo-border text-2xs font-mono font-bold rounded p-1 text-tokyo-text focus:outline-none focus:border-tokyo-blue cursor-pointer"
           >
             <option value="SBERT">Sentence-BERT (Semântico)</option>
             <option value="TF-IDF">TF-IDF (Frequencial)</option>
@@ -121,7 +138,7 @@ export function ClassifierPanel() {
       </div>
 
       {/* Metrics Header */}
-      <div className="grid grid-cols-2 gap-3 mb-4 p-2 bg-tokyo-dark bg-opacity-40 rounded-lg border border-tokyo-border border-opacity-20 text-[10px] font-mono text-[#9aa5ce]">
+      <div className="grid grid-cols-2 gap-3 mb-4 p-2 bg-tokyo-dark bg-opacity-40 rounded-lg border border-tokyo-border border-opacity-20 text-2xs font-mono text-tokyo-textDim">
         <div>
           Desempenho Geral (ARI): <span className="text-tokyo-text font-bold">{currentMetrics.ARI ? (currentMetrics.ARI as number).toFixed(4) : '-'}</span>
         </div>
@@ -142,7 +159,7 @@ export function ClassifierPanel() {
           {customTextQuery && (
             <button
               onClick={handleReset}
-              className="absolute right-3.5 bottom-3 text-[#9aa5ce] hover:text-tokyo-red transition-colors"
+              className="absolute right-3.5 bottom-3 text-tokyo-textDim hover:text-tokyo-red transition-colors"
               title="Limpar"
             >
               <RefreshCw size={14} />
@@ -153,7 +170,7 @@ export function ClassifierPanel() {
         {/* News Samples Dropdown Selector */}
         <div className="flex flex-col space-y-2 pt-2 border-t border-tokyo-border border-opacity-20">
           <div className="flex items-center justify-between">
-            <span className="text-[9px] text-[#9aa5ce] uppercase font-mono tracking-wider font-semibold">Testar com Amostras do Dataset:</span>
+            <span className="text-[9px] text-tokyo-textDim uppercase font-mono tracking-wider font-semibold">Testar com Amostras do Dataset:</span>
             <button 
               onClick={() => {
                 const samplesList = newsSamples[selectedTextDataset] || [];
@@ -202,7 +219,7 @@ export function ClassifierPanel() {
                 <div className="p-1.5 bg-tokyo-dark bg-opacity-40 rounded-md text-tokyo-blue">
                   <BrainCircuit size={14} />
                 </div>
-                <span className="text-[10px] text-[#9aa5ce] uppercase font-mono tracking-wider font-semibold">
+                <span className="text-2xs text-tokyo-textDim uppercase font-mono tracking-wider font-semibold">
                   SOM Categoria Predita
                 </span>
               </div>
@@ -214,7 +231,7 @@ export function ClassifierPanel() {
                 <span className="text-[8px] bg-tokyo-blue bg-opacity-20 text-tokyo-blue px-1.5 py-0.5 rounded border border-tokyo-blue border-opacity-30 font-bold uppercase tracking-normal">Nuvem HF</span>
               )}
               {classificationResult.source === 'fallback' && (
-                <span className="text-[8px] bg-tokyo-panel text-[#9aa5ce] px-1.5 py-0.5 rounded border border-tokyo-border border-opacity-40 font-bold uppercase tracking-normal">Heurística</span>
+                <span className="text-[8px] bg-tokyo-panel text-tokyo-textDim px-1.5 py-0.5 rounded border border-tokyo-border border-opacity-40 font-bold uppercase tracking-normal">Heurística</span>
               )}
             </div>
 
@@ -231,7 +248,7 @@ export function ClassifierPanel() {
                 {classificationResult.dominantClass === "Desconhecido" ? "Não Identificado" : classificationResult.dominantClass}
               </span>
               
-              <span className="text-[10px] bg-tokyo-dark bg-opacity-50 text-tokyo-text px-2 py-0.5 rounded font-mono font-semibold">
+              <span className="text-2xs bg-tokyo-dark bg-opacity-50 text-tokyo-text px-2 py-0.5 rounded font-mono font-semibold">
                 {classificationResult.bmu > 0 
                   ? `Neurônio N${classificationResult.bmu}` 
                   : 'Sem Correspondência'}
@@ -239,10 +256,10 @@ export function ClassifierPanel() {
             </div>
 
             {/* Bottom Row: Metrics Grid with Progress Bars */}
-            <div className="grid grid-cols-2 gap-4 text-[10px]">
+            <div className="grid grid-cols-2 gap-4 text-2xs">
               {classificationResult.dominantClass !== "Desconhecido" && (
                 <div className="flex flex-col space-y-1">
-                  <div className="flex justify-between text-[#9aa5ce] font-semibold">
+                  <div className="flex justify-between text-tokyo-textDim font-semibold">
                     <span>Pureza:</span>
                     <span className="text-tokyo-text font-mono font-bold">{(classificationResult.purity * 100).toFixed(0)}%</span>
                   </div>
@@ -256,7 +273,7 @@ export function ClassifierPanel() {
               )}
               
               <div className="flex flex-col space-y-1">
-                <div className="flex justify-between text-[#9aa5ce] font-semibold">
+                <div className="flex justify-between text-tokyo-textDim font-semibold">
                   <span>Confiança:</span>
                   <span className="text-tokyo-text font-mono font-bold">{classificationResult.score}%</span>
                 </div>
@@ -270,7 +287,7 @@ export function ClassifierPanel() {
             </div>
           </div>
         ) : (
-          <div className="p-3 bg-tokyo-panel bg-opacity-20 border border-tokyo-border border-opacity-20 rounded-xl flex items-center justify-center text-[10px] text-[#9aa5ce] font-mono gap-1.5">
+          <div className="p-3 bg-tokyo-panel bg-opacity-20 border border-tokyo-border border-opacity-20 rounded-xl flex items-center justify-center text-2xs text-tokyo-textDim font-mono gap-1.5">
             <Sparkles size={14} className="text-tokyo-blue" />
             <span>Projete um texto para ver o neurônio vencedor (BMU) acender no mapa</span>
           </div>

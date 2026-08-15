@@ -305,7 +305,7 @@ export function UMatrixTorus(props: UMatrixTorusProps) {
   const [hoverInfo, setHoverInfo] = useState<HoveredPointInfo | null>(null);
 
   return (
-    <div className="relative w-full h-full min-h-[320px] rounded-xl overflow-hidden bg-[#1a1b26]">
+    <div className="relative w-full h-full min-h-[320px] rounded-xl overflow-hidden bg-tokyo-bg">
       <Canvas
         camera={{ position: [10, 8, 10], fov: 42 }}
         className="w-full h-full"
@@ -334,7 +334,7 @@ export function UMatrixTorus(props: UMatrixTorusProps) {
             top: `${hoverInfo.screenY}px`,
           }}
         >
-          <div className="text-[10px] text-tokyo-magenta font-bold uppercase tracking-wider mb-0.5">
+          <div className="text-2xs text-tokyo-magenta font-bold uppercase tracking-wider mb-0.5">
             🌀 Superfície Toroidal — Neurônio #{hoverInfo.neuronId} ({hoverInfo.row}, {hoverInfo.col})
           </div>
           <div className="text-tokyo-cyan font-bold">

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, memo } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { Maximize2, Minimize2 } from 'lucide-react';
@@ -18,7 +19,18 @@ export const TextHexGrid = memo(function TextHexGrid() {
     lattice,
     getServedTopology,
     getActiveTextModel
-  } = useDashboardStore();
+  } = useDashboardStore(
+    useShallow((s) => ({
+      selectedTextDataset: s.selectedTextDataset,
+      selectedDocId: s.selectedDocId,
+      setSelectedDocId: s.setSelectedDocId,
+      loadingText: s.loadingText,
+      classificationResult: s.classificationResult,
+      lattice: s.lattice,
+      getServedTopology: s.getServedTopology,
+      getActiveTextModel: s.getActiveTextModel,
+    }))
+  );
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   const servedTopology = getServedTopology();
   const [colorMode, setColorMode] = useState<'class' | 'umatrix'>('class');
@@ -162,7 +174,7 @@ export const TextHexGrid = memo(function TextHexGrid() {
               {servedTopology === 'toroid' ? 'Toroide ON' : 'Plana (Sem Karnaugh)'}
             </span>
           </div>
-          <p className="text-[10px] text-tokyo-muted font-mono mt-0.5">
+          <p className="text-2xs text-tokyo-muted font-mono mt-0.5">
             {selectedTextDataset === '20news' 
               ? '4 categorias do dataset 20 Newsgroups (400 documentos)'
               : '6 categorias do dataset 6News com Texto Expandido (317 documentos)'}
@@ -394,28 +406,28 @@ export const TextHexGrid = memo(function TextHexGrid() {
       
       {/* Legend */}
       {colorMode === 'class' ? (
-        <div className="grid grid-cols-5 gap-1.5 mt-4 text-[10px] bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
+        <div className="grid grid-cols-5 gap-1.5 mt-4 text-2xs bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
           {Object.entries(activeColors).map(([name, color]) => (
             <div key={name} className="flex items-center space-x-1 text-tokyo-text">
               <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
               <span className="truncate">{name}</span>
             </div>
           ))}
-          <div className="flex items-center space-x-1 text-[#9aa5ce]">
+          <div className="flex items-center space-x-1 text-tokyo-textDim">
             <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-tokyo-panel border border-dashed border-tokyo-text border-opacity-40" />
             <span>Vazio</span>
           </div>
         </div>
       ) : (
-        <div className="flex justify-between items-center mt-4 text-[10px] bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
-          <span className="text-[#9aa5ce] font-semibold uppercase font-mono">Mais Similar (Valores baixos)</span>
+        <div className="flex justify-between items-center mt-4 text-2xs bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
+          <span className="text-tokyo-textDim font-semibold uppercase font-mono">Mais Similar (Valores baixos)</span>
           <div className="flex flex-col items-center space-y-1">
             <div className="w-24 h-2 rounded bg-gradient-to-r from-[#1a1b26] via-[#bb9af7] to-[#7dcfff] border border-tokyo-border" />
             {viewDimension === '3D' && (
               <span className="text-[9px] text-tokyo-cyan font-mono">Altura Y = Descontinuidade U-Matrix</span>
             )}
           </div>
-          <span className="text-[#9aa5ce] font-semibold uppercase font-mono">Menos Similar (Fronteiras)</span>
+          <span className="text-tokyo-textDim font-semibold uppercase font-mono">Menos Similar (Fronteiras)</span>
         </div>
       )}
     </FullscreenPanel>

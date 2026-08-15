@@ -416,7 +416,7 @@ export function UMatrix3D(props: UMatrix3DProps) {
   const [showWraparoundEdges, setShowWraparoundEdges] = useState(false);
 
   return (
-    <div className="relative w-full h-full min-h-[320px] rounded-xl overflow-hidden bg-[#1a1b26]">
+    <div className="relative w-full h-full min-h-[320px] rounded-xl overflow-hidden bg-tokyo-bg">
       <Canvas
         camera={{ position: [9, 8, 10], fov: 42 }}
         className="w-full h-full"
@@ -448,7 +448,7 @@ export function UMatrix3D(props: UMatrix3DProps) {
         >
           {hoverInfo.isWraparound ? (
             <>
-              <div className="text-[10px] text-tokyo-magenta font-bold uppercase tracking-wider mb-0.5">
+              <div className="text-2xs text-tokyo-magenta font-bold uppercase tracking-wider mb-0.5">
                 🌀 Wraparound Toroidal (N{hoverInfo.neuronId} ↔ N{hoverInfo.targetId})
               </div>
               <div className="text-tokyo-cyan font-bold">
@@ -460,7 +460,7 @@ export function UMatrix3D(props: UMatrix3DProps) {
             </>
           ) : (
             <>
-              <div className="text-[10px] text-tokyo-muted font-bold uppercase tracking-wider mb-0.5">
+              <div className="text-2xs text-tokyo-muted font-bold uppercase tracking-wider mb-0.5">
                 Neurônio #{hoverInfo.neuronId} ({hoverInfo.row}, {hoverInfo.col})
               </div>
               <div className="text-tokyo-cyan font-bold">
@@ -472,7 +472,7 @@ export function UMatrix3D(props: UMatrix3DProps) {
       )}
 
       {/* Floating 3D Controls & Navigation Hint */}
-      <div className="absolute bottom-2 left-3 right-3 pointer-events-none flex items-center justify-between font-mono text-[10px]">
+      <div className="absolute bottom-2 left-3 right-3 pointer-events-none flex items-center justify-between font-mono text-2xs">
         <div className="text-tokyo-muted bg-[#16161e] bg-opacity-80 px-2.5 py-1 rounded border border-tokyo-border border-opacity-30 flex items-center gap-2">
           <span>🖱️ Arraste para girar | Scroll para zoom</span>
           <span className="text-[9px] text-tokyo-cyan bg-tokyo-cyan bg-opacity-10 px-1.5 py-0.5 rounded border border-tokyo-cyan border-opacity-20 font-semibold">

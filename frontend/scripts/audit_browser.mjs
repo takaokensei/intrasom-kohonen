@@ -126,6 +126,9 @@ async function runAudit() {
         // @ts-ignore
         return await axe.run();
       });
+      if (a11yResults.violations.length > 0) {
+        console.log(`[a11y] ${vp.name} violations:`, JSON.stringify(a11yResults.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => ({ target: n.target, html: n.html, data: n.any?.[0]?.data })) })), null, 2));
+      }
       report.a11yIssues[vp.name] = {
         violationsCount: a11yResults.violations.length,
         violations: a11yResults.violations.map(v => ({
@@ -133,6 +136,7 @@ async function runAudit() {
           impact: v.impact,
           description: v.description,
           nodes: v.nodes.length,
+          nodesDetail: v.nodes.map(n => ({ target: n.target, html: n.html, data: n.any?.[0]?.data })),
           helpUrl: v.helpUrl
         }))
       };

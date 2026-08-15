@@ -14,7 +14,7 @@ export default {
           border: "rgba(122, 162, 247, 0.15)",
           text: "#a9b1d6",
           textDim: "#9aa5ce",
-          muted: "#565f89",
+          muted: "#8c9cd2",
           blue: "#7aa2f7",
           cyan: "#7dcfff",
           magenta: "#bb9af7",

@@ -65,18 +65,23 @@ export const ParameterStudyPanel: React.FC = () => {
         <h2 className="text-xs font-semibold uppercase tracking-widest text-tokyo-purple font-mono">
           📊 Estudo de Parâmetros
         </h2>
-        <span className="text-xs text-white/40 ml-auto font-mono">
+        <span className="text-xs text-tokyo-textDim ml-auto font-mono">
           Mapa 10×10 · HEX · Toroid · PCA · Batch
         </span>
       </div>
-      <div className="overflow-x-auto w-full">
+      <div
+        tabIndex={0}
+        role="region"
+        aria-label="Tabela de estudo de sensibilidade de hiperparâmetros"
+        className="overflow-x-auto w-full focus-visible:ring-2 focus-visible:ring-tokyo-purple focus-visible:outline-none"
+      >
         <table className="w-full text-xs font-mono min-w-[580px]">
           <thead>
             <tr className="border-b border-white/10">
               {COLUMNS.map(col => (
                 <th
                   key={col.key}
-                  className={`px-3 py-2 text-white/50 font-semibold uppercase tracking-wide text-${col.align}`}
+                  className={`px-3 py-2 text-tokyo-textDim font-semibold uppercase tracking-wide text-${col.align}`}
                 >
                   {col.label}
                 </th>
@@ -97,7 +102,7 @@ export const ParameterStudyPanel: React.FC = () => {
                       : 'bg-white/[0.02]'
                   }`}
                 >
-                  <td className="px-3 py-2 text-left font-medium text-white/80">
+                  <td className="px-3 py-2 text-left font-medium text-tokyo-text">
                     {entry.label}
                     {active && (
                       <span className="ml-2 px-1.5 py-0.5 rounded text-2xs bg-purple-600/70 text-purple-200 font-bold">
@@ -105,9 +110,9 @@ export const ParameterStudyPanel: React.FC = () => {
                       </span>
                     )}
                   </td>
-                  <td className="px-3 py-2 text-right text-white/60">{entry.total_epochs}</td>
-                  <td className="px-3 py-2 text-right text-white/60">{entry.radius_initial_pct}%</td>
-                  <td className="px-3 py-2 text-right text-white/60">{entry.radius_final}</td>
+                  <td className="px-3 py-2 text-right text-tokyo-text">{entry.total_epochs}</td>
+                  <td className="px-3 py-2 text-right text-tokyo-text">{entry.radius_initial_pct}%</td>
+                  <td className="px-3 py-2 text-right text-tokyo-text">{entry.radius_final}</td>
                   <td className="px-3 py-2 text-right">
                     <span className={`px-2 py-0.5 rounded ${badge(entry.quantization_error, minQE, maxQE)}`}>
                       {entry.quantization_error.toFixed(4)}
@@ -124,7 +129,7 @@ export const ParameterStudyPanel: React.FC = () => {
           </tbody>
         </table>
       </div>
-      <div className="px-4 py-2 border-t border-white/5 text-2xs text-white/40 font-mono">
+      <div className="px-4 py-2 border-t border-white/5 text-2xs text-tokyo-textDim font-mono">
         QE (Erro de Quantização) e TE (Erro Topográfico): valores menores indicam melhor qualidade.
         Linha destacada em roxo = configuração atualmente selecionada nos controles acima.
       </div>

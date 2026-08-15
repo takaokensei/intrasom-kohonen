@@ -84,7 +84,12 @@ export const MetricTable = memo(function MetricTable() {
         </button>
       </div>
       
-      <div className="rounded-lg border border-tokyo-border border-opacity-40 overflow-x-auto w-full">
+      <div
+        tabIndex={0}
+        role="region"
+        aria-label="Tabela comparativa quantitativa de modelos SOM"
+        className="rounded-lg border border-tokyo-border border-opacity-40 overflow-x-auto w-full focus-visible:ring-2 focus-visible:ring-tokyo-blue focus-visible:outline-none"
+      >
         <table className="w-full text-left border-collapse min-w-[700px]">
           <thead>
             <tr className="bg-tokyo-dark bg-opacity-70 text-2xs text-tokyo-textDim font-semibold uppercase font-mono border-b border-tokyo-border">

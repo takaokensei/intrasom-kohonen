@@ -228,20 +228,20 @@ export function ClassifierPanel() {
               </div>
               
               {classificationResult.source === 'local' && (
-                <span className="text-[8px] bg-tokyo-green bg-opacity-20 text-tokyo-green px-1.5 py-0.5 rounded border border-tokyo-green border-opacity-30 font-bold uppercase tracking-normal">Local</span>
+                <span className="text-[9px] bg-tokyo-green bg-opacity-20 text-tokyo-green px-1.5 py-0.5 rounded border border-tokyo-green border-opacity-30 font-bold uppercase tracking-normal">Local</span>
               )}
               {classificationResult.source === 'cloud' && (
-                <span className="text-[8px] bg-tokyo-blue bg-opacity-20 text-tokyo-blue px-1.5 py-0.5 rounded border border-tokyo-blue border-opacity-30 font-bold uppercase tracking-normal">Nuvem HF</span>
+                <span className="text-[9px] bg-tokyo-cyan bg-opacity-20 text-tokyo-cyan px-1.5 py-0.5 rounded border border-tokyo-cyan border-opacity-30 font-bold uppercase tracking-normal">Nuvem HF</span>
               )}
               {classificationResult.source === 'fallback' && (
-                <span className="text-[8px] bg-tokyo-panel text-tokyo-textDim px-1.5 py-0.5 rounded border border-tokyo-border border-opacity-40 font-bold uppercase tracking-normal">Heurística</span>
+                <span className="text-[9px] bg-tokyo-panel text-tokyo-textDim px-1.5 py-0.5 rounded border border-tokyo-border border-opacity-40 font-bold uppercase tracking-normal">Heurística</span>
               )}
             </div>
 
             {/* Middle Row: Big Class Name & Neuron ID */}
             <div className="flex items-baseline justify-between border-b border-tokyo-border border-opacity-15 pb-2">
               <span
-                className="text-base font-extrabold tracking-tight"
+                className="text-xl font-black tracking-tight"
                 style={
                   classificationResult.dominantClass === "Desconhecido"
                     ? { color: '#9aa5ce' }

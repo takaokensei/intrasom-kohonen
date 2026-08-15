@@ -49,7 +49,7 @@ export function SyntheticScreen() {
     : null;
 
   return (
-    <main className="grow flex-shrink-0 p-6 pb-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start relative z-10">
+    <div className="grow flex-shrink-0 p-4 sm:p-6 pb-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start relative z-10">
       <h2 className="sr-only">Análise de Séries Temporais (Synthetic Control)</h2>
 
       {/* Left Area - HexGrid Map & Metrics */}
@@ -155,6 +155,6 @@ export function SyntheticScreen() {
           )}
         </div>
       </aside>
-    </main>
+    </div>
   );
 }

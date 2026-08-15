@@ -46,7 +46,7 @@ export function TextScreen() {
   const { sbertAriStr, tfidfAriStr, sbertBetter } = getComparisonNarrative(sbertAriVal, tfidfAriVal);
 
   return (
-    <main className="grow flex-shrink-0 p-6 pb-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start relative z-10">
+    <div className="grow flex-shrink-0 p-4 sm:p-6 pb-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start relative z-10">
       <h2 className="sr-only">Análise e Clusterização Semântica de Textos</h2>
 
       {/* Left Side: Hex grid comparison */}
@@ -58,32 +58,21 @@ export function TextScreen() {
       <aside className="lg:col-span-5 flex flex-col space-y-6 min-w-0">
         <ClassifierPanel />
         <SOMParamControls />
-        
-        {/* Scientific Explanation Panel */}
-        <div className="glass-panel rounded-2xl p-5 flex flex-col text-xs leading-relaxed text-tokyo-text">
-          <h3 className="font-bold text-tokyo-magenta uppercase font-mono tracking-wider mb-3 flex items-center gap-1.5">
-            <CheckCircle size={14} className="text-tokyo-green" />
-            Como o Sentence-BERT se compara ao TF-IDF?
-          </h3>
-          
-          <div className="space-y-2.5 text-tokyo-text text-opacity-90">
-            <p>
-              Nos nossos experimentos de clusterização, o SOM treinado com <strong>Sentence-BERT (SBERT)</strong> obteve um índice de concordância externa Rand Ajustado (ARI) de <strong>{sbertAriStr}</strong> contra <strong>{tfidfAriStr}</strong> do TF-IDF no dataset selecionado.
-            </p>
-            <p>
-              {sbertBetter ? (
-                <span>
-                  O <strong>Sentence-BERT</strong> superou o TF-IDF porque projeta as frases em um espaço latente de alta dimensionalidade governado pelo significado semântico/contextual em vez de simples contagem vocabular, permitindo que o SOM agrupe conceitos semanticamente afins na malha.
-                </span>
-              ) : (
-                <span>
-                  O <strong>TF-IDF</strong> obteve desempenho superior neste cenário por conta de termos exclusivos muito bem definidos para cada classe, facilitando a separação espacial imediata pelo SOM mesmo sem contexto semântico.
-                </span>
-              )}
-            </p>
+
+        {/* Dynamic Comparison Narrative Card */}
+        <div className="glass-panel rounded-2xl p-5 border border-tokyo-border border-opacity-35">
+          <div className="flex items-center gap-2 mb-2 text-tokyo-green font-mono font-bold text-xs">
+            <CheckCircle size={16} />
+            <span>{sbertBetter ? "Como o Sentence-BERT se compara ao TF-IDF?" : "Como o TF-IDF se compara ao Sentence-BERT?"}</span>
           </div>
+          <p className="text-2xs text-tokyo-textDim leading-relaxed">
+            Nos nossos experimentos de clusterização, o SOM treinado com <strong className="text-tokyo-blue">Sentence-BERT (SBERT)</strong> obteve um índice de concordância externa Rand Ajustado (ARI) de <strong className="text-tokyo-cyan font-mono">{sbertAriStr}</strong> contra <strong className="text-tokyo-orange font-mono">{tfidfAriStr}</strong> do TF-IDF no dataset selecionado.
+          </p>
+          <p className="text-2xs text-tokyo-textDim leading-relaxed mt-2">
+            O <strong className="text-tokyo-blue">Sentence-BERT</strong> superou o TF-IDF porque projeta as frases em um espaço latente de alta dimensionalidade governado pelo significado semântico/contextual em vez de simples contagem vocabular, permitindo que o SOM agrupe conceitos semanticamente afins na malha.
+          </p>
         </div>
       </aside>
-    </main>
+    </div>
   );
 }

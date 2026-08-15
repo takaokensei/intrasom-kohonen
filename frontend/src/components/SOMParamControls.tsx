@@ -199,11 +199,12 @@ export function SOMParamControls() {
         <div className="grid grid-cols-3 gap-2 text-[11px] font-mono">
           {/* Initial Radius */}
           <div className="flex flex-col space-y-1">
-            <span className="text-[9px] text-tokyo-muted uppercase font-semibold">Raio Inicial</span>
+            <span className="text-[9.5px] text-tokyo-textDim uppercase font-semibold">Raio Inicial</span>
             <select
+              aria-label="Raio inicial"
               value={initialRadius}
               onChange={(e) => setInitialRadius(e.target.value as '80%' | '50%' | '100%')}
-              className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-[11px] font-bold focus:outline-none focus:border-tokyo-purple cursor-pointer"
+              className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded-lg p-1.5 text-[11px] font-bold focus:outline-none focus:ring-2 focus:ring-tokyo-purple cursor-pointer min-h-[36px]"
             >
               <option value="80%">80% (Rec.)</option>
               <option value="50%">50%</option>
@@ -213,11 +214,12 @@ export function SOMParamControls() {
 
           {/* Final Radius */}
           <div className="flex flex-col space-y-1">
-            <span className="text-[9px] text-tokyo-muted uppercase font-semibold">Raio Final</span>
+            <span className="text-[9.5px] text-tokyo-textDim uppercase font-semibold">Raio Final</span>
             <select
+              aria-label="Raio final"
               value={finalRadius}
               onChange={(e) => setFinalRadius(e.target.value as '1' | '2')}
-              className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-[11px] font-bold focus:outline-none focus:border-tokyo-purple cursor-pointer"
+              className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded-lg p-1.5 text-[11px] font-bold focus:outline-none focus:ring-2 focus:ring-tokyo-purple cursor-pointer min-h-[36px]"
             >
               <option value="1">1 (Fino)</option>
               <option value="2">2 neurônios</option>
@@ -226,11 +228,12 @@ export function SOMParamControls() {
 
           {/* Epochs */}
           <div className="flex flex-col space-y-1">
-            <span className="text-[9px] text-tokyo-muted uppercase font-semibold">Épocas</span>
+            <span className="text-[9.5px] text-tokyo-textDim uppercase font-semibold">Épocas</span>
             <select
+              aria-label="Épocas de treino"
               value={epochs}
               onChange={(e) => setEpochs(Number(e.target.value) as 500 | 200 | 100)}
-              className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded p-1 text-[11px] font-bold focus:outline-none focus:border-tokyo-purple cursor-pointer"
+              className="bg-tokyo-dark border border-tokyo-border text-tokyo-text rounded-lg p-1.5 text-[11px] font-bold focus:outline-none focus:ring-2 focus:ring-tokyo-purple cursor-pointer min-h-[36px]"
             >
               <option value={500}>500 (Rec.)</option>
               <option value={200}>200 épocas</option>
@@ -248,26 +251,28 @@ export function SOMParamControls() {
             </span>
           </div>
         ) : (
-          <div className="bg-tokyo-dark bg-opacity-50 border border-tokyo-border border-opacity-30 p-2 rounded-lg text-2xs font-mono text-tokyo-muted italic">
+          <div className="bg-tokyo-dark bg-opacity-50 border border-tokyo-border border-opacity-30 p-2 rounded-lg text-2xs font-mono text-tokyo-textDim italic">
             Nenhuma combinação pré-computada para estes valores.
           </div>
         )}
 
-        {/* Functional Scroll-to-Link with Highlight Trigger (Item 2) */}
-        <button
-          type="button"
-          onClick={() => {
-            const el = document.getElementById('parameter-study-panel');
-            if (el) {
-              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              window.dispatchEvent(new CustomEvent('highlight-parameter-study'));
-            }
-          }}
-          className="w-full flex items-center justify-center gap-2 p-2 rounded-lg bg-tokyo-purple bg-opacity-20 border border-tokyo-purple border-opacity-40 text-tokyo-purple hover:bg-opacity-30 hover:border-opacity-60 text-2xs font-mono font-bold transition active-press-scale cursor-pointer"
-        >
-          <ArrowDownCircle size={14} className="animate-bounce" />
-          <span>Rolar até a tabela "Estudo de Parâmetros" & destacar linha</span>
-        </button>
+        {/* Functional Scroll-to-Link with Highlight Trigger (Only on SyntheticScreen) */}
+        {!isTextTab && (
+          <button
+            type="button"
+            onClick={() => {
+              const el = document.getElementById('parameter-study-panel');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                window.dispatchEvent(new CustomEvent('highlight-parameter-study'));
+              }
+            }}
+            className="w-full flex items-center justify-center gap-2 p-2 rounded-lg bg-tokyo-purple bg-opacity-20 border border-tokyo-purple border-opacity-40 text-tokyo-purple hover:bg-opacity-30 hover:border-opacity-60 text-2xs font-mono font-bold transition active-press-scale cursor-pointer"
+          >
+            <ArrowDownCircle size={14} className="animate-bounce" />
+            <span>Rolar até a tabela "Estudo de Parâmetros" & destacar linha</span>
+          </button>
+        )}
       </div>
 
       {/* Active Settings Summary Footer */}

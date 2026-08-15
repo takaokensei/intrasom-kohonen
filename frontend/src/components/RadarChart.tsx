@@ -72,9 +72,9 @@ export const RadarChart = memo(function RadarChart() {
         Trade-Off de Tamanhos do SOM
       </h2>
       
-      <div className="flex-1 flex flex-col md:flex-row items-center justify-between min-h-0">
+      <div className="flex-1 flex flex-col items-center justify-between min-h-0 w-full space-y-4">
         {/* SVG Radar */}
-        <div className="w-[300px] h-[250px] flex-shrink-0 flex items-center justify-center">
+        <div className="w-full max-w-[320px] aspect-[6/5] flex-shrink-0 flex items-center justify-center">
           <svg viewBox="0 0 300 260" className="w-full h-full">
             {/* Grid circles (spiderweb) */}
             {[0.25, 0.5, 0.75, 1.0].map((scale, sIdx) => {
@@ -112,13 +112,13 @@ export const RadarChart = memo(function RadarChart() {
                   />
                   {/* Axis Label */}
                   <text
-                    x={cx + (r + 15) * Math.cos(angle)}
-                    y={cy + (r + 12) * Math.sin(angle) + 4}
+                    x={cx + (r + 18) * Math.cos(angle)}
+                    y={cy + (r + 14) * Math.sin(angle) + 3}
                     textAnchor="middle"
-                    fill="#9aa5ce"
-                    fontSize="10px"
+                    fill="#a9b1d6"
+                    fontSize="9.5px"
                     fontWeight="bold"
-                    className="font-mono uppercase"
+                    className="font-mono uppercase select-none"
                   >
                     {axis.name}
                   </text>
@@ -155,10 +155,10 @@ export const RadarChart = memo(function RadarChart() {
         </div>
 
         {/* Legend Panel & Description */}
-        <div className="flex-1 flex flex-col justify-center space-y-2.5 ml-4 self-stretch text-2xs">
+        <div className="w-full flex flex-col justify-center space-y-2.5 text-2xs">
           <span className="text-tokyo-textDim font-semibold uppercase font-mono tracking-wider">Selecione o Modelo:</span>
           
-          <div className="grid grid-cols-2 gap-1.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
             {somMetrics.map(row => {
               const baseName = row.Modelo.match(/SOM\s+\d+x\d+/)?.[0] || row.Modelo;
               const color = MODEL_COLORS[baseName] || '#7aa2f7';
@@ -167,10 +167,10 @@ export const RadarChart = memo(function RadarChart() {
                   key={row.Modelo}
                   onMouseEnter={() => setHoveredModel(row.Modelo)}
                   onMouseLeave={() => setHoveredModel(null)}
-                  className={`flex items-center space-x-2 p-1.5 rounded border transition-all cursor-pointer ${
+                  className={`flex items-center space-x-2 p-1.5 rounded-lg border transition-all cursor-pointer ${
                     hoveredModel === row.Modelo 
                       ? 'bg-tokyo-panel border-tokyo-blue' 
-                      : 'bg-tokyo-panel bg-opacity-20 border-transparent'
+                      : 'bg-tokyo-panel bg-opacity-20 border-transparent hover:border-tokyo-border'
                   }`}
                 >
                   <span 

@@ -89,26 +89,28 @@ export function ClassifierPanel() {
   return (
     <div className="glass-panel rounded-2xl p-5 flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-4">
         <h2 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider flex items-center gap-1.5">
-          <Sparkles size={15} className="text-tokyo-magenta" />
-          Classificador de Textos em Tempo Real
+          <Sparkles size={15} className="text-tokyo-magenta flex-shrink-0" />
+          <span>Classificador de Textos</span>
         </h2>
         
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <select
+            aria-label="Selecionar dataset de notícias"
             value={selectedTextDataset}
             onChange={(e) => setSelectedTextDataset(e.target.value as '20news' | '6class')}
-            className="bg-tokyo-dark border border-tokyo-border text-2xs font-mono font-bold rounded p-1 text-tokyo-text focus:outline-none focus:border-tokyo-blue cursor-pointer"
+            className="bg-tokyo-dark border border-tokyo-border text-2xs font-mono font-bold rounded-lg px-2 py-1 text-tokyo-text focus:outline-none focus:ring-2 focus:ring-tokyo-blue cursor-pointer"
           >
             <option value="20news">20 Newsgroups (4 classes)</option>
             <option value="6class">Base 6News (6 classes)</option>
           </select>
           
           <select
+            aria-label="Selecionar representação textual"
             value={selectedTextRep}
             onChange={(e) => setSelectedTextRep(e.target.value as 'SBERT' | 'TF-IDF')}
-            className="bg-tokyo-dark border border-tokyo-border text-2xs font-mono font-bold rounded p-1 text-tokyo-text focus:outline-none focus:border-tokyo-blue cursor-pointer"
+            className="bg-tokyo-dark border border-tokyo-border text-2xs font-mono font-bold rounded-lg px-2 py-1 text-tokyo-text focus:outline-none focus:ring-2 focus:ring-tokyo-blue cursor-pointer"
           >
             <option value="SBERT">Sentence-BERT (Semântico)</option>
             <option value="TF-IDF">TF-IDF (Frequencial)</option>
@@ -117,8 +119,8 @@ export function ClassifierPanel() {
       </div>
       
       {/* Backend Status Indicator */}
-      <div className="flex items-center justify-between mb-3 text-[9px] font-mono">
-        <span className="text-tokyo-muted uppercase font-bold">Status da Inferência:</span>
+      <div className="flex items-center justify-between mb-3 text-[9.5px] font-mono">
+        <span className="text-tokyo-textDim uppercase font-bold">Status da Inferência:</span>
         {backendOnline ? (
           <span className="flex items-center gap-1.5 text-tokyo-green font-bold bg-tokyo-green bg-opacity-10 px-2 py-1 rounded-lg border border-tokyo-green border-opacity-35 shadow-[0_0_10px_rgba(16,185,129,0.15)]">
             <span className="w-2 h-2 rounded-full bg-tokyo-green pulse-dot-green" />
@@ -187,11 +189,12 @@ export function ClassifierPanel() {
           </div>
           
           <select
+            aria-label="Selecionar notícia de exemplo do dataset para teste"
             onChange={(e) => {
               const val = e.target.value;
               if (val) handleSampleClick(val);
             }}
-            className="w-full bg-tokyo-dark bg-opacity-50 border border-tokyo-border border-opacity-30 rounded-lg px-2.5 py-2 text-xs text-tokyo-text focus:outline-none focus:border-tokyo-blue cursor-pointer transition-colors"
+            className="w-full bg-tokyo-dark bg-opacity-50 border border-tokyo-border border-opacity-30 rounded-lg px-2.5 py-2 text-xs text-tokyo-text focus:outline-none focus:ring-2 focus:ring-tokyo-blue cursor-pointer transition-colors"
             value={(newsSamples[selectedTextDataset] || []).find(s => s.text === customTextQuery)?.text || ''}
           >
             <option value="" disabled>-- Selecione uma notícia para testar --</option>

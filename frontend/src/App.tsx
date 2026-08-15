@@ -112,39 +112,42 @@ function App() {
           not fetched until the user actually switches to it. Both tabpanel
           elements stay in the DOM for correct ARIA structure; the inactive
           one is simply empty rather than hidden-but-mounted. */}
-      <div
-        role="tabpanel"
-        id="panel-synthetic"
-        aria-labelledby="tab-synthetic"
-        className={`grow flex flex-col ${activeTab === 'synthetic' ? 'animate-tab-change' : 'hidden'}`}
-      >
-        {activeTab === 'synthetic' && (
-          errorSynthetic ? (
-            <ErrorState message={errorSynthetic} onRetry={loadSyntheticData} />
-          ) : (
-            <Suspense fallback={<ScreenFallback />}>
-              <SyntheticScreen />
-            </Suspense>
-          )
-        )}
-      </div>
+      {/* Main content landmark (WCAG AA) */}
+      <main role="main" className="grow flex flex-col">
+        <div
+          role="tabpanel"
+          id="panel-synthetic"
+          aria-labelledby="tab-synthetic"
+          className={`grow flex flex-col ${activeTab === 'synthetic' ? 'animate-tab-change' : 'hidden'}`}
+        >
+          {activeTab === 'synthetic' && (
+            errorSynthetic ? (
+              <ErrorState message={errorSynthetic} onRetry={loadSyntheticData} />
+            ) : (
+              <Suspense fallback={<ScreenFallback />}>
+                <SyntheticScreen />
+              </Suspense>
+            )
+          )}
+        </div>
 
-      <div
-        role="tabpanel"
-        id="panel-text"
-        aria-labelledby="tab-text"
-        className={`grow flex flex-col ${activeTab === 'text' ? 'animate-tab-change' : 'hidden'}`}
-      >
-        {activeTab === 'text' && (
-          errorText ? (
-            <ErrorState message={errorText} onRetry={loadTextData} />
-          ) : (
-            <Suspense fallback={<ScreenFallback />}>
-              <TextScreen />
-            </Suspense>
-          )
-        )}
-      </div>
+        <div
+          role="tabpanel"
+          id="panel-text"
+          aria-labelledby="tab-text"
+          className={`grow flex flex-col ${activeTab === 'text' ? 'animate-tab-change' : 'hidden'}`}
+        >
+          {activeTab === 'text' && (
+            errorText ? (
+              <ErrorState message={errorText} onRetry={loadTextData} />
+            ) : (
+              <Suspense fallback={<ScreenFallback />}>
+                <TextScreen />
+              </Suspense>
+            )
+          )}
+        </div>
+      </main>
 
       {/* Footer bar */}
       <footer className="px-6 py-3 bg-tokyo-dark bg-opacity-90 border-t border-tokyo-border text-3xs text-tokyo-textDim font-semibold flex flex-col md:flex-row justify-between items-center gap-2 md:gap-0 text-center md:text-left z-10">

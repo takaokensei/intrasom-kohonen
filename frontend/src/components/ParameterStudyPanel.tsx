@@ -69,8 +69,8 @@ export const ParameterStudyPanel: React.FC = () => {
           Mapa 10×10 · HEX · Toroid · PCA · Batch
         </span>
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-xs font-mono">
+      <div className="overflow-x-auto w-full">
+        <table className="w-full text-xs font-mono min-w-[580px]">
           <thead>
             <tr className="border-b border-white/10">
               {COLUMNS.map(col => (

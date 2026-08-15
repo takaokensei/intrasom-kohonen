@@ -1,5 +1,10 @@
 import type { TextModel } from '../store/useDashboardStore';
 
+export interface PCAParameters {
+  mean: number[];
+  components: number[][];
+}
+
 export interface BMUResult {
   bestNeuronId: number;
   dominantClass: string;

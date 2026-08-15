@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { projectAndFindBMU } from '../lib/pca';
-import { classifyByKeywords } from '../lib/keywordClassifier';
+import { fetchSyntheticData, fetchTextData, checkBackendHealth } from '../lib/dataLoader';
+import { classifyTextPure } from '../lib/classification';
 
 export type TabType = 'synthetic' | 'text';
 
@@ -264,23 +264,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
     set({ loadingSynthetic: true, errorSynthetic: null });
     try {
-      const [seriesRes, modelsRes, metricsRes, studyRes] = await Promise.all([
-        fetch('/data/series.json'),
-        fetch('/data/som_models.json'),
-        fetch('/data/metrics.json'),
-        fetch('/data/parameter_study.json').catch(() => null),
-      ]);
-
-      if (!seriesRes.ok || !modelsRes.ok || !metricsRes.ok) {
-        throw new Error('HTTP status error loading synthetic control files');
-      }
-
-      const series = await seriesRes.json();
-      const somModels = await modelsRes.json();
-      const metrics = await metricsRes.json();
-      const paramStudyResults: ParameterStudyEntry[] =
-        studyRes && studyRes.ok ? await studyRes.json() : [];
-
+      const { series, somModels, metrics, paramStudyResults } = await fetchSyntheticData();
       set({ series, somModels, metrics, paramStudyResults, loadingSynthetic: false });
     } catch (err) {
       console.error('Error loading synthetic control data:', err);
@@ -331,7 +315,6 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   },
 
   loadTextData: async () => {
-
     if (Object.keys(get().newsSamples).length > 0) {
       get().checkBackend();
       return; // Already loaded
@@ -339,22 +322,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     
     set({ loadingText: true, errorText: null });
     try {
-      const [modelsRes, metricsRes, samplesRes, pcaRes] = await Promise.all([
-        fetch('/data/text_models.json'),
-        fetch('/data/text_metrics.json'),
-        fetch('/data/news_samples.json'),
-        fetch('/data/pca_params.json')
-      ]);
-      
-      if (!modelsRes.ok || !metricsRes.ok || !samplesRes.ok || !pcaRes.ok) {
-        throw new Error("HTTP status error loading text SOM files");
-      }
-      
-      const textModels = await modelsRes.json();
-      const textMetrics = await metricsRes.json();
-      const newsSamples = await samplesRes.json();
-      const pcaParams = await pcaRes.json();
-      
+      const { textModels, textMetrics, newsSamples, pcaParams } = await fetchTextData();
       set({ textModels, textMetrics, newsSamples, pcaParams, loadingText: false });
       get().checkBackend();
     } catch (err) {
@@ -374,118 +342,31 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   setCustomTextQuery: (customTextQuery) => set({ customTextQuery }),
   
   classifyText: async (text) => {
-    if (!text.trim()) {
-      set({ classificationResult: null });
-      return;
-    }
-    
-    const rep = get().selectedTextRep;
-    const dataset = get().selectedTextDataset;
-    
-    // 1. Try to fetch from FastAPI local backend
-    try {
-      const response = await fetch('http://127.0.0.1:8000/classify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, representation: rep, dataset, lattice: get().lattice })
-      });
-      
-      if (response.ok) {
-        const result = await response.json();
-        set({
-          classificationResult: {
-            bmu: result.bmu,
-            dominantClass: result.dominantClass,
-            purity: result.purity,
-            score: result.score,
-            source: 'local'
-          },
-          backendOnline: true
-        });
-        return;
-      }
-    } catch {
-      // Backend is offline, try cloud HF Inference API for SBERT
-    }
-    
-    // 2. Try Hugging Face Inference API for SBERT (Cloud-based real embedding projection)
-    if (rep === 'SBERT') {
-      try {
-        const headers: Record<string, string> = {
-          'Content-Type': 'application/json'
-        };
-        
-        const token = import.meta.env.VITE_HF_TOKEN;
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-        }
-        
-        // Unified proxy URL: handled by Vite middleware in dev and Vercel Serverless Function in production
-        const url = '/api/hf-sbert';
-          
-        const hfResponse = await fetch(url, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({ inputs: text })
-        });
-        
-        if (hfResponse.ok) {
-          const emb = await hfResponse.json(); // Array of 384 floats
-          const pcaParamsObj = get().pcaParams;
-          const pca = pcaParamsObj ? pcaParamsObj[dataset] : null;
-          const model = get().getActiveTextModel();
-          
-          if (Array.isArray(emb) && emb.length === 384 && pca && model) {
-            const bmuResult = projectAndFindBMU(emb, pca, model, get().lattice === 'RECT');
-            set({
-              classificationResult: {
-                bmu: bmuResult.bestNeuronId,
-                dominantClass: bmuResult.dominantClass,
-                purity: bmuResult.purity,
-                score: bmuResult.score,
-                source: 'cloud'
-              },
-              backendOnline: false
-            });
-            return;
-          }
-        }
-      } catch (hfErr) {
-        console.error("Hugging Face Inference API failed:", hfErr);
-      }
-    }
-    
-    // 3. Client-side fallback matching (Heuristics)
+    const { selectedTextRep, selectedTextDataset, lattice, pcaParams, newsSamples } = get();
     const model = get().getActiveTextModel();
-    if (!model) return;
-    
-    const samples = get().newsSamples[dataset] || [];
-    const fallbackResult = classifyByKeywords(text, samples, model);
-    
+    const hfToken = import.meta.env.VITE_HF_TOKEN;
+
+    const outcome = await classifyTextPure({
+      text,
+      representation: selectedTextRep,
+      dataset: selectedTextDataset,
+      lattice,
+      model,
+      pcaParams: pcaParams ? pcaParams[selectedTextDataset] : null,
+      newsSamples: newsSamples[selectedTextDataset] || [],
+      hfToken,
+    });
+
     set({
-      classificationResult: {
-        bmu: fallbackResult.bmu,
-        dominantClass: fallbackResult.dominantClass,
-        purity: fallbackResult.purity,
-        score: fallbackResult.score,
-        source: 'fallback'
-      },
-      backendOnline: false
+      classificationResult: outcome.classificationResult,
+      backendOnline: outcome.backendOnline,
     });
   },
   
   resetClassification: () => set({ classificationResult: null, customTextQuery: '' }),
   
   checkBackend: async () => {
-    try {
-      const response = await fetch('http://127.0.0.1:8000/health');
-      if (response.ok) {
-        set({ backendOnline: true });
-        return;
-      }
-    } catch {
-      // Offline
-    }
-    set({ backendOnline: false });
+    const isOnline = await checkBackendHealth();
+    set({ backendOnline: isOnline });
   }
 }));

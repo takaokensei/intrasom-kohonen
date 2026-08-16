@@ -12,18 +12,19 @@ const MODEL_COLORS: Record<string, string> = {
 };
 
 export const RadarChart = memo(function RadarChart() {
-  const { metrics, loadingSynthetic, lattice, getServedTopology } = useDashboardStore(
+  const { metrics, loadingSynthetic, lattice, topology, getServedTopology } = useDashboardStore(
     useShallow((s) => ({
       metrics: s.metrics,
       loadingSynthetic: s.loadingSynthetic,
       lattice: s.lattice,
+      topology: s.topology,
       getServedTopology: s.getServedTopology,
     }))
   );
   const [hoveredModel, setHoveredModel] = useState<string | null>(null);
 
   const activeLattice = lattice;
-  const activeTopology = getServedTopology();
+  const activeTopology = topology === 'toroid' ? 'toroid' : getServedTopology();
   const activeVariant = `${activeLattice}_${activeTopology}`;
 
   if (loadingSynthetic || metrics.length === 0) {

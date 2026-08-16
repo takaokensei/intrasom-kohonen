@@ -14,13 +14,14 @@ import { UMatrixTorus } from './UMatrixTorus';
 // Main HexGrid component
 // ──────────────────────────────────────────────────────────
 export const HexGrid = memo(function HexGrid() {
-  const { selectedMapSize, selectedNeuronId, setSelectedNeuronId, loadingSynthetic, lattice, getServedTopology, series, getActiveSOMModel } = useDashboardStore(
+  const { selectedMapSize, selectedNeuronId, setSelectedNeuronId, loadingSynthetic, lattice, topology, getServedTopology, series, getActiveSOMModel } = useDashboardStore(
     useShallow((s) => ({
       selectedMapSize: s.selectedMapSize,
       selectedNeuronId: s.selectedNeuronId,
       setSelectedNeuronId: s.setSelectedNeuronId,
       loadingSynthetic: s.loadingSynthetic,
       lattice: s.lattice,
+      topology: s.topology,
       getServedTopology: s.getServedTopology,
       series: s.series,
       getActiveSOMModel: s.getActiveSOMModel,
@@ -213,7 +214,7 @@ export const HexGrid = memo(function HexGrid() {
             Malha {lattice === 'HEX' ? 'Hexagonal (HEX)' : 'Retangular (RECT)'} Kohonen ({selectedMapSize})
           </h2>
           <span className={`text-[9px] font-mono px-2 py-0.5 rounded border font-semibold ${
-            servedTopology === 'toroid'
+            topology === 'toroid' || servedTopology === 'toroid'
               ? 'bg-tokyo-magenta bg-opacity-10 text-tokyo-magenta border-tokyo-magenta border-opacity-30'
               : 'bg-tokyo-yellow bg-opacity-10 text-tokyo-yellow border-tokyo-yellow border-opacity-30'
           }`}>

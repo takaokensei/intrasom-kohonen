@@ -6,18 +6,19 @@ import { Maximize2, Minimize2 } from 'lucide-react';
 import { FullscreenPanel } from './FullscreenPanel';
 
 export const MetricTable = memo(function MetricTable() {
-  const { metrics, loadingSynthetic, lattice, getServedTopology } = useDashboardStore(
+  const { metrics, loadingSynthetic, lattice, topology, getServedTopology } = useDashboardStore(
     useShallow((s) => ({
       metrics: s.metrics,
       loadingSynthetic: s.loadingSynthetic,
       lattice: s.lattice,
+      topology: s.topology,
       getServedTopology: s.getServedTopology,
     }))
   );
   const { isFullscreen, toggleFullscreen } = useFullscreen();
 
   const activeLattice = lattice;
-  const activeTopology = getServedTopology();
+  const activeTopology = topology === 'toroid' ? 'toroid' : getServedTopology();
   const activeVariant = `${activeLattice}_${activeTopology}`;
 
   const filteredMetrics = useMemo(() => {

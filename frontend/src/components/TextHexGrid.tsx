@@ -12,21 +12,25 @@ import { UMatrixTorus } from './UMatrixTorus';
 export const TextHexGrid = memo(function TextHexGrid() {
   const { 
     selectedTextDataset, 
+    selectedTextRep,
     selectedDocId, 
     setSelectedDocId, 
     loadingText, 
     classificationResult,
     lattice,
+    topology,
     getServedTopology,
     getActiveTextModel
   } = useDashboardStore(
     useShallow((s) => ({
       selectedTextDataset: s.selectedTextDataset,
+      selectedTextRep: s.selectedTextRep,
       selectedDocId: s.selectedDocId,
       setSelectedDocId: s.setSelectedDocId,
       loadingText: s.loadingText,
       classificationResult: s.classificationResult,
       lattice: s.lattice,
+      topology: s.topology,
       getServedTopology: s.getServedTopology,
       getActiveTextModel: s.getActiveTextModel,
     }))
@@ -162,16 +166,19 @@ export const TextHexGrid = memo(function TextHexGrid() {
 
       <div className="flex justify-between items-center mb-4">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-sm font-bold text-tokyo-text uppercase font-mono tracking-wider">
               Malha {lattice === 'HEX' ? 'Hexagonal (HEX)' : 'Retangular (RECT)'} - Notícias (10x10)
             </h2>
             <span className={`text-[9px] font-mono px-2 py-0.5 rounded border font-semibold ${
-              servedTopology === 'toroid'
+              topology === 'toroid' || servedTopology === 'toroid'
                 ? 'bg-tokyo-magenta bg-opacity-10 text-tokyo-magenta border-tokyo-magenta border-opacity-30'
                 : 'bg-tokyo-yellow bg-opacity-10 text-tokyo-yellow border-tokyo-yellow border-opacity-30'
             }`}>
               {servedTopology === 'toroid' ? 'Toroide ON' : 'Plana (Sem Karnaugh)'}
+            </span>
+            <span className="text-[9px] font-mono px-2 py-0.5 rounded border border-tokyo-blue border-opacity-30 bg-tokyo-blue bg-opacity-10 text-tokyo-blue font-bold uppercase">
+              {selectedTextRep}
             </span>
           </div>
           <p className="text-2xs text-tokyo-muted font-mono mt-0.5">

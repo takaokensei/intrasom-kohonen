@@ -84,7 +84,10 @@ export function ClassifierPanel() {
     );
   }
 
-  const currentMetrics = textMetrics[selectedTextDataset]?.[selectedTextRep === 'SBERT' ? 'SBERT' : 'TF_IDF'] || { ARI: 0, NMI: 0 };
+  const currentMetrics = textMetrics[selectedTextDataset]?.[selectedTextRep] 
+    || textMetrics[selectedTextDataset]?.[selectedTextRep.replace('-', '_')] 
+    || textMetrics[selectedTextDataset]?.[selectedTextRep === 'SBERT' ? 'SBERT' : 'TF_IDF'] 
+    || { ARI: 0, NMI: 0 };
 
   return (
     <div className="glass-panel rounded-2xl p-5 flex flex-col h-full overflow-hidden">
@@ -109,11 +112,13 @@ export function ClassifierPanel() {
           <select
             aria-label="Selecionar representação textual"
             value={selectedTextRep}
-            onChange={(e) => setSelectedTextRep(e.target.value as 'SBERT' | 'TF-IDF')}
+            onChange={(e) => setSelectedTextRep(e.target.value as 'SBERT' | 'TF-IDF' | 'BGE-M3' | 'Gemma-300M')}
             className="bg-tokyo-dark border border-tokyo-border text-2xs font-mono font-bold rounded-lg px-2 py-1 text-tokyo-text focus:outline-none focus:ring-2 focus:ring-tokyo-blue cursor-pointer"
           >
-            <option value="SBERT">Sentence-BERT (Semântico)</option>
-            <option value="TF-IDF">TF-IDF (Frequencial)</option>
+            <option value="SBERT">Sentence-BERT (384d)</option>
+            <option value="TF-IDF">TF-IDF (LSA 20d)</option>
+            <option value="BGE-M3">BGE-M3 (SOTA 1024d)</option>
+            <option value="Gemma-300M">Gemma-300M (768d)</option>
           </select>
         </div>
       </div>

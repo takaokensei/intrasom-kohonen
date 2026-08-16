@@ -1,0 +1,146 @@
+[
+  {
+    "dataset_name": "20news",
+    "representation_name": "BGE-M3",
+    "variant": "HEX_toroid",
+    "ARI": 0.066825183974803,
+    "NMI": 0.4372843851809801,
+    "QE": 3.433729025202772,
+    "TE": 0.015
+  },
+  {
+    "dataset_name": "20news",
+    "representation_name": "BGE-M3",
+    "variant": "HEX_planar",
+    "ARI": 0.07097955460567489,
+    "NMI": 0.4317784738320766,
+    "QE": 3.302074345823298,
+    "TE": 0.005
+  },
+  {
+    "dataset_name": "20news",
+    "representation_name": "BGE-M3",
+    "variant": "RECT_toroid",
+    "ARI": 0.06255866749660538,
+    "NMI": 0.4201218117080407,
+    "QE": 3.4532011288550417,
+    "TE": 0.025
+  },
+  {
+    "dataset_name": "20news",
+    "representation_name": "BGE-M3",
+    "variant": "RECT_planar",
+    "ARI": 0.07410034126321206,
+    "NMI": 0.4337802673321253,
+    "QE": 3.3186972428060644,
+    "TE": 0.015
+  },
+  {
+    "dataset_name": "6class",
+    "representation_name": "BGE-M3",
+    "variant": "HEX_toroid",
+    "ARI": 0.1580118978580671,
+    "NMI": 0.5866443361039325,
+    "QE": 3.267274175939243,
+    "TE": 0.006309148264984227
+  },
+  {
+    "dataset_name": "6class",
+    "representation_name": "BGE-M3",
+    "variant": "HEX_planar",
+    "ARI": 0.14126972190005863,
+    "NMI": 0.5759274588381441,
+    "QE": 3.0947678131758467,
+    "TE": 0.01892744479495268
+  },
+  {
+    "dataset_name": "6class",
+    "representation_name": "BGE-M3",
+    "variant": "RECT_toroid",
+    "ARI": 0.1569314788120402,
+    "NMI": 0.5893423863507598,
+    "QE": 3.284542940199162,
+    "TE": 0.0031545741324921135
+  },
+  {
+    "dataset_name": "6class",
+    "representation_name": "BGE-M3",
+    "variant": "RECT_planar",
+    "ARI": 0.1557527400846785,
+    "NMI": 0.5878091379715993,
+    "QE": 3.1272349026569253,
+    "TE": 0.012618296529968454
+  },
+  {
+    "dataset_name": "20news",
+    "representation_name": "Gemma-300M",
+    "variant": "HEX_toroid",
+    "ARI": 0.07092533265981629,
+    "NMI": 0.4409513341560709,
+    "QE": 3.3597510807617437,
+    "TE": 0.0225
+  },
+  {
+    "dataset_name": "20news",
+    "representation_name": "Gemma-300M",
+    "variant": "HEX_planar",
+    "ARI": 0.07282357667360108,
+    "NMI": 0.44812600049188495,
+    "QE": 3.2084063516873043,
+    "TE": 0.01
+  },
+  {
+    "dataset_name": "20news",
+    "representation_name": "Gemma-300M",
+    "variant": "RECT_toroid",
+    "ARI": 0.07836207646454325,
+    "NMI": 0.4483919933212544,
+    "QE": 3.3590475715963635,
+    "TE": 0.015
+  },
+  {
+    "dataset_name": "20news",
+    "representation_name": "Gemma-300M",
+    "variant": "RECT_planar",
+    "ARI": 0.07522754121074414,
+    "NMI": 0.44676655886911715,
+    "QE": 3.2179801469377174,
+    "TE": 0.0075
+  },
+  {
+    "dataset_name": "6class",
+    "representation_name": "Gemma-300M",
+    "variant": "HEX_toroid",
+    "ARI": 0.1609060284258529,
+    "NMI": 0.5942746356537408,
+    "QE": 3.183151143238525,
+    "TE": 0.015772870662460567
+  },
+  {
+    "dataset_name": "6class",
+    "representation_name": "Gemma-300M",
+    "variant": "HEX_planar",
+    "ARI": 0.15136286342848876,
+    "NMI": 0.5832557036629377,
+    "QE": 2.9623950403685497,
+    "TE": 0.006309148264984227
+  },
+  {
+    "dataset_name": "6class",
+    "representation_name": "Gemma-300M",
+    "variant": "RECT_toroid",
+    "ARI": 0.1417574899780458,
+    "NMI": 0.5755180269402232,
+    "QE": 3.206775616115402,
+    "TE": 0.0031545741324921135
+  },
+  {
+    "dataset_name": "6class",
+    "representation_name": "Gemma-300M",
+    "variant": "RECT_planar",
+    "ARI": 0.1508177333426261,
+    "NMI": 0.5890551574314545,
+    "QE": 2.9620377468280545,
+    "TE": 0.0031545741324921135
+  }
+]

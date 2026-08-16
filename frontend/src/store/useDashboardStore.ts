@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { fetchSyntheticData, fetchTextData, checkBackendHealth } from '../lib/dataLoader';
 import { classifyTextPure } from '../lib/classification';
+import type { PCAParameters } from '../lib/pca';
 
 export type TabType = 'synthetic' | 'text';
 
@@ -144,7 +145,7 @@ interface DashboardState {
   highlightedClass: string | null;
   
   // Text SOM
-  selectedTextRep: 'SBERT' | 'TF-IDF';
+  selectedTextRep: 'SBERT' | 'TF-IDF' | 'BGE-M3' | 'Gemma-300M';
   selectedDocId: number | null;
   customTextQuery: string;
   classificationResult: {
@@ -155,7 +156,7 @@ interface DashboardState {
     source: 'local' | 'cloud' | 'fallback';
   } | null;
   backendOnline: boolean | null;
-  pcaParams: Record<string, { mean: number[]; components: number[][] }> | null;
+  pcaParams: Record<string, PCAParameters | Record<string, PCAParameters>> | null;
   errorSynthetic: string | null;
   errorText: string | null;
   
@@ -181,7 +182,7 @@ interface DashboardState {
   setSelectedMapSize: (size: '5x5' | '7x7' | '10x10' | '12x12' | '15x15' | '20x20') => void;
   setSelectedNeuronId: (id: number | null) => void;
   setHighlightedClass: (className: string | null) => void;
-  setSelectedTextRep: (rep: 'SBERT' | 'TF-IDF') => void;
+  setSelectedTextRep: (rep: 'SBERT' | 'TF-IDF' | 'BGE-M3' | 'Gemma-300M') => void;
   setSelectedDocId: (id: number | null) => void;
   setCustomTextQuery: (query: string) => void;
   classifyText: (text: string) => void;
@@ -346,13 +347,20 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     const model = get().getActiveTextModel();
     const hfToken = import.meta.env.VITE_HF_TOKEN;
 
+    const dsPca = pcaParams?.[selectedTextDataset];
+    const activePca: PCAParameters | null = dsPca
+      ? ('mean' in dsPca 
+          ? (dsPca as PCAParameters) 
+          : ((dsPca as Record<string, PCAParameters>)[selectedTextRep] ?? (dsPca as Record<string, PCAParameters>)['SBERT'] ?? null))
+      : null;
+
     const outcome = await classifyTextPure({
       text,
       representation: selectedTextRep,
       dataset: selectedTextDataset,
       lattice,
       model,
-      pcaParams: pcaParams ? pcaParams[selectedTextDataset] : null,
+      pcaParams: activePca,
       newsSamples: newsSamples[selectedTextDataset] || [],
       hfToken,
     });

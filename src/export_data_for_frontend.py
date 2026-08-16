@@ -349,7 +349,7 @@ def export_all():
         docs, text_labels = dinfo["load_fn"]()
         num_docs = len(docs)
         
-        for rep in ["TF-IDF", "SBERT"]:
+        for rep in ["TF-IDF", "SBERT", "BGE-M3", "Gemma-300M"]:
             # 1. HEX_toroid
             toroid_nf = os.path.join(maps_dir, f"SOM_Text_{dname}_{rep}_neurons.parquet")
             toroid_rf = os.path.join(maps_dir, f"SOM_Text_{dname}_{rep}_results.parquet")
@@ -398,18 +398,22 @@ def export_all():
         json.dump(text_models, f, ensure_ascii=False)
     print("Exported text_models.json")
     
-    # 5. Export PCA parameters for BOTH SBERT models
+    # 5. Export PCA parameters for ALL embedding models (SBERT, BGE-M3, Gemma-300M)
     pca_params_combined = {}
     for dname in ["20news", "6class"]:
-        try:
-            with open(os.path.join(maps_dir, f"{dname}_sbert_pca.pkl"), "rb") as f:
-                pca = pickle.load(f)
-            pca_params_combined[dname] = {
-                "mean": pca.mean_.tolist(),
-                "components": pca.components_.tolist()
-            }
-        except Exception as e:
-            print(f"Error loading PCA for {dname}: {e}")
+        pca_params_combined[dname] = {}
+        for rep_key, pkl_prefix in [("SBERT", "sbert"), ("BGE-M3", "bgem3"), ("Gemma-300M", "gemma300m")]:
+            pkl_path = os.path.join(maps_dir, f"{dname}_{pkl_prefix}_pca.pkl")
+            if os.path.exists(pkl_path):
+                try:
+                    with open(pkl_path, "rb") as f:
+                        pca = pickle.load(f)
+                    pca_params_combined[dname][rep_key] = {
+                        "mean": pca.mean_.tolist(),
+                        "components": pca.components_.tolist()
+                    }
+                except Exception as e:
+                    print(f"Error loading PCA for {dname} {rep_key}: {e}")
             
     with open(os.path.join(public_data_dir, "pca_params.json"), "w", encoding="utf-8") as f:
         json.dump(pca_params_combined, f, ensure_ascii=False)
@@ -421,6 +425,27 @@ def export_all():
         text_metrics = json.load(open(text_metrics_file))
     else:
         text_metrics = {}
+
+    # Merge new embedding metrics if available
+    new_metrics_file = os.path.join(metrics_dir, "new_embeddings_metrics.json")
+    if os.path.exists(new_metrics_file):
+        new_metrics_list = json.load(open(new_metrics_file))
+        for item in new_metrics_list:
+            d_name = item.get("dataset_name")
+            r_name = item.get("representation_name")
+            v_name = item.get("variant")
+            if v_name == "HEX_toroid" and d_name and r_name:
+                if d_name not in text_metrics:
+                    text_metrics[d_name] = {}
+                text_metrics[d_name][r_name] = {
+                    "ARI": item.get("ARI", 0.0),
+                    "NMI": item.get("NMI", 0.0)
+                }
+                # Also support underscore version for backwards compatibility
+                text_metrics[d_name][r_name.replace("-", "_")] = {
+                    "ARI": item.get("ARI", 0.0),
+                    "NMI": item.get("NMI", 0.0)
+                }
         
     with open(os.path.join(public_data_dir, "text_metrics.json"), "w", encoding="utf-8") as f:
         json.dump(text_metrics, f, ensure_ascii=False)

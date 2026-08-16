@@ -15,7 +15,7 @@ export interface ClassificationResult {
 
 export interface ClassifyParams {
   text: string;
-  representation: 'SBERT' | 'TF-IDF';
+  representation: 'SBERT' | 'TF-IDF' | 'BGE-M3' | 'Gemma-300M';
   dataset: '20news' | '6class';
   lattice: 'HEX' | 'RECT';
   model: TextModel | null;

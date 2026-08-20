@@ -21,7 +21,6 @@ async function testAll4Embeddings() {
 
     const badgeText = await page.locator('span:has-text("' + rep + '")').first().textContent();
     const fills = await page.locator('svg polygon').evaluateAll(els => els.map(e => e.getAttribute('fill')));
-    const dominantClasses = await page.locator('svg text').allTextContents();
 
     console.log(`\n[${rep}]`);
     console.log(`  Badge confirmed: ${badgeText}`);

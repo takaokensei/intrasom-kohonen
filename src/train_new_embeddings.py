@@ -99,15 +99,25 @@ def train_single_variant(X_emb, labels, dataset_name, rep_name, var_name, lattic
     if callable(te):
         te = te()
 
-    # Calcular ARI e NMI a partir do results_dataframe
+    # Calcular ARI e NMI agrupando os neurônios em k classes via K-Means (ClusterFactory),
+    # idêntico ao procedimento de benchmark do IntraSOM em src/evaluate_clusters.py e src/text_som_clustering.py
+    from intrasom.clustering import ClusterFactory
+    k = len(np.unique(labels))
+    set_global_seed(GLOBAL_SEED)
+    cf = ClusterFactory(som)
+    neuron_clusters = cf.kmeans(k=k)  # 2D array (rows, cols) com rótulos de cluster 1..k
+    cols = som.mapsize[0]
     results_df = som.results_dataframe
-    bmus = results_df["BMU"].values
-    ari = float(adjusted_rand_score(labels, bmus))
-    nmi = float(normalized_mutual_info_score(labels, bmus))
+    sample_clusters = np.array([
+        neuron_clusters[(bmu - 1) // cols, (bmu - 1) % cols]
+        for bmu in results_df["BMU"].values
+    ])
+    ari = float(adjusted_rand_score(labels, sample_clusters))
+    nmi = float(normalized_mutual_info_score(labels, sample_clusters))
 
     move_results_for_model(model_name)
 
-    print(f"    [{var_name:12s}] ARI: {ari:.4f} | NMI: {nmi:.4f} | QE: {qe:.4f} | TE: {te:.4f}")
+    print(f"    [{var_name:12s}] (k={k}) ARI: {ari:.4f} | NMI: {nmi:.4f} | QE: {qe:.4f} | TE: {te:.4f}")
 
     return {
         "dataset_name": dataset_name,
@@ -180,8 +190,35 @@ def main():
     with open(metrics_summary_path, "w", encoding="utf-8") as f:
         json.dump(all_metrics, f, indent=2)
 
+    # Atualizar text_clustering_comparison.json com as métricas do HEX_toroid
+    comp_file = os.path.join(METRICS_DIR, "text_clustering_comparison.json")
+    if os.path.exists(comp_file):
+        with open(comp_file, "r", encoding="utf-8") as f:
+            comp_metrics = json.load(f)
+    else:
+        comp_metrics = {}
+
+    for item in all_metrics:
+        d_name = item["dataset_name"]
+        r_name = item["representation_name"]
+        v_name = item["variant"]
+        if v_name == "HEX_toroid":
+            if d_name not in comp_metrics:
+                comp_metrics[d_name] = {}
+            comp_metrics[d_name][r_name.replace("-", "_")] = {
+                "ARI": item["ARI"],
+                "NMI": item["NMI"]
+            }
+            comp_metrics[d_name][r_name] = {
+                "ARI": item["ARI"],
+                "NMI": item["NMI"]
+            }
+
+    with open(comp_file, "w", encoding="utf-8") as f:
+        json.dump(comp_metrics, f, indent=4)
+
     print("\n" + "=" * 70)
-    print(f"Treinamento concluído com sucesso! Métricas salvas em: {metrics_summary_path}")
+    print(f"Treinamento concluído com sucesso! Métricas salvas em: {metrics_summary_path} e {comp_file}")
     print("=" * 70)
 
 

@@ -1,0 +1,21 @@
+{
+  "dataset": "eurlex57k",
+  "num_samples": 5000,
+  "metrics": {
+    "TF_IDF": {
+      "QE": 3.5664304265056037,
+      "TE": 0.0
+    },
+    "SBERT": {
+      "QE": 4.25020640408095,
+      "TE": 0.0
+    }
+  },
+  "eurovoc_graph": {
+    "num_nodes": 100,
+    "num_edges": 1380,
+    "num_communities": 3,
+    "modularity": 0.11157682668753655
+  },
+  "som_communities_count": 100
+}

@@ -23,6 +23,9 @@ frontend/vercel-variables.json
 # though we want to keep outputs/ figures and metrics for visualization)
 # If data files are large, we can ignore raw datasets
 data/synthetic_control.data
+data/text/
+outputs/maps/*.npy
+
 
 # OS
 .DS_Store

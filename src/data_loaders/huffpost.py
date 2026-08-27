@@ -1,4 +1,4 @@
-﻿import os
+import os
 import json
 import pandas as pd
 import numpy as np
@@ -14,21 +14,24 @@ def load_huffpost_data(
     Carrega o dataset HuffPost News Category.
     """
     workspace_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    parquet_path = os.path.join(workspace_dir, "data", "text", "huffpost_dataset.parquet")
     if file_path is None:
         file_path = os.path.join(workspace_dir, "data", "text", "News_Category_Dataset_v3.json")
 
-    if not os.path.exists(file_path):
-        print(f"Aviso: HuffPost nao encontrado em {file_path}.")
+    if os.path.exists(parquet_path):
+        print(f"Carregando HuffPost do parquet otimizado: {parquet_path}...")
+        df = pd.read_parquet(parquet_path)
+    elif os.path.exists(file_path):
+        print(f"Carregando HuffPost do JSON: {file_path}...")
+        rows = []
+        with open(file_path, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    rows.append(json.loads(line))
+        df = pd.DataFrame(rows)
+    else:
+        print(f"Aviso: HuffPost nao encontrado em {parquet_path} nem em {file_path}.")
         return pd.DataFrame()
-
-    print(f"Carregando HuffPost de: {file_path}...")
-    rows = []
-    with open(file_path, "r", encoding="utf-8") as f:
-        for line in f:
-            if line.strip():
-                rows.append(json.loads(line))
-
-    df = pd.DataFrame(rows)
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
     df["year"] = df["date"].dt.year
     df["text"] = (df["headline"].fillna("") + ". " + df["short_description"].fillna("")).str.strip()

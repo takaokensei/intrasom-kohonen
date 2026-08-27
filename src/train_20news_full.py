@@ -1,4 +1,4 @@
-﻿"""
+"""
 Treinamento do IntraSOM no 20 Newsgroups Completo (20 classes, ~18k documentos).
 Suporta TF-IDF+LSA, SBERT, BGE-M3 e Gemma-300M com avaliacao harmonizada (k=20).
 """
@@ -102,6 +102,22 @@ def get_or_compute_embeddings(
     return X_20d.astype(np.float32), pca
 
 
+def get_som_metric(som, attr_name):
+    val = getattr(som, attr_name, 0.0)
+    return float(val() if callable(val) else val)
+
+def get_som_params(som):
+    return {
+        "mapsize": list(som.mapsize),
+        "mapshape": som.mapshape,
+        "lattice": getattr(som.codebook, "lattice", "hexa"),
+        "neighborhood": "gaussian",
+        "normalization": "var",
+        "initialization": "pca",
+        "training": "batch",
+        "name": getattr(som, "name", "SOM_Model")
+    }
+
 def train_and_eval_som(
     X_20d: np.ndarray,
     labels: np.ndarray,
@@ -123,8 +139,9 @@ def train_and_eval_som(
     df_data.columns = [f"Dim_{i+1}" for i in range(20)]
     df_data.index = [f"Doc_{i+1}" for i in range(num_docs)]
 
+    np.random.seed(GLOBAL_SEED)
     som = intrasom.SOMFactory.build(
-        df_data,
+        data=df_data,
         mapsize=grid_size,
         mapshape=mapshape,
         lattice=lattice,
@@ -132,16 +149,17 @@ def train_and_eval_som(
         initialization="pca",
         neighborhood="gaussian",
         training="batch",
-        seed=GLOBAL_SEED,
-        verbose=False
+        name=f"SOM_Text_20news_full_{rep_name}",
+        sample_names=list(df_data.index)
     )
-    som.train()
+    som.train(previous_epoch=True)
 
-    results_df = som.results
-    neurons_df = som.codebook.neurons
+    results_df = som.results_dataframe
+    neurons_df = som.neurons_dataframe
 
     # 1. K-Means superclustering (k=20) sobre BMUs
-    cf = intrasom.clustering.ClusterFactory(som)
+    from intrasom.clustering import ClusterFactory
+    cf = ClusterFactory(som)
     k_clusters = len(np.unique(labels))
     neuron_clusters = cf.kmeans(k=k_clusters)
     cols = som.mapsize[0]
@@ -152,8 +170,8 @@ def train_and_eval_som(
 
     ari = float(adjusted_rand_score(labels, sample_clusters))
     nmi = float(normalized_mutual_info_score(labels, sample_clusters))
-    qe = float(som.calculate_quantization_error())
-    te = float(som.calculate_topographic_error())
+    qe = get_som_metric(som, "calculate_quantization_error")
+    te = get_som_metric(som, "calculate_topographic_error")
 
     # 2. Entropia local
     entropy_grid, entropy_dict = calculate_local_neuron_entropy(results_df, labels, grid_size)
@@ -170,7 +188,7 @@ def train_and_eval_som(
     neurons_df.to_parquet(neurons_file)
     results_df.to_parquet(results_file)
     with open(params_file, "w", encoding="utf-8") as f:
-        json.dump(som.params, f, indent=2)
+        json.dump(get_som_params(som), f, indent=2)
 
     return {
         "ARI": ari,

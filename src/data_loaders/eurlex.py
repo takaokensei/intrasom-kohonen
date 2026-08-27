@@ -1,4 +1,4 @@
-﻿import os
+import os
 import json
 import pandas as pd
 from pathlib import Path
@@ -18,12 +18,19 @@ def load_eurlex57k(root_dir: Optional[str] = None) -> pd.DataFrame:
     Carrega o dataset EURLEX57K a partir da pasta de splits.
     """
     workspace_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    parquet_path = os.path.join(workspace_dir, "data", "text", "eurlex_dataset.parquet")
+    if os.path.exists(parquet_path):
+        print(f"Carregando EUR-Lex do parquet otimizado: {parquet_path}...")
+        df = pd.read_parquet(parquet_path)
+        print(f"EURLEX57K: Carregados {len(df)} documentos.")
+        return df
+
     if root_dir is None:
         root_dir = os.path.join(workspace_dir, "data", "text", "EURLEX57K")
 
     root = Path(root_dir)
     if not root.exists():
-        print(f"Aviso: EURLEX57K nao encontrado em {root_dir}.")
+        print(f"Aviso: EURLEX57K nao encontrado em {root_dir} nem em {parquet_path}.")
         return pd.DataFrame()
 
     rows = []

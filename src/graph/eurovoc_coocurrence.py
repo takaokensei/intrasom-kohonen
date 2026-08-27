@@ -1,4 +1,4 @@
-﻿"""
+"""
 Grafo de Coocorrencia EUROVOC para EURLEX57K (Codigo 22 do Guia).
 """
 from itertools import combinations
@@ -28,3 +28,25 @@ def build_eurovoc_coocurrence_graph(
             G_labels.add_edge(a, b, weight=weight)
 
     return G_labels
+
+def analyze_eurovoc_modularity(G: nx.Graph) -> dict:
+    if len(G) == 0:
+        return {"num_nodes": 0, "num_edges": 0, "num_communities": 0, "modularity": 0.0}
+    try:
+        from networkx.algorithms.community import greedy_modularity_communities, modularity
+        comms = list(greedy_modularity_communities(G))
+        q = float(modularity(G, comms)) if comms and len(G.edges) > 0 else 0.0
+        return {
+            "num_nodes": len(G.nodes),
+            "num_edges": len(G.edges),
+            "num_communities": len(comms),
+            "modularity": q
+        }
+    except Exception:
+        return {
+            "num_nodes": len(G.nodes),
+            "num_edges": len(G.edges),
+            "num_communities": 1,
+            "modularity": 0.0
+        }
+

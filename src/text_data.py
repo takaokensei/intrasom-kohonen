@@ -84,3 +84,30 @@ def load_6class_data():
     docs = df['Texto Expandido'].fillna(df['Texto Original']).fillna('').astype(str).tolist()
     labels = np.array(df['CleanCategory'].tolist())
     return docs, labels
+
+
+def load_20news_full(subset: str = 'all', remove: tuple = ('headers', 'footers', 'quotes'), min_len: int = 50):
+    """
+    Loads the full 20 Newsgroups dataset (all 20 categories, ~18.8k documents).
+    Filters out short or empty documents according to min_len.
+    """
+    print(f"Fetching full 20 Newsgroups dataset (subset='{subset}')...")
+    raw = fetch_20newsgroups(
+        subset=subset,
+        remove=remove,
+        shuffle=True,
+        random_state=42
+    )
+    docs = []
+    labels = []
+    target_names = raw.target_names
+
+    for text, label_idx in zip(raw.data, raw.target):
+        t_clean = text.strip()
+        if len(t_clean) >= min_len:
+            docs.append(t_clean)
+            labels.append(target_names[label_idx])
+
+    print(f"  Loaded {len(docs)} documents across {len(np.unique(labels))} categories.")
+    return docs, np.array(labels)
+

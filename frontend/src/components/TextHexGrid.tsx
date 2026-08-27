@@ -3,7 +3,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { Maximize2, Minimize2 } from 'lucide-react';
-import { getClassColor, TEXT_CLASS_COLORS, getUMatrixColor } from '../lib/colors';
+import { getClassColor, TEXT_CLASS_COLORS, getUMatrixColor, getEntropyColor } from '../lib/colors';
 import { getHexPoints, computeContiguousHexRadius, getHexCenter } from '../lib/geometry';
 import { FullscreenPanel } from './FullscreenPanel';
 import { UMatrix3D } from './UMatrix3D';
@@ -37,7 +37,7 @@ export const TextHexGrid = memo(function TextHexGrid() {
   );
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   const servedTopology = getServedTopology();
-  const [colorMode, setColorMode] = useState<'class' | 'umatrix'>('class');
+  const [colorMode, setColorMode] = useState<'class' | 'umatrix' | 'entropy'>('class');
   const [viewDimension, setViewDimension] = useState<'2D' | '3D'>('2D');
   const [threeModeOverride, setThreeModeOverride] = useState<'terrain' | 'torus' | null>(null);
 
@@ -56,6 +56,8 @@ export const TextHexGrid = memo(function TextHexGrid() {
   const padding = 20;
   const svgWidth = isFullscreen ? 800 : 500;
   const svgHeight = isFullscreen ? 550 : 380;
+
+  const maxEntropy = selectedTextDataset === '20news' ? 2.0 : 2.585;
 
   const { r, minUMatrixVal, maxUMatrixVal, neuronLayouts, interstitialCells, offsetX, offsetY } = useMemo(() => {
     if (!neurons || neurons.length === 0) {
@@ -192,15 +194,22 @@ export const TextHexGrid = memo(function TextHexGrid() {
           <div className="flex rounded border border-tokyo-border overflow-hidden">
             <button
               onClick={() => setColorMode('class')}
-              className={`px-3 py-1 text-xs transition active-press-scale ${colorMode === 'class' ? 'bg-tokyo-blue text-tokyo-bg font-semibold' : 'bg-tokyo-panel text-tokyo-text hover:bg-opacity-80'}`}
+              className={`px-2.5 py-1 text-xs transition active-press-scale ${colorMode === 'class' ? 'bg-tokyo-blue text-tokyo-bg font-semibold' : 'bg-tokyo-panel text-tokyo-text hover:bg-opacity-80'}`}
             >
               Classes
             </button>
             <button
               onClick={() => setColorMode('umatrix')}
-              className={`px-3 py-1 text-xs transition active-press-scale ${colorMode === 'umatrix' ? 'bg-tokyo-blue text-tokyo-bg font-semibold' : 'bg-tokyo-panel text-tokyo-text hover:bg-opacity-80'}`}
+              className={`px-2.5 py-1 text-xs transition active-press-scale ${colorMode === 'umatrix' ? 'bg-tokyo-blue text-tokyo-bg font-semibold' : 'bg-tokyo-panel text-tokyo-text hover:bg-opacity-80'}`}
             >
               U-Matrix
+            </button>
+            <button
+              onClick={() => setColorMode('entropy')}
+              className={`px-2.5 py-1 text-xs transition active-press-scale ${colorMode === 'entropy' ? 'bg-tokyo-cyan text-tokyo-bg font-semibold' : 'bg-tokyo-panel text-tokyo-text hover:bg-opacity-80'}`}
+              title="Entropia de Shannon local por neurônio (identifica fronteiras conceituais)"
+            >
+              Entropia
             </button>
           </div>
 
@@ -330,6 +339,10 @@ export const TextHexGrid = memo(function TextHexGrid() {
                   if (neuron.total_samples > 0) {
                     fill = getClassColor(selectedTextDataset, neuron.dominant_class);
                   }
+                } else if (colorMode === 'entropy') {
+                  fill = neuron.total_samples > 0 
+                    ? getEntropyColor(neuron.entropy ?? 0, maxEntropy)
+                    : '#1a1b26';
                 } else {
                   fill = getUMatrixColor(neuron.umatrix_value, minUMatrixVal, maxUMatrixVal);
                 }
@@ -357,7 +370,7 @@ export const TextHexGrid = memo(function TextHexGrid() {
                         height={r * 1.7}
                         rx={4}
                         fill={fill}
-                        fillOpacity={neuron.total_samples === 0 && colorMode === 'class' ? 0.2 : 0.8}
+                        fillOpacity={neuron.total_samples === 0 && colorMode !== 'umatrix' ? 0.2 : 0.85}
                         stroke={stroke}
                         strokeWidth={strokeWidth}
                         className="hex-polygon transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80"
@@ -366,7 +379,7 @@ export const TextHexGrid = memo(function TextHexGrid() {
                       <polygon
                         points={pointsStr}
                         fill={fill}
-                        fillOpacity={neuron.total_samples === 0 && colorMode === 'class' ? 0.2 : 0.8}
+                        fillOpacity={neuron.total_samples === 0 && colorMode !== 'umatrix' ? 0.2 : 0.85}
                         stroke={stroke}
                         strokeWidth={strokeWidth}
                         className="hex-polygon transition-all duration-200 group-hover:fill-opacity-100 group-hover:stroke-tokyo-blue group-hover:stroke-opacity-80"
@@ -401,7 +414,8 @@ export const TextHexGrid = memo(function TextHexGrid() {
                       {`Neurônio N${neuron.id} (${neuron.col}, ${neuron.row})\n` +
                        `Classe Dominante: ${neuron.dominant_class}\n` +
                        `Amostras: ${neuron.total_samples}\n` +
-                       `Pureza: ${(neuron.purity * 100).toFixed(0)}%`}
+                       `Pureza: ${(neuron.purity * 100).toFixed(0)}%\n` +
+                       `Entropia Local H: ${(neuron.entropy ?? 0).toFixed(3)} bits`}
                     </title>
                   </g>
                 );
@@ -425,6 +439,21 @@ export const TextHexGrid = memo(function TextHexGrid() {
             <span>Vazio</span>
           </div>
         </div>
+      ) : colorMode === 'entropy' ? (
+        <div className="flex justify-between items-center mt-4 text-2xs bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35 font-mono">
+          <div className="flex items-center space-x-1.5">
+            <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#2ac3de' }} />
+            <span className="text-tokyo-cyan font-bold">H = 0.0 bits (Puro / Mono-classe)</span>
+          </div>
+          <div className="flex flex-col items-center space-y-1">
+            <div className="w-36 h-2 rounded bg-gradient-to-r from-[#2ac3de] via-[#e0af68] to-[#f7768e] border border-tokyo-border" />
+            <span className="text-[9px] text-tokyo-muted">Gradiente de Entropia de Shannon</span>
+          </div>
+          <div className="flex items-center space-x-1.5">
+            <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#f7768e' }} />
+            <span className="text-tokyo-red font-bold">H &gt; 1.5 bits (Alta Mistura / Fronteira)</span>
+          </div>
+        </div>
       ) : (
         <div className="flex justify-between items-center mt-4 text-2xs bg-tokyo-dark bg-opacity-30 p-2.5 rounded-lg border border-tokyo-border border-opacity-35">
           <span className="text-tokyo-textDim font-semibold uppercase font-mono">Mais Similar (Valores baixos)</span>
@@ -440,3 +469,4 @@ export const TextHexGrid = memo(function TextHexGrid() {
     </FullscreenPanel>
   );
 });
+

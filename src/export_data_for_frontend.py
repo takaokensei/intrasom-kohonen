@@ -310,6 +310,13 @@ def export_all():
             bmu_totals = int(totals.get(bmu_idx, 0))
             bmu_dominant = dominant_class.get(bmu_idx, "Nenhum") if bmu_totals > 0 else "Vazio"
             bmu_purity = float(purity.get(bmu_idx, 0))
+
+            if bmu_idx in counts.index and bmu_totals > 0:
+                probs = counts.loc[bmu_idx].values / bmu_totals
+                probs = probs[probs > 0]
+                bmu_entropy = float(-np.sum(probs * np.log2(probs)))
+            else:
+                bmu_entropy = 0.0
             
             doc_indices = [int(i.split("_")[1]) - 1 for i in results_df_copy[results_df_copy['BMU'] == bmu_idx].index]
             
@@ -329,6 +336,7 @@ def export_all():
                 "umatrix_value": float(umat[r_idx][c_idx]),
                 "dominant_class": bmu_dominant,
                 "purity": bmu_purity,
+                "entropy": bmu_entropy,
                 "total_samples": bmu_totals,
                 "doc_indices": doc_indices,
                 "codebook": codebook

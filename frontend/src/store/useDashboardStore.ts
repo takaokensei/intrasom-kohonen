@@ -96,6 +96,7 @@ export interface TextNeuronItem {
   umatrix_value: number;
   dominant_class: string;
   purity: number;
+  entropy?: number;
   total_samples: number;
   doc_indices: number[];
   codebook?: number[];

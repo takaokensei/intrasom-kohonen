@@ -75,3 +75,27 @@ export const getUMatrixColor = (val: number, min: number, max: number) => {
   }
 };
 
+/**
+ * Retorna cor contínua para a Entropia Local do Neurônio H(n).
+ * - H = 0 (puro / mono-classe): ciano (#2ac3de)
+ * - H moderado (transição): amarelo (#e0af68) / laranja (#ff9e64)
+ * - H alto (máxima mistura): vermelho vivo / magenta (#f7768e)
+ */
+export const getEntropyColor = (entropy: number, maxEntropy: number = 2.0): string => {
+  const norm = maxEntropy > 0 ? Math.min(1, Math.max(0, entropy / maxEntropy)) : 0;
+  if (norm < 0.5) {
+    const factor = norm * 2;
+    const r = Math.floor(42 + (224 - 42) * factor);
+    const g = Math.floor(195 + (175 - 195) * factor);
+    const b = Math.floor(222 + (104 - 222) * factor);
+    return `rgb(${r}, ${g}, ${b})`;
+  } else {
+    const factor = (norm - 0.5) * 2;
+    const r = Math.floor(224 + (247 - 224) * factor);
+    const g = Math.floor(175 + (118 - 175) * factor);
+    const b = Math.floor(104 + (142 - 104) * factor);
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+};
+
+

@@ -1,4 +1,4 @@
-﻿"""
+"""
 Busca Semantica Global vs. Busca Topologica via BMU (Secao 12 do Guia).
 """
 import numpy as np
@@ -41,7 +41,8 @@ def search_topological_som(
             if 0 <= nr < rows and 0 <= nc < cols:
                 candidate_bmus.add(nr * cols + nc + 1)
 
-    candidate_doc_indices = results_df[results_df["BMU"].isin(candidate_bmus)].index.values
+    match_mask = results_df["BMU"].isin(candidate_bmus).values
+    candidate_doc_indices = np.where(match_mask)[0]
     if len(candidate_doc_indices) == 0:
         return search_semantic_global(query_emb, doc_embs, top_k=top_k)
 
@@ -50,3 +51,4 @@ def search_topological_som(
     rel_top = np.argsort(sims)[::-1][:top_k]
     
     return [(int(candidate_doc_indices[i]), float(sims[i])) for i in rel_top]
+
